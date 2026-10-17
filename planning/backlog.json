@@ -47,6 +47,11 @@
       "name": "sticker:priority-2",
       "color": "d93f0b",
       "description": "Evidence and reproducibility after the first flow"
+    },
+    {
+      "name": "sticker:fetch",
+      "color": "c2e0c6",
+      "description": "Optional Fetch/ASI:One lookup and voluntary feedback demo"
     }
   ],
   "milestones": [
@@ -64,7 +69,7 @@
   "issues": [
     {
       "id": "T0",
-      "title": "Agree internal types and one shared fixture",
+      "title": "Maintain shared v2 contracts and synthetic fixtures for parallel work",
       "owner_role": "C",
       "depends_on": [],
       "milestone": "modules",
@@ -72,11 +77,12 @@
         "sticker:planning",
         "sticker:priority-1"
       ],
-      "body_file": "planning/issues/T0.md"
+      "body_file": "planning/issues/T0.md",
+      "integration_depends_on": []
     },
     {
       "id": "T1",
-      "title": "Verify Photon beta group stickers and private delivery",
+      "title": "Verify Photon beta sticker access and private delivery independently",
       "owner_role": "A",
       "depends_on": [],
       "milestone": "modules",
@@ -84,54 +90,53 @@
         "sticker:photon",
         "sticker:priority-1"
       ],
-      "body_file": "planning/issues/T1.md"
+      "body_file": "planning/issues/T1.md",
+      "integration_depends_on": []
     },
     {
       "id": "T2",
-      "title": "Implement normalized Photon receive and private send",
+      "title": "Build a mock-testable Photon ingress and private-send adapter",
       "owner_role": "A",
-      "depends_on": [
-        "T0",
-        "T1"
-      ],
+      "depends_on": [],
       "milestone": "modules",
       "labels": [
         "sticker:photon",
         "sticker:priority-1"
       ],
-      "body_file": "planning/issues/T2.md"
+      "body_file": "planning/issues/T2.md",
+      "integration_depends_on": [
+        "T1"
+      ]
     },
     {
       "id": "T3",
-      "title": "Implement one multimodal sticker interpretation call",
+      "title": "Build the one-call multimodal interpreter and candidate policy",
       "owner_role": "B",
-      "depends_on": [
-        "T0"
-      ],
+      "depends_on": [],
       "milestone": "modules",
       "labels": [
         "sticker:model",
         "sticker:priority-1"
       ],
-      "body_file": "planning/issues/T3.md"
+      "body_file": "planning/issues/T3.md",
+      "integration_depends_on": []
     },
     {
       "id": "T4",
-      "title": "Implement context selection and enrollment routing",
+      "title": "Build persistent context snapshots, profiles and safe private outbox",
       "owner_role": "C",
-      "depends_on": [
-        "T0"
-      ],
+      "depends_on": [],
       "milestone": "modules",
       "labels": [
         "sticker:workflow",
         "sticker:priority-1"
       ],
-      "body_file": "planning/issues/T4.md"
+      "body_file": "planning/issues/T4.md",
+      "integration_depends_on": []
     },
     {
       "id": "T5",
-      "title": "Connect one real sticker to one private explanation",
+      "title": "Integrate and verify automatic sticker explanations on real phones",
       "owner_role": "C",
       "depends_on": [
         "T2",
@@ -143,36 +148,55 @@
         "sticker:integration",
         "sticker:priority-1"
       ],
-      "body_file": "planning/issues/T5.md"
+      "body_file": "planning/issues/T5.md",
+      "integration_depends_on": []
     },
     {
       "id": "T6",
-      "title": "Evaluate context benefit and uncertainty",
+      "title": "Build an independent context and personalization evaluation harness",
       "owner_role": "B",
-      "depends_on": [
-        "T3"
-      ],
+      "depends_on": [],
       "milestone": "demo",
       "labels": [
         "sticker:evaluation",
         "sticker:priority-2"
       ],
-      "body_file": "planning/issues/T6.md"
+      "body_file": "planning/issues/T6.md",
+      "integration_depends_on": [
+        "T3",
+        "T4"
+      ]
     },
     {
       "id": "T7",
-      "title": "Package reproducible setup and the working demo",
+      "title": "Package reproducible setup and a clearly labeled demo",
       "owner_role": "C",
-      "depends_on": [
-        "T5",
-        "T6"
-      ],
+      "depends_on": [],
       "milestone": "demo",
       "labels": [
         "sticker:integration",
         "sticker:priority-2"
       ],
-      "body_file": "planning/issues/T7.md"
+      "body_file": "planning/issues/T7.md",
+      "integration_depends_on": [
+        "T5",
+        "T6"
+      ]
+    },
+    {
+      "id": "T8",
+      "title": "Optional Fetch/ASI:One agent: retrieve explanations and save feedback",
+      "owner_role": "D",
+      "depends_on": [],
+      "integration_depends_on": [
+        "T4"
+      ],
+      "milestone": "demo",
+      "labels": [
+        "sticker:fetch",
+        "sticker:priority-2"
+      ],
+      "body_file": "planning/issues/T8.md"
     }
   ]
 }

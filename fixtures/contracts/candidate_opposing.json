@@ -1,0 +1,10 @@
+{
+  "candidates": [
+    "They probably enjoyed the joke.",
+    "They may be sarcastically saying the joke was not funny."
+  ],
+  "candidate_relation": "opposing",
+  "rankable": true,
+  "context_cue": "The preceding reply supports amusement more strongly.",
+  "uncertainty_caveat": "The exact tone is unclear; sarcasm is still possible."
+}
