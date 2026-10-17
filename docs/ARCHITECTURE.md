@@ -1,6 +1,6 @@
 # Product architecture and feasibility checks
 
-Publication scope: this methodology review includes planning/interface documentation, not the local application source. Prototype behavior and tests mentioned below were observed in the working tree; T0/T7 track publishing that source and teammate reproduction.
+> Publication scope: planning and synthetic fixtures only. References to the local backend describe separate workspace work; its application source is not included in this revision.
 
 Approved conversation → Photon adapter → context/enrollment checks → multimodal interpreter → validated explanation → private Photon delivery.
 
@@ -27,3 +27,7 @@ Process each supported incoming sticker in an explicitly enabled conversation au
 ## Evaluation
 
 Compare image-only and image-plus-context calls using the same model and examples. Reserve some examples until final evaluation. Measure delivery time, comprehension, and confidently wrong interpretations; record sample count and limitations.
+
+## Optional Fetch entry point
+
+D13 adds a separate ASI:One saved-explanation lookup and voluntary-feedback adapter. It reads a saved result or writes an exchange-specific evaluation record through an authorized backend boundary; it does not reinterpret the sticker or enter the automatic Photon path. T8 can implement and test this against a fake backend while T4 supplies real scoped operations later. See [DELEGATION.md](DELEGATION.md) for independent file ownership and final integration.

@@ -1,12 +1,12 @@
 # Sticker interpreter: product decisions and methodology
 
+> Publication scope: planning and synthetic fixtures only. References to the local backend describe separate workspace work; its application source is not included in this revision.
+
 Updated: October 17, 2026 (America/Los_Angeles).
 
 Status: agreed product decisions plus explicitly labeled recommendations and implementation defaults. A local backend prototype now implements the fixture workflow; see PLANS.md for actual verification. Live Photon access and model accuracy are not established by this document.
 
 ## How to use this document
-
-Publication scope: this issue-methodology review publishes planning and interface documentation only. Application code, tests, runtime files and image assets remain local; T0/T7 track publication and teammate reproduction. See [METHODOLOGY_UPDATE.md](../planning/METHODOLOGY_UPDATE.md).
 
 Read this document before implementing product behavior. The confirmed decisions below record the user's choices in the project discussion. Later direct user instructions take precedence. Recommendations and open questions are not additional confirmed requirements.
 
@@ -36,12 +36,15 @@ The central experience is automatic: the recipient does not open a separate AI i
 | D10 | In the first working version, store validations for evaluation rather than automatically reusing them in future interpretations. | Live requests use the sticker, bounded chat context, recipient preferences, and applicable relationship. Keep prior validation records out of live model inputs. Test whether selective feedback reuse improves accuracy before adopting it. |
 | D11 | Prefer a longer database conversation history and separately stored context-window instances. | Preserve observed messages beyond the current N-message window. Freeze a separate request snapshot for each sticker and enrolled recipient so later history or settings updates do not rewrite the original inputs. Exact storage technology and production retention are implementation matters. |
 | D12 | Maintain context across time gaps. | Do not impose a maximum-age or inactivity cutoff on the preceding-message window. Keep timestamps so temporal gaps remain visible; the N-message bound still applies. |
+| D13 | Include an optional Fetch/ASI:One demo that retrieves a saved explanation and records voluntary feedback. | Keep it separate from automatic Photon interpretation. A user may ask about saved demo exchange demo-3 or select a shown interpretation; the agent performs an authorized stored-result lookup or scoped feedback write, without reinterpreting the sticker. |
 
 Sources: D01 follows the user's choice to explain every sticker without additional input. D02 revises the earlier plan to show two plausible meanings in ambiguous cases. D03 follows the user's selection of the single-best-guess-with-caveat option. D04 and D05 record voluntary later validation and the choice that limits overgeneralization. D06 records the settings choice and the subsequent selection of three controls in priority order. D07 records the documentation request. D08 records the user's confirmation of a limited preceding-message window and subsequent preference for around 20–25 messages.
 
 D09 and D10 record the user's agreement with the proposed user-context model, including the recommendation to store validations for evaluation in the first version. This accepts the conceptual design and initial reuse policy, not a database implementation or a proven accuracy improvement.
 
 D11 and D12 record the user's subsequent preference for a longer database history with separate context windows and their instruction to maintain context across time. The user asked to end extended product questioning and move into building; remaining unknowns below are implementation work unless further input is essential.
+
+D13 records the user's explicit approval of the optional saved-explanation/feedback Fetch demo while Photon explanations remain automatic. Task T8 defines the concrete prompts and mockable backend operations. This approval does not establish a working ASI:One registration or sponsor eligibility.
 
 ## Interpretation and presentation policy
 
@@ -181,7 +184,7 @@ The exact feedback controls, whether to include "neither" or "not sure," similar
 
 Existing repository guidance starts with one channel, static stickers, one backend, one existing multimodal model, and private delivery to an enrolled recipient. Exact supported media and actual access require testing.
 
-The current working direction is Photon plus a multimodal LLM. Fetch is not required for automatic interpretation and is outside the working MVP. This reflects the recommendation after the user questioned a separate ASI:One interaction, rather than a claim that the user issued an irreversible technology decision. Reconsidering Fetch must preserve D01 and separately resolve its challenge eligibility requirements.
+The core working direction is Photon plus one multimodal LLM request. D13 adds a separate optional Fetch/ASI:One entry point for saved-explanation lookup and voluntary feedback. It neither triggers nor blocks automatic explanations and does not reinterpret the image. ASI:One may use conversational/tool orchestration for that optional interaction. Its account, discovery and challenge-eligibility requirements still need verification; a local fake backend is sufficient to start the independent adapter task.
 
 Photon 2.0 beta is the target. Prior research found that iMessage groups require a dedicated line and that private inline annotations beneath existing messages are unverified. The candidate MVP uses a private assistant thread. Treat platform access and actual sticker support as verification dependencies, not finished features.
 
@@ -240,3 +243,4 @@ All entries below were recorded October 17, 2026 from this conversation. These a
 10. Agreed with the proposed user-context model: separate recipient preferences, sender–recipient relationships, and scoped validation records. Adopted the recommendation to store validations for evaluation in the first working version, with live reuse deferred pending testing. Exact schemas and storage/retention choices remain open; Q11 introduces the next storage discussion.
 11. Preferred around 20–25 preceding messages and asked about rolling-buffer versus longer-history tradeoffs. Recorded that storage and model-context selection are independent. Revised the storage recommendation toward limited persistent recent history with deterministic N-message selection; no retention policy or database technology has been approved. Content size, media handling, and context age remain open under Q12.
 12. Selected longer database history with separately saved context-window instances and instructed maintaining context across time. Asked to stop extended planning and move into creating the project. Recorded D11/D12 and began the local backend, using the explicit implementation defaults above while keeping live integration and accuracy work separate.
+13. Approved an optional Fetch/ASI:One saved-explanation lookup and voluntary-feedback demo, while preserving automatic Photon explanations. Split development prerequisites from later live integration and requested durable updates to the planning source and GitHub issues with independently delegable tasks.

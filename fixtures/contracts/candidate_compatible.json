@@ -1,0 +1,10 @@
+{
+  "candidates": [
+    "They probably found the joke very funny.",
+    "They may also be playfully encouraging more jokes."
+  ],
+  "candidate_relation": "compatible",
+  "rankable": true,
+  "context_cue": "The sticker follows a joke and a positive reply.",
+  "uncertainty_caveat": "These meanings are plausible, not confirmed sender intent."
+}

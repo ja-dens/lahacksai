@@ -1,40 +1,37 @@
-# October 17 methodology and issue update
+# October 17 parallel-task and methodology update
 
-This update revises the existing T0–T7 issues rather than creating another backlog. It preserves issue state, assignees, comments, milestones, labels, notes outside managed sections, and previously checked work.
+The source of truth is docs/PRODUCT_SPEC.md plus planning/backlog.json and planning/issues/. The parent-folder STICKER_PROJECT_PLAN.md contributes the original project/module structure; later confirmed D01–D13 supersede its rolling-only buffer, simplified output policy and older dependencies. This update retains existing issues T0–T7 (#1–#8) and adds one optional T8, rather than replacing the backlog.
 
-## Agreed method
+## Method carried from the planning discussion
 
-- Automatically explain every incoming sticker in an enabled conversation; no per-sticker AI request or required feedback.
-- Keep longer database history and separately save an immutable context window per sticker and recipient. Use the target sticker/text plus 20–25 preceding same-chat messages, default 25, with no age cutoff, subsequent replies, or unrestricted old-history retrieval.
-- Separate recipient language/length preferences, sender–recipient relationships, and scoped validation records. Initial validation storage is for evaluation only; do not automatically reuse it or infer a broad personal trait.
-- Show two strongest plausible meanings only when compatible. For a rankable opposing pair, show the best-supported meaning with an uncertainty caveat; do not force a weaker third interpretation. Use an honest fallback when evidence is insufficient.
-- Keep one backend/one model call in the initial path and private routing outside the model. Deduplicate source events rather than image identity.
+- Explain every incoming sticker automatically in enabled conversations, with one backend and one multimodal request per sticker/recipient. No per-sticker user query or mandatory feedback.
+- Keep longer database history and freeze a separate immutable snapshot per sticker/recipient. Select target image/text plus up to 20–25 preceding same-chat messages, default 25, without an age cutoff, later replies or broad old-history retrieval.
+- Load declared language/length preferences and sender–recipient relationship separately. Store voluntary exchange-specific feedback for evaluation only; do not infer a broad trait or treat recipient judgment as sender confirmation.
+- Show the strongest two meanings only when compatible. For rankable opposing meanings show the best-supported one with an uncertainty caveat. Do not manufacture a weaker third choice.
+- D13 adds an optional ASI:One prompt to retrieve a saved explanation or record scoped feedback. It does not enter automatic Photon processing or call the sticker interpreter again.
 
-## Progress and remaining work
+## Independent work and final handoff
 
-A local workspace prototype implements the Jac/SQLite foundation, synthetic fixture, private outbox, and replaceable API-key model adapter. Reverification for this update passed 21 backend tests, 11 publisher tests and the publisher dry run. Those results use fake interpretations/mock HTTP and do not establish live vision accuracy or phone delivery. The local application-source estimate was 77.4% Jac under src/, excluding tests/tooling/docs/dependencies.
+Every task states inputs, outputs, owned files, mock strategy, standalone command, done criteria and integration handoff. Only T5's final live completion requires finished components. Other tasks can complete their local deliverables with the published synthetic examples and substitutes.
 
-The review branch for this issue update publishes planning definitions and methodology/interface documentation only. Application source, test code, runtime dependencies and synthetic image assets remain in the working tree and are not included in this planning-only change. T0/T7 explicitly track publication and teammate reproduction. Do not treat local file paths as a published runnable backend.
+| Task | Independent deliverable | Later live handoff |
+| --- | --- | --- |
+| T0 | Versioned contract/fixture stewardship | Provider corrections coordinated after evidence |
+| T1 | Photon operation report, even if blocked | Required operations must pass before T5 claims support |
+| T2 | Mock-tested receive/private-send adapter | Replace provisional provider fields after T1 |
+| T3 | One-call adapter and candidate policy with mock SDK | T5 live inference, T6 semantic evaluation |
+| T4 | Persistent snapshots/profiles/outbox and authorized lookup/feedback | T5 real transport/identity, T8 real backend |
+| T5 | Assembly may start with mocks; final completion requires T2/T3/T4 and live access | Actual automatic phone explanation evidence |
+| T6 | Held-out cases, rubric and fixture-capable evaluation harness | Live comparisons after T3/T4 |
+| T7 | Reproducible fixture/setup and demo package with explicit pending evidence | Add T5/T6 observed results later |
+| T8 | Optional Fetch stored-result/feedback adapter with fake backend | Actual ASI:One discovery/query and T4 binding verified separately |
 
-The existing T1 verification comment reports that no live ping, native sticker media or private explanation was completed. Shared-line assignment/sender identity is still missing; dedicated group-line access was not purchased. Its two completed documentation items and original comment must remain intact. T3's current assignee must remain assigned.
+backlog.json separates hard `depends_on` prerequisites from nonblocking `integration_depends_on` handoffs. The publisher renders both, validates their combined graph and preserves human content/checked work. The workflow tests PRs without writing issues and publishes only from main, reducing the risk of an old feature branch reverting the live backlog.
 
-## Task changes
+## Verification boundaries
 
-| Task | Updated focus |
-| --- | --- |
-| T0 | Review v2 interfaces, scoped user context, saved-window examples and source availability. |
-| T1 | Unblock beta line/sender access and collect actual sticker/private-delivery evidence. |
-| T2 | Authenticated normalized beta ingress, stable identities, and private outbox transport. |
-| T3 | Real model access, one-call inputs, compatible/opposing candidates and explicit uncertainty. |
-| T4 | Persistent history, immutable windows, scoped profiles, evaluation-only feedback, verified routing and retries. |
-| T5 | Automatic phone-to-phone flow, correct frozen context, privacy and measured delivery. |
-| T6 | Matched context/personalization comparisons, semantic failures, held-out labels and cost/latency. |
-| T7 | Publish/reproduce the implementation and package measured live-demo evidence. |
+This revision publishes planning/methodology documentation, publisher tooling and synthetic contract/image fixtures. It does not publish the local application backend, runtime dependencies or application test suite. A local workspace previously passed 21 backend tests and six Jac module checks with a 77.4% Jac source estimate; those are not fresh-clone availability, live vision accuracy, ASI:One discovery or Photon delivery evidence.
 
-T6 now depends on T3 and T4 because its comparisons use the model boundary and persisted context/profile behavior. Other dependencies and the two milestones are retained. Fetch work remains an optional separate experiment; this update does not cancel or modify a teammate's Fetch branch.
+The original T1 verification comment and its checked documentation items are preserved; it did not establish live ping, sticker or private-send success. T3's assignee remains assigned. Existing issue states, milestones, comments, assignments and unrelated labels are retained. No paid plan, private chat processing, teammate message or unrelated Fetch-branch change is part of this update.
 
-The source review should be merged when ready so future runs from main use the same definitions. Live issues can be updated immediately without merging this branch. No issue is closed by this update.
-
-## Verified publication
-
-All eight existing issues (#1–#8) were updated and read back successfully on October 17, 2026. Existing state, assignees, labels, milestones, comments and checked work were preserved. Canonical planning/interface sources are in [draft PR #10](https://github.com/ja-dens/lahacksai/pull/10). The review does not publish application source or merge into main. Details are recorded in [methodology-update.json](methodology-update.json); issue documentation references use the immutable source commit so they survive review-branch deletion.
+Actual issue links are recorded in published.json after sync. PR #10 carries the source changes; its observed status and source commit are recorded separately in methodology-update.json. Do not infer a merge or completed product from this document alone.

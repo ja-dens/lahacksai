@@ -39,6 +39,11 @@ function validatePlan(plan, readText) {
     if (!Object.hasOwn(plan.owners, task.owner_role) || !milestones.has(task.milestone)) throw new Error('Unknown task owner or milestone.');
     if (!Array.isArray(task.labels) || task.labels.some(label => !labels.has(label))) throw new Error('Unknown task label.');
     if (!Array.isArray(task.depends_on) || task.depends_on.some(id => !ids.has(id))) throw new Error('Unknown task dependency.');
+    if (task.integration_depends_on !== undefined && (!Array.isArray(task.integration_depends_on) || task.integration_depends_on.some(id => !ids.has(id)))) {
+      throw new Error('Unknown integration dependency.');
+    }
+    const dependencies = [...task.depends_on, ...(task.integration_depends_on || [])];
+    if (new Set(dependencies).size !== dependencies.length) throw new Error('Duplicate dependency.');
     if (task.body_file !== `planning/issues/${task.id}.md`) throw new Error('Task body path must match its ID.');
     if (readText(task.body_file).includes('<!-- sticker-plan:')) throw new Error('Task bodies must not contain publisher markers.');
   }
@@ -49,7 +54,8 @@ function validatePlan(plan, readText) {
     if (visiting.has(id)) throw new Error('Task dependency cycle.');
     if (visited.has(id)) return;
     visiting.add(id);
-    for (const dependency of tasks.get(id).depends_on) visit(dependency);
+    const task = tasks.get(id);
+    for (const dependency of [...task.depends_on, ...(task.integration_depends_on || [])]) visit(dependency);
     visiting.delete(id);
     visited.add(id);
   }
@@ -62,15 +68,23 @@ function preserveCheckedItems(text, previous) {
 }
 
 function managedSection(task, readText, issueMap) {
-  const dependencies = task.depends_on.map(id => issueMap.has(id) ? `#${issueMap.get(id).number}` : id);
-  return `${START}\n${readText(task.body_file).trim()}\n\n## Dependencies\n\n${dependencies.length ? dependencies.join(', ') : 'None; this task can start independently.'}\n\nPlanning ID: ${task.id}. Source: ${task.body_file}. Owner role: ${task.owner_role}.\n${END}`;
+  const references = ids => ids.map(id => issueMap.has(id) ? `#${issueMap.get(id).number}` : id).join(', ');
+  const dependencies = references(task.depends_on);
+  const integration = references(task.integration_depends_on || []);
+  return `${START}\n${readText(task.body_file).trim()}\n\n## Start dependencies\n\n${dependencies || 'None; this task can start independently using the published contracts and fixtures.'}\n\n## Later integration requirements\n\n${integration ? `${integration}. These are needed for the later live handoff, not to complete this task's standalone deliverable.` : 'No additional prerequisite for the standalone deliverable. See the handoff above.'}\n\nPlanning ID: ${task.id}. Source: ${task.body_file}. Owner role: ${task.owner_role}.\n${END}`;
 }
 
 function replaceManaged(previous, task, readText, issueMap) {
-  const section = preserveCheckedItems(managedSection(task, readText, issueMap), previous);
   const start = previous.indexOf(START);
   const end = previous.indexOf(END, start >= 0 ? start + START.length : 0);
   if ((start >= 0) !== (end >= 0)) throw new Error(`Incomplete managed section for ${task.id}; preserve and inspect it.`);
+  let section = preserveCheckedItems(managedSection(task, readText, issueMap), previous);
+  if (start >= 0) {
+    const labels = new Set([...section.matchAll(/^\s*- \[[ xX]\] (.+)$/gm)].map(match => match[1]));
+    const prior = [...new Set([...previous.slice(start, end).matchAll(/^\s*- \[[xX]\] (.+)$/gm)].map(match => match[1]))];
+    const retained = prior.filter(label => !labels.has(label));
+    if (retained.length) section = section.replace(END, `\n## Previously checked work\n\nRetained from an earlier issue revision as historical evidence; these do not replace the current standalone acceptance criteria.\n\n${retained.map(label => `- [x] ${label}`).join('\n')}\n${END}`);
+  }
   if (start >= 0) return previous.slice(0, start) + section + previous.slice(end + END.length);
   return previous ? `${previous}\n\n${section}` : `${marker(task.id)}\n\n${section}`;
 }
@@ -205,7 +219,7 @@ async function main() {
   const plan = JSON.parse(readText('planning/backlog.json'));
   validatePlan(plan, readText);
   if (!args.includes('--apply')) {
-    console.log(JSON.stringify({dry_run: true, repository: plan.repository, labels: plan.labels.length, milestones: plan.milestones.length, issues: plan.issues.map(task => ({id: task.id, owner_role: task.owner_role, depends_on: task.depends_on})), external_writes: 0}, null, 2));
+    console.log(JSON.stringify({dry_run: true, repository: plan.repository, labels: plan.labels.length, milestones: plan.milestones.length, issues: plan.issues.map(task => ({id: task.id, owner_role: task.owner_role, depends_on: task.depends_on, integration_depends_on: task.integration_depends_on || []})), external_writes: 0}, null, 2));
     return;
   }
   const repository = process.env.GITHUB_REPOSITORY;

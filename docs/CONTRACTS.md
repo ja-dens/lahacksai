@@ -1,6 +1,6 @@
-# Internal interfaces, version 2 — local prototype
+# Internal interfaces, version 2
 
-Publication scope: these interfaces and fixture references describe the local prototype. This planning review does not publish the application/fixture source; see planning/METHODOLOGY_UPDATE.md and T0/T7 for source availability.
+> Publication scope: planning and synthetic fixtures only. References to the local backend describe separate workspace work; its application source is not included in this revision.
 
 These are application-owned records, not Photon API field names. Use ordinary module calls for the MVP. A source adapter must normalize provider events into these records.
 
@@ -47,6 +47,14 @@ The application resolves recipient_id and destination from explicit enrollment a
 A: receive_messages and send_private_explanation.
 B: interpret_sticker.
 C: build_context, enrollment, duplicate ledger, formatting, and orchestration.
+
+Detailed file ownership is in [DELEGATION.md](DELEGATION.md). Shared serialized examples are in [fixtures/contracts](../fixtures/contracts/README.md). Owners can implement against those JSON boundaries without importing unfinished modules. Local prototype checks are evidence from one workspace; this planning publication does not publish the application backend.
+
+## Optional saved-result tools (D13)
+
+T8 can inject a fake backend with `get_explanation(window_id, authenticated_recipient_id)` and `save_feedback(window_id, authenticated_recipient_id, selection, note=None)`. T4 later supplies actual authorized operations. The transport/session provides the authenticated identity; tool/model arguments do not establish permission. Resolve demo-3 to the saved window only within that user's scope.
+
+Lookup returns an existing result, contextual cue and caveat, or a safe missing/unauthorized response. It does not call the sticker interpreter or expose the entire conversation. A feedback write validates the shown choices, preserves recipient_judgment provenance, and returns a receipt. The adapter must use stable transport command identity to prevent duplicate writes on replay. Feedback remains evaluation-only. Public/discoverable demonstrations use synthetic records until real account binding is implemented and verified.
 
 An agreed duplicate key is platform plus conversation_id plus message_id, with per-recipient window uniqueness. Preserve stable native IDs at the adapter boundary. Changed content under an existing source identity is rejected rather than silently rewriting history. The coordinator owns deduplication. This initial implementation is single-process; it does not provide distributed claims, automatic retries, or crash-proof exactly-once delivery. Failed runs preserve their snapshots and need an explicit retry strategy before live integration.
 

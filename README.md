@@ -1,63 +1,38 @@
-# lahacksai: private sticker interpreter
+# Automatic sticker interpreter
 
-A planned messaging assistant that explains a sticker's likely meaning using recent conversation context, starting with older adults in opted-in family chats.
+Help older adults understand stickers in context. In an enabled conversation, the intended backend automatically interprets each incoming sticker and sends a short private explanation to the enrolled recipient. No separate per-sticker AI request or required feedback is part of the core flow.
 
-**Status:** planning package. The application and live Photon/model integrations have not been implemented.
+## Current repository scope
 
-## First product milestone
+This revision publishes product/planning documentation, issue automation and synthetic interface fixtures. The application backend remains separate implementation/publication work. Fixture checks do not establish live Photon delivery, model accuracy or ASI:One availability.
 
-Supported sticker arrives in an approved conversation → select recent messages → one multimodal model call → short explanation delivered privately to the enrolled recipient.
+Read [the product decisions](docs/PRODUCT_SPEC.md), [internal contracts](docs/CONTRACTS.md), [parallel assignments](docs/DELEGATION.md), [roadmap and observed progress](PLANS.md), and [error log](ERROR_LOG.md). Original parent-folder planning informed the module split; the current specification records subsequent user choices.
 
-Start with one channel, static stickers, one language, and one enrolled test recipient. A private assistant thread is the candidate MVP; private annotations underneath existing messages remain unverified.
+## Method
 
-## Start here
+- Keep longer conversation history and immutable per-sticker/recipient snapshots. Include target image/text plus 20–25 preceding messages, default 25, without an age cutoff or later replies.
+- Separate declared language/length preferences and sender relationship. Store voluntary scoped feedback for evaluation only.
+- Show two strongest meanings only when compatible; otherwise show a rankable best interpretation with uncertainty or abstain when evidence is insufficient.
+- Use one backend and one multimodal call in the automatic path. Application enrollment controls private recipients.
+- Optional Fetch/ASI:One tools retrieve a saved explanation or record voluntary feedback, separate from automatic Photon interpretation.
 
-- [Current product decisions and methodology](docs/PRODUCT_SPEC.md)
-- [October 17 methodology and issue update](planning/METHODOLOGY_UPDATE.md)
-- [Roadmap and progress](PLANS.md)
-- [Shared interfaces](docs/CONTRACTS.md)
-- [Independent assignments](docs/DELEGATION.md)
-- [Architecture and platform checks](docs/ARCHITECTURE.md)
-- [Eight publishable task definitions](planning/backlog.json)
-- [Reusable planning prompts](PROMPTS.md)
+## Start independently
 
-## Published planning work
+```sh
+python3 scripts/check_contract_fixtures.py
+```
 
-The initial planning publication on October 17, 2026 used the codex/sticker-planning review branch and left main unchanged. GitHub Actions published [eight task issues](https://github.com/ja-dens/lahacksai/issues) and two milestones. [Review the branch changes](https://github.com/ja-dens/lahacksai/compare/main...codex%2Fsticker-planning).
+This Python standard-library check needs no API key, installed application modules or network. See [the serialized examples](fixtures/contracts/README.md) and [delegation guide](docs/DELEGATION.md) for mock strategies and owned files. Every module task can finish its standalone deliverable independently; final live assembly is T5.
 
-Automatic draft PR creation was blocked by this repository's GitHub Actions setting. No PR is claimed. The generated publication report records that warning and the actual issue/milestone URLs.
+The backend is planned to use meaningful Jac core functionality with at least 40% Jac application source. No application code is published by this planning revision, so its Jac share is not applicable.
 
-The three-person, 24-hour baseline is a planning assumption carried from the project discussion. Owner A handles Photon, B handles interpretation, and C handles context and coordination. An optional fourth teammate handles user testing and demo evidence.
+## GitHub planning
 
-## GitHub planning automation
+[Open task issues](https://github.com/ja-dens/lahacksai/issues) are generated from [backlog.json](planning/backlog.json) and [task Markdown](planning/issues/). Edit those sources first. PR checks are read-only; the reviewed main branch syncs issues while preserving human content, assignments, state and checked work. [published.json](planning/published.json) records actual task links.
 
-The Sync sticker planning workflow reads planning/backlog.json and planning/issues/. It creates missing labels, two milestones, and eight issues; updates its generated issue sections; preserves human notes, checked tasks, closed state, and existing assignees; and attempts to open a draft planning PR when repository settings permit it.
+```sh
+node --test .github/scripts/sync-planning.test.cjs
+node .github/scripts/sync-planning.cjs --dry-run
+```
 
-It runs when the planning inputs change on main or codex/sticker-planning, and supports manual dispatch. It records verified URLs in planning/published.json. Updating the plan does not implement the product or continuously run Codex.
-
-No personal access token is required: the workflow uses its short-lived repository GITHUB_TOKEN with contents, issues, and pull-request permissions. No repository permissions or visibility settings are changed by the publisher. Assignees stay unset until GitHub usernames are mapped in backlog.json.
-
-## Local planning checks
-
-With Node.js 20 or newer:
-
-    node --test .github/scripts/sync-planning.test.cjs
-    node .github/scripts/sync-planning.cjs --dry-run
-    git diff --check
-
-These check the planning publisher. Application checks belong to the implementation issues and are not passing yet.
-
-## Implementation baseline
-
-Use Jac for the core workflow, context selection, interpretation policy, validation, and delivery decisions. Thin Python clients may connect Photon 2.0 beta and one multimodal API. The project instructions require at least 40% Jac once application code exists; measure actual source usage rather than counting filenames. Planning automation is repository tooling, not an implemented application.
-
-GitHub stores the code and tasks. The application backend must run on a laptop or hosting service. Runtime model access and Photon project/line access are separate setup dependencies.
-
-Keep actual keys in local environment configuration. Commit placeholders and synthetic examples only.
-
-## Sources
-
-- [Photon 2.0 beta docs](https://photon.codes/docs/beta)
-- [Photon hackathon guidelines](https://somethingreat.notion.site/Hackathon-Guidelines-for-Photon-2-0-3f8e443f36bb81f9893fed0d08a4c01d)
-- [Codex planning conventions](https://developers.openai.com/cookbook/examples/codex/iterating-development-workflows-with-codex)
-- [GitHub workflow authentication](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token)
+Photon 2.0 beta line/sticker/private-send access, live model evaluation, authenticated enrollment and deployment still require verification. See T1's existing evidence and the task-specific done criteria. Keep credentials and real chat histories outside tracked files.

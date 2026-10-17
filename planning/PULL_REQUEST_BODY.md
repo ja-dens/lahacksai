@@ -1,24 +1,26 @@
 ## Summary
 
-The existing task backlog still describes bounded in-memory history and an earlier interpretation flow. Update T0–T7 and the shared methodology/interfaces for persistent history, per-sticker snapshots, 20–25 preceding messages with no age cutoff, declared personalization, evaluation-only feedback, and compatible candidate pairs.
+Update the sticker interpreter's canonical planning Markdown and backlog so teammates can complete module tasks independently. Carry forward the confirmed context, personalization and interpretation decisions, and add the approved optional Fetch/ASI:One saved-explanation and feedback demo.
 
 ## Features
 
-- Revised actionables and acceptance evidence in all eight existing tasks; T6 now depends on the model and context foundations.
-- The Photon access blocker is attributed to the existing T1 verification comment, whose checked work is preserved.
-- Local prototype progress is distinguished from unpublished application source and unverified live model/phone behavior.
-- Existing issue assignments, comments, state, milestones, and human notes remain intact.
+- Preserve T0–T7 and add optional T8 with concrete inputs/outputs, file ownership, mocks, commands and standalone done criteria.
+- Separate hard prerequisites from later integration handoffs; only the final phone-integration task requires finished components.
+- Publish synthetic v2 JSON boundaries and an original PNG with a standard-library consistency check.
+- Preserve human issue content, assignments, state and checked work, including checked lines removed by a task rewrite.
+- Test PRs without issue writes and sync only reviewed main, preventing outdated feature-branch publication.
 
 ## Jac Usage
 
-No application source is changed or published by this planning-only review. The local prototype is separate; its previously measured Jac source share does not describe the contents of this PR.
+No application backend or application test/runtime dependencies are published by this change. Jac application-source share is therefore not applicable to this review. The implementation plan retains at least 40% meaningful Jac for core context, policy and workflow. Node handles GitHub planning automation; Python standard library checks synthetic fixtures.
 
 ## Testing
 
-- 11 planning-publisher tests and the dry run passed locally.
-- 21 backend tests passed as local checkpoint evidence; application/test source is not included in this PR.
-- Text whitespace and documentation links are checked before publishing.
+- 15 publisher tests passed, including independent starts, handoff validation/cycles, preservation of checked work, assignments, reruns and main publication.
+- Dry run validates nine task definitions, nine labels and two milestones with zero external writes.
+- Synthetic contract checker passed without application/vendor dependencies or network calls.
+- Workflow YAML and whitespace checks passed locally. Remote checks and observed publication results are recorded separately.
 
 ## Known Issues
 
-Model access, native Photon sticker receipt/private delivery, live interpretation accuracy, authenticated operation, retries and production data controls remain open. T0/T7 track publishing the local implementation and reproducing it on another teammate's machine. This PR does not merge source changes or close any task issue.
+Application source remains local until separately reviewed/published. Live Photon sticker/private delivery, model access/accuracy and ASI:One registration/query remain unverified. The existing Photon access blocker is preserved. This change neither buys a line nor modifies the separate Fetch branch. Mock tests and fixed outputs do not establish product accuracy or sponsor eligibility.
