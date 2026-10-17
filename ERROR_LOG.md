@@ -1,5 +1,35 @@
 # Planning and setup errors
 
+## 2026-10-17: sandbox blocked live Fetch startup
+
+What happened: startup inside the sandbox failed DNS lookup for Agentverse and
+could not bind port 8001, producing SDK shutdown errors after the bind failure.
+
+Cause: the restricted execution environment denied network and local-server access.
+
+Correction: reran the same command with approved network/server permissions.
+The server started, the ACP manifest was published, and Almanac API registration
+succeeded. Mailbox creation remains a user step; no model request was verified.
+
+Prevention: distinguish sandbox access failures from invalid credentials or
+application errors before changing the sponsor example.
+
+## 2026-10-17: Fetch quickstart environment and installer
+
+What happened: the shell's default Python was 3.14, outside the uAgents package's
+documented Python 3.10–3.13 range. uv could create an environment but its install
+command stalled without progress. A pip retry's automatic approval review also
+timed out before execution; the following retry began downloading packages.
+
+Correction: use the installed Python 3.13 in the ignored .venv, bootstrap pip
+with ensurepip, and install requirements-fetch.txt there. Follow the sponsor's
+mailbox example rather than requiring the separate public-endpoint setup flow.
+
+Prevention: verify the installed SDK and ACP schema before claiming runtime
+success, and distinguish local checks from mailbox registration and ASI:One chat.
+Node was also absent from this shell, so the existing planning publisher's Node
+tests were not run; that publisher is unchanged by Fetch setup.
+
 ## 2026-10-17: GitHub access routes differed
 
 What happened: the GitHub command-line tool was absent, and the in-app browser was signed out, even though Git could clone the private target repository and its push dry run succeeded.

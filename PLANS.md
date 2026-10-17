@@ -37,6 +37,9 @@ Aim for the first complete path within roughly hours 4–6 of the 24-hour refere
 - No live data, API key, model endpoint, or phone line is assumed provisioned.
 - Owner roles are planning labels until teammates' GitHub usernames are supplied.
 - Existing general hackathon research stays outside this repository.
+- Fetch.ai and Photon are both targets. Start with the sponsor's standalone
+  mailbox quickstart in agent.py, then connect ACP to the shared Jac backend.
+  The quickstart's sun-topic chatbot is setup work, not sticker functionality.
 
 ## Discoveries and unknowns
 
@@ -53,3 +56,30 @@ Observed publication result: the workflow created issues #1–#8 and milestones 
 Planning automation must pass its automated checks and dry run before publication. planning/published.json records remote issue/milestone/PR results after a successful workflow run. It is evidence of planning publication, not product functionality.
 
 Application verification must include ambiguous media, identical images in different contexts, duplicate events, paused conversations, and isolation between conversations.
+
+Fetch setup work uses the local codex/fetch-ai-setup branch. See
+docs/FETCH_SETUP.md for the sponsor's mailbox route and local commands. A Python
+3.13 virtual environment and ignored .env with a unique name and seed were
+created. The user supplied the ASI:One key locally. Live startup published the
+AgentChatProtocol manifest and registered successfully on the Almanac API.
+After the user connected through the Inspector, the running SDK reported
+"Successfully registered as mailbox agent in Agentverse". The user then showed
+an ASI:One response from the named agent to the sun-facts question. The running
+process logged HTTP 200 OK from POST https://api.asi1.ai/v1/chat/completions,
+confirming a successful model API call. The quickstart's live round trip works;
+Photon integration remains unverified. The standalone Python
+sponsor example is outside product application-source counting; there is still
+no implemented Jac sticker workflow or application Jac percentage to report.
+
+Local Fetch verification passed on October 17, 2026: Python 3.13.14,
+uagents 0.26.1, openai 3.34.0; agent.py --check; pip check; Python compilation;
+mocked handler checks for acknowledgement/reply, provider failure, and empty
+input; and git diff --check. Environment/runtime paths are ignored by Git. These
+checks made no model requests and do not establish live registration or delivery.
+
+Live startup evidence: agent address
+agent1q2njg7mwfkt7pm83e883dpsghgee668adzc72flk5nt27ss2enfd2n8785k,
+local server port 8001. The SDK also warned of insufficient funds for the separate
+Almanac contract registration; no funds were sent. The mailbox connection is
+verified from the runtime log; the subsequent ASI:One exchange is verified by
+the user's screenshot and the successful model request in the runtime log.

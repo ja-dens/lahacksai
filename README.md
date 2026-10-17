@@ -4,6 +4,11 @@ A planned messaging assistant that explains a sticker's likely meaning using rec
 
 **Status:** planning package. The application and live Photon/model integrations have not been implemented.
 
+The standalone Fetch sponsor quickstart is available in [agent.py](agent.py).
+See [local setup and mailbox connection](docs/FETCH_SETUP.md). This is separate
+from the planned sticker interpreter. A live ASI:One exchange was verified on
+October 17, 2026 using the tutorial's sun-topic assistant.
+
 ## First product milestone
 
 Supported sticker arrives in an approved conversation → select recent messages → one multimodal model call → short explanation delivered privately to the enrolled recipient.
@@ -16,6 +21,7 @@ Start with one channel, static stickers, one language, and one enrolled test rec
 - [Shared interfaces](docs/CONTRACTS.md)
 - [Independent assignments](docs/DELEGATION.md)
 - [Architecture and platform checks](docs/ARCHITECTURE.md)
+- [Fetch.ai / Agentverse setup and Photon integration boundary](docs/FETCH_SETUP.md)
 - [Eight publishable task definitions](planning/backlog.json)
 - [Reusable planning prompts](PROMPTS.md)
 
