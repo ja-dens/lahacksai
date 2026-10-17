@@ -33,3 +33,7 @@ Correction: allow only explicit content/unavailable-media error codes into autom
 Prevention/verification: regression tests reject media 401/403/cross-project scope, deny an unenrolled recipient without calling send, and reject mismatched acknowledgment scope/status. All 59 T2 tests and 10 shared-contract tests passed with network forbidden; the fixture checker passed with site packages disabled.
 
 Status: resolved in this branch. This is local software verification, not evidence of a deployed incident or a live Photon test.
+
+## Verified publication checkpoint
+
+The implementation was committed as 31d52069dae9ef80c769f2959ba05bcedd1c0a89 and published for review in [PR #13](https://github.com/ja-dens/lahacksai/pull/13), on codex/t2-photon-adapter. Both remote adapter and planning checks passed. The PR remains open and unmerged; no live Photon/phone verification occurred. Future errors from work in this chat should continue here and in the existing ERROR_LOG.md.

@@ -116,3 +116,7 @@ Verified 59 T2 tests and 10 existing shared-contract tests with Python site pack
 T2 is a Python transport module; this branch's application source share is currently 0% Jac. The project-wide at-least-40% Jac requirement remains a core-integration measurement, not a claim made from this isolated module. Do not copy unpublished teammate/source files or add filler to meet a module ratio. T4/T3 retain Jac core ownership.
 
 The implementation is for PR review only, with no merge/push to main. No paid plan, live credentials, model call or real phone send was used. The beta event decoder and native-sticker classifier still require T1's observed channel evidence and T5 wiring. No live integration is claimed from passing mocks.
+
+### T2 publication checkpoint
+
+Implementation commit 31d52069dae9ef80c769f2959ba05bcedd1c0a89 was pushed only to codex/t2-photon-adapter. [PR #13](https://github.com/ja-dens/lahacksai/pull/13) is open against main and remains unmerged. Remote photon-adapter and planning verify checks passed; the issue-publishing sync job was correctly skipped for the PR. The diff contains only the nine T2 implementation/test/CI/documentation/checklist files and no T1/T4 implementation changes. The existing issue stays open until review/merge; this branch's checked canonical T2 criteria describe the standalone deliverable, not live provider success. No main-branch push or merge was performed.
