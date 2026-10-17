@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "trusted_demo_identity": "demo-older-recipient",
+  "lookup": {
+    "prompt": "Explain the sticker in saved demo exchange demo-3.",
+    "window_id": 1
+  },
+  "feedback": {
+    "prompt": "Mark interpretation one as helpful for demo-3.",
+    "window_id": 1,
+    "selection": "first"
+  },
+  "identity_note": "For tests only; real authentication is transport/session controlled and never inferred from a prompt."
+}

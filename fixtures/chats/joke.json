@@ -1,7 +1,10 @@
 {
   "synthetic": true,
+  "platform": "demo",
   "conversation_id": "demo-family-chat",
   "enrolled_recipient_id": "demo-older-recipient",
+  "members": ["demo-older-recipient", "demo-younger-sender"],
+  "private_destination": "demo-private-assistant-thread",
   "messages": [
     {
       "message_id": "demo-1",
@@ -20,14 +23,15 @@
       "sender_id": "demo-younger-sender",
       "sent_at": "2026-10-17T12:00:06-07:00",
       "text": null,
-      "sticker": null,
-      "media_required": true,
-      "visual_description_for_planning": "A dramatically crying character"
+      "kind": "sticker",
+      "sticker": {"mime_type": "image/png", "path": "../stickers/laughing.png"}
     }
   ],
-  "illustrative_expected_result": {
-    "status": "interpreted",
-    "meaning": "This probably means the joke was so funny they are crying.",
-    "context_cue": "They just said the joke got them."
+  "fixture_model_output": {
+    "candidates": ["This probably means the joke was so funny they are crying."],
+    "candidate_relation": "single",
+    "rankable": true,
+    "context_cue": "They just said the joke got them.",
+    "uncertainty_caveat": "This is a likely interpretation, not confirmed sender intent."
   }
 }

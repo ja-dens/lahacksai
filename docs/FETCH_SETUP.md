@@ -45,19 +45,24 @@ This mailbox route does not require a public HTTPS tunnel. Successful startup is
 not proof of the full flow: verify the mailbox connection, the ASI:One reply, and
 the Agentverse profile. Record the real profile and chat URLs after success.
 
-## Add Photon after the quickstart works
+## Continue with the revised tasks
 
-Use one backend. Replace the quickstart's sun-answering model call with a thin
-adapter into the shared Jac workflow described in [CONTRACTS.md](CONTRACTS.md).
-Photon remains responsible for messaging input and private delivery. Keep
-recipient selection in enrollment settings, outside the model. An ACP sender
-address is not a Photon recipient ID; account linking remains an integration
-decision before handling private chat context or triggering delivery.
+The revised [T8/#11](https://github.com/ja-dens/lahacksai/issues/11) defines two
+optional Fetch operations: retrieve an already saved explanation and record
+voluntary exchange-specific feedback. Use the scoped backend boundary in
+[CONTRACTS.md](CONTRACTS.md), starting with the published synthetic fixtures.
+Fetch does not trigger another sticker interpretation or enter the automatic
+Photon explanation path. The root agent.py remains a standalone transport
+tutorial; the adapter's assigned target is src/adapters/fetch_agent.py.
 
-A candidate sponsor demo starts with an ASI:One request about a selected
-permitted sticker and invokes the shared context, interpretation, and Photon
-delivery flow. ACP media handling, authenticated enrollment, sticker selection,
-and real Photon media support still need implementation and live verification.
+The user also owns [T3/#4](https://github.com/ja-dens/lahacksai/issues/4), the
+separate one-call image interpreter and candidate policy. Its real model mode
+and the T8 live agent demo require their own verification.
+
+The trusted transport/session supplies the authenticated recipient for lookup
+and feedback. A prompt-supplied recipient ID or an ACP sender address alone
+does not establish access to private app records. Public demos use synthetic
+data until account binding is implemented and verified.
 
 The [Fetch challenge](https://www.fetch.ai/events/hackathons/la-hacks-ai-hackathon-2026/hackpack)
 requires a discoverable ACP agent and a useful primary workflow completed from

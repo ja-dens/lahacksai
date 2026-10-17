@@ -1,0 +1,9 @@
+{
+  "candidates": [
+    "This probably means the joke was so funny they are crying."
+  ],
+  "candidate_relation": "single",
+  "rankable": true,
+  "context_cue": "They just said the joke got them.",
+  "uncertainty_caveat": "This is a likely interpretation, not confirmed sender intent."
+}

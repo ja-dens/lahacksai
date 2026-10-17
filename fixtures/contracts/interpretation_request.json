@@ -1,0 +1,57 @@
+{
+  "context_age_limit": null,
+  "context_message_limit": 25,
+  "context_text_character_budget": 24000,
+  "conversation_id": "demo-family-chat",
+  "interpreter": {
+    "model": "fixed-demo",
+    "prompt_version": "fixture-v1",
+    "provider": "fixture"
+  },
+  "platform": "demo",
+  "policy_version": "context-v1",
+  "recent_messages": [
+    {
+      "kind": "text",
+      "media_not_interpreted": false,
+      "message_id": "demo-1",
+      "reply_to_message_id": null,
+      "sender_id": "demo-older-recipient",
+      "sent_at": "2026-10-17T19:00:00.000000+00:00",
+      "text": "I tried to catch some fog yesterday. I mist.",
+      "text_truncated": false
+    },
+    {
+      "kind": "text",
+      "media_not_interpreted": false,
+      "message_id": "demo-2",
+      "reply_to_message_id": null,
+      "sender_id": "demo-younger-sender",
+      "sent_at": "2026-10-17T19:00:05.000000+00:00",
+      "text": "That joke got me.",
+      "text_truncated": false
+    }
+  ],
+  "recipient_id": "demo-older-recipient",
+  "reply_to_message_id": null,
+  "schema_version": 2,
+  "sender_id": "demo-younger-sender",
+  "sent_at": "2026-10-17T19:00:06.000000+00:00",
+  "source_message_id": "demo-3",
+  "sticker": {
+    "data_base64": "iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAADdvvtQAAAFL0lEQVR4nO3dy40cZwxFYQWjhWHBIXhhOBdvHZQicgZOwRFQBgozkDQPVYs/efk4B9wJ06gmv2mtpP5gRI4+qB+AegcgcgUgcgUgcgUgcgUgcgUgcgUgcgUgcgUgcgUgcgUgcgUgcgUgcgUgcgUgcgUgcgUgcgUgcgUgcrUe0D9/HpjF7QN0RAyentoBKAHNVkyjAQndrJE0EZDcyiZJswDJcexjNAWQHMRWRv0ByRHsZtQZkPzwMOoKSH5sGD3VDZD8wDD6tlaA5HfF0IuaAJKfE0Zv1AGQ/IoYervygOT3qzCFKwxIfrZqU7KqgOTXqjn1KglIfqfKU6x6gOQXqj+VKgZIfpsuU6ZKgORX6TU1KgNIfo+OU6AagOSX6DvqCgCS36D7SFMDkm9/xuiSApLvfdKI0gGSb3zeKALQoFEkAiTf9dRJTwFIvuXZk1s6IPl+N0xiAJo4ieUCkm92z2SVCEi+022TEoDmTkpZgOTb3DnxAWj0xJcCSL7HzRMcgKZPcPGA5BtkIpsG6NePn67Rn63Os0UWDEhxnq9HjqbKs4U1BNCrFypiqMSzhRUJSH0eOaNazxZTY0A3zyNhVPHZYgoDpLvQD/9077MF1A/Qzd9jya975WcD0M/sPe1UlZ+tIaBcPaE/2/3Zog21B5Tz432fDUBvbln1Ir2erSGgiLf97X7rvFT9Z4s21A8Qrwagn1xr2des/GyvzNHaAGKOzdFOA5Jvh7kz5wLQyjkXgFbOuQC0cs4FoJVzrqOA5Hth7s+hSgD64/O/L0e/4mJzeEuH0gN6dS8YCt/SocSA3tkLhmK3dCgloB/uBUOBWzoUgKoPgFx7WW4ocEuHAlDpAdCBvaw1FLulQwGo7gAIQAB6qLC9LDQUvqVDAajoAAhAAHq0IqsZMQACEIAerchqRgyAAASgRyuymhEDIAAB6NGKrGbEAAhAAHq0IqsZMSsB2S1DANJv6VwAKjoAyl7N77/81msA9Fphv17D9AQZuvsJdy4AAciV5n8oO7sauYMgQ/X//jLhf3HHx8/xD6H8jx8DkHwA9KKbb+Pcv7mUI4gDdHBLfQDZ4Q8hAJX9+DH5Vx0c2YscQSigU1uaCej97dx8BTmCaEBHttQKkB0wdP/H5QgSAPm3FKHHigByjhxBDqADExCAAOSq8bc2A0iuxwAkHwC9G4CKAAprAqC+htL2E3fhYEDGh1ABQJENAdTRUNpmQs8bD8j4EBr78WOTAP0///31d5dJ20n0bVMAWZIhOYtygOIbBaiLobRtJBw2C5BhaKAeGwmosqHMJeRcNRGQbTc0T49lA7K9hkbqsdmA6hhKfteZ90wHZILv5l1EJ1ePaQDZFkPj9ZgMkGm+I3wyHYUe2wYogZHwfUnOqANkSkPHJcnfi+qGUkCmN+TBJH9muR7TA7JChrqOtAKADENd9VgVQIahlnqsECDDUD89VguQYaiZHisHyDDUSY9VBGQYaqPHigIyDPXQY3UBGYYa6LHSgK7kZ6swhSsPyNYbql0HQLbYUPmaALqSnxM6L2oFyNYY6lM3QFfyA0PnqZ6AruTH3k3nqjOgK/nht9K56g/oSo5gH52rKYCu5CA20bmaBehKjmMHnauJgJ6TW5nr5rnRgJ7DTVg7AH0daI62D9B3IcbXekDkC0DkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDk6gs7+frrnGAeGQAAAABJRU5ErkJggg==",
+    "mime_type": "image/png",
+    "sha256": "eda8c6ab8cecc74f6c1b8e8ab366b303566c648db3ac3955fb57da3819210263"
+  },
+  "target_text": null,
+  "target_text_truncated": false,
+  "user_context": {
+    "preferences": {
+      "explanation_length": "short",
+      "language": "en"
+    },
+    "preferences_source": "user_declared",
+    "relationship": "grandchild",
+    "relationship_source": "recipient_declared"
+  }
+}

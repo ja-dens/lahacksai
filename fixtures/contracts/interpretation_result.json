@@ -1,0 +1,9 @@
+{
+  "source_message_id": "demo-3",
+  "status": "interpreted",
+  "meaning": "This probably means the joke was so funny they are crying.",
+  "alternative": null,
+  "context_cue": "They just said the joke got them.",
+  "uncertainty_caveat": "This is a likely interpretation, not confirmed sender intent.",
+  "candidate_relation": "single"
+}

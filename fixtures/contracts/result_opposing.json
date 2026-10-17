@@ -1,0 +1,9 @@
+{
+  "source_message_id": "demo-3",
+  "status": "ambiguous",
+  "meaning": "They probably enjoyed the joke.",
+  "alternative": null,
+  "context_cue": "The preceding reply supports amusement more strongly.",
+  "uncertainty_caveat": "The exact tone is unclear; sarcasm is still possible.",
+  "candidate_relation": "opposing"
+}

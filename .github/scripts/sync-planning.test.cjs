@@ -4,7 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const {spawnSync} = require('node:child_process');
-const {validatePlan, syncPlan, writeReport} = require('./sync-planning.cjs');
+const {validatePlan, replaceManaged, syncPlan, writeReport} = require('./sync-planning.cjs');
 
 const readText = file => fs.readFileSync(file, 'utf8');
 const loadPlan = () => JSON.parse(readText('planning/backlog.json'));
@@ -62,17 +62,20 @@ function fakeGitHub() {
 
 const publish = (plan, fake, extras = {}) => syncPlan({plan, readText, api: fake.api, repository: 'ja-dens/lahacksai', branch: 'codex/sticker-planning', sourceCommit: 'test-commit', now: () => '2026-10-17T20:00:00Z', ...extras});
 
-test('reviewed backlog has eight readable task bodies and an acyclic dependency graph', () => {
+test('reviewed backlog has nine task bodies, independent modules and an acyclic handoff graph', () => {
   const plan = loadPlan();
   assert.doesNotThrow(() => validatePlan(plan, readText));
-  assert.equal(plan.issues.length, 8);
+  assert.equal(plan.issues.length, 9);
   assert.equal(plan.milestones.length, 2);
   assert.deepEqual(plan.owners, {A: null, B: null, C: null, D: null});
+  assert.deepEqual(plan.issues.filter(task => task.depends_on.length).map(task => task.id), ['T5']);
+  assert.deepEqual(plan.issues.find(task => task.id === 'T8').integration_depends_on, ['T4']);
 });
 
 test('bad dependencies, body paths, and usernames fail before publication', () => {
   const cycle = loadPlan();
-  cycle.issues[0].depends_on = ['T7'];
+  cycle.issues[0].depends_on = ['T1'];
+  cycle.issues[1].depends_on = ['T0'];
   assert.throws(() => validatePlan(cycle, readText), /cycle/);
   const missing = loadPlan();
   missing.issues[0].depends_on = ['T999'];
@@ -83,6 +86,22 @@ test('bad dependencies, body paths, and usernames fail before publication', () =
   const owner = loadPlan();
   owner.owners.A = 'not/a-username';
   assert.throws(() => validatePlan(owner, readText), /usernames/);
+});
+
+test('invalid or cyclic later handoffs fail before publication', () => {
+  const missing = loadPlan();
+  missing.issues[0].integration_depends_on = ['T999'];
+  assert.throws(() => validatePlan(missing, readText), /Unknown integration dependency/);
+  const malformed = loadPlan();
+  malformed.issues[0].integration_depends_on = 'T1';
+  assert.throws(() => validatePlan(malformed, readText), /Unknown integration dependency/);
+  const cycle = loadPlan();
+  cycle.issues[0].integration_depends_on = ['T8'];
+  cycle.issues.find(task => task.id === 'T4').depends_on = ['T0'];
+  assert.throws(() => validatePlan(cycle, readText), /cycle/);
+  const duplicate = loadPlan();
+  duplicate.issues.find(task => task.id === 'T2').depends_on = ['T1'];
+  assert.throws(() => validatePlan(duplicate, readText), /Duplicate dependency/);
 });
 
 test('a different repository is rejected without a single API request', async () => {
@@ -96,12 +115,17 @@ test('initial publish creates one backlog, real dependency references, milestone
   const fake = fakeGitHub();
   const report = await publish(plan, fake);
   assert.equal(report.complete, true);
-  assert.equal(fake.state.issues.length, 8);
+  assert.equal(fake.state.issues.length, 9);
   assert.equal(fake.state.milestones.length, 2);
   assert.equal(fake.state.labels.length, plan.labels.length + 1);
-  assert.equal(report.issues.length, 8);
+  assert.equal(report.issues.length, 9);
   const t2 = fake.state.issues.find(issue => issue.body.includes('<!-- sticker-plan:T2 -->'));
-  assert.match(t2.body, /## Dependencies\n\n#1, #2/);
+  assert.match(t2.body, /## Start dependencies\n\nNone; this task can start independently/);
+  assert.match(t2.body, /## Later integration requirements\n\n#2\. These are needed for the later live handoff/);
+  const t5 = fake.state.issues.find(issue => issue.body.includes('<!-- sticker-plan:T5 -->'));
+  assert.match(t5.body, /## Start dependencies\n\n#3, #4, #5/);
+  const t8 = fake.state.issues.find(issue => issue.body.includes('<!-- sticker-plan:T8 -->'));
+  assert.match(t8.body, /## Later integration requirements\n\n#5\./);
   assert.equal(fake.state.pulls.length, 1);
   assert.equal(report.pull_request.draft, true);
   assert.ok(fake.state.issues.every(issue => !issue.assignees.length));
@@ -119,7 +143,7 @@ test('rerun preserves human notes, checked tasks, closed state, assignments, and
   t0.labels.push('human-label');
   const callCount = fake.state.calls.length;
   const report = await publish(plan, fake);
-  assert.equal(fake.state.issues.length, 8);
+  assert.equal(fake.state.issues.length, 9);
   assert.equal(fake.state.milestones.length, 2);
   assert.equal(fake.state.pulls.length, 1);
   assert.match(t0.body, /^Human introduction\./);
@@ -133,6 +157,41 @@ test('rerun preserves human notes, checked tasks, closed state, assignments, and
   assert.equal(fake.state.calls.slice(callCount).filter(call => call.method !== 'GET').length, 0);
 });
 
+test('removed checked work survives task rewrites and repeated syncs without duplication', () => {
+  const task = loadPlan().issues[0];
+  const old = '<!-- sticker-plan:T0 -->\nHuman prefix.\n<!-- sticker-plan:managed:start -->\n- [x] Completed earlier investigation.\n<!-- sticker-plan:managed:end -->\nHuman suffix.';
+  const first = replaceManaged(old, task, readText, new Map());
+  const second = replaceManaged(first, task, readText, new Map());
+  assert.match(first, /## Previously checked work/);
+  assert.match(first, /- \[x\] Completed earlier investigation\./);
+  assert.equal(second, first);
+  assert.match(second, /Human prefix\./);
+  assert.match(second, /Human suffix\.$/);
+});
+
+test('existing Photon checked evidence and interpreter assignment are preserved', async () => {
+  const fake = fakeGitHub();
+  await publish(loadPlan(), fake);
+  const t1 = fake.state.issues.find(issue => issue.body.includes('<!-- sticker-plan:T1 -->'));
+  const t3 = fake.state.issues.find(issue => issue.body.includes('<!-- sticker-plan:T3 -->'));
+  t1.body += '\nHuman evidence link and phone-access blocker.';
+  t3.assignees = [{login: 'existing-model-owner'}];
+  await publish(loadPlan(), fake);
+  assert.match(t1.body, /- \[x\] Document unsupported operations and investigate a supported fallback channel if needed\./);
+  assert.match(t1.body, /- \[x\] Supported formats and line\/channel limitations are recorded honestly\./);
+  assert.match(t1.body, /Human evidence link and phone-access blocker\.$/);
+  assert.deepEqual(t3.assignees, [{login: 'existing-model-owner'}]);
+});
+
+test('main publication updates issues without requesting another pull request', async () => {
+  const fake = fakeGitHub();
+  const report = await publish(loadPlan(), fake, {branch: 'main'});
+  assert.equal(report.complete, true);
+  assert.equal(report.issues.length, 9);
+  assert.equal(report.pull_request, undefined);
+  assert.equal(fake.state.pulls.length, 0);
+});
+
 test('retry after a lost creation response finds the created issue instead of duplicating it', async () => {
   const fake = fakeGitHub();
   fake.state.failOnceForTask = 'T3';
@@ -143,7 +202,7 @@ test('retry after a lost creation response finds the created issue instead of du
   });
   const report = await publish(loadPlan(), fake);
   assert.equal(report.complete, true);
-  assert.equal(fake.state.issues.length, 8);
+  assert.equal(fake.state.issues.length, 9);
   assert.equal(fake.state.issues.filter(issue => issue.body.includes('<!-- sticker-plan:T3 -->')).length, 1);
 });
 
@@ -159,7 +218,7 @@ test('draft PR restrictions are reported without changing repository settings or
   fake.state.forbidPulls = true;
   const report = await publish(loadPlan(), fake);
   assert.equal(report.complete, true);
-  assert.equal(report.issues.length, 8);
+  assert.equal(report.issues.length, 9);
   assert.equal(report.pull_request, undefined);
   assert.match(report.warnings[0], /not permitted/);
   assert.match(report.compare_url, /codex%2Fsticker-planning/);
@@ -196,5 +255,6 @@ test('CLI defaults to a dry run without credentials or external writes', () => {
   const output = JSON.parse(result.stdout);
   assert.equal(output.dry_run, true);
   assert.equal(output.external_writes, 0);
-  assert.equal(output.issues.length, 8);
+  assert.equal(output.issues.length, 9);
+  assert.deepEqual(output.issues.find(task => task.id === 'T8').integration_depends_on, ['T4']);
 });

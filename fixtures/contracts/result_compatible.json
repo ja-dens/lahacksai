@@ -1,0 +1,9 @@
+{
+  "source_message_id": "demo-3",
+  "status": "ambiguous",
+  "meaning": "They probably found the joke very funny.",
+  "alternative": "They may also be playfully encouraging more jokes.",
+  "context_cue": "The sticker follows a joke and a positive reply.",
+  "uncertainty_caveat": "These meanings are plausible, not confirmed sender intent.",
+  "candidate_relation": "compatible"
+}
