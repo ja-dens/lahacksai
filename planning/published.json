@@ -1,0 +1,81 @@
+{
+  "repository": "ja-dens/lahacksai",
+  "branch": "codex/sticker-planning",
+  "source_commit": "e66a865739a2b66c9541caaf183b50447a86e52a",
+  "generated_at": "2026-10-17T20:23:22.713Z",
+  "complete": true,
+  "issues": [
+    {
+      "id": "T0",
+      "number": 1,
+      "url": "https://github.com/ja-dens/lahacksai/issues/1",
+      "state": "open",
+      "owner_role": "C"
+    },
+    {
+      "id": "T1",
+      "number": 2,
+      "url": "https://github.com/ja-dens/lahacksai/issues/2",
+      "state": "open",
+      "owner_role": "A"
+    },
+    {
+      "id": "T2",
+      "number": 3,
+      "url": "https://github.com/ja-dens/lahacksai/issues/3",
+      "state": "open",
+      "owner_role": "A"
+    },
+    {
+      "id": "T3",
+      "number": 4,
+      "url": "https://github.com/ja-dens/lahacksai/issues/4",
+      "state": "open",
+      "owner_role": "B"
+    },
+    {
+      "id": "T4",
+      "number": 5,
+      "url": "https://github.com/ja-dens/lahacksai/issues/5",
+      "state": "open",
+      "owner_role": "C"
+    },
+    {
+      "id": "T5",
+      "number": 6,
+      "url": "https://github.com/ja-dens/lahacksai/issues/6",
+      "state": "open",
+      "owner_role": "C"
+    },
+    {
+      "id": "T6",
+      "number": 7,
+      "url": "https://github.com/ja-dens/lahacksai/issues/7",
+      "state": "open",
+      "owner_role": "B"
+    },
+    {
+      "id": "T7",
+      "number": 8,
+      "url": "https://github.com/ja-dens/lahacksai/issues/8",
+      "state": "open",
+      "owner_role": "C"
+    }
+  ],
+  "milestones": [
+    {
+      "id": "modules",
+      "number": 1,
+      "url": "https://github.com/ja-dens/lahacksai/milestone/1"
+    },
+    {
+      "id": "demo",
+      "number": 2,
+      "url": "https://github.com/ja-dens/lahacksai/milestone/2"
+    }
+  ],
+  "warnings": [
+    "Draft PR could not be confirmed: POST /pulls: HTTP 403 - GitHub Actions is not permitted to create or approve pull requests."
+  ],
+  "compare_url": "https://github.com/ja-dens/lahacksai/compare/main...codex%2Fsticker-planning"
+}
