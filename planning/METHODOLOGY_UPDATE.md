@@ -34,3 +34,7 @@ The existing T1 verification comment reports that no live ping, native sticker m
 T6 now depends on T3 and T4 because its comparisons use the model boundary and persisted context/profile behavior. Other dependencies and the two milestones are retained. Fetch work remains an optional separate experiment; this update does not cancel or modify a teammate's Fetch branch.
 
 The source review should be merged when ready so future runs from main use the same definitions. Live issues can be updated immediately without merging this branch. No issue is closed by this update.
+
+## Verified publication
+
+All eight existing issues (#1–#8) were updated and read back successfully on October 17, 2026. Existing state, assignees, labels, milestones, comments and checked work were preserved. Canonical planning/interface sources are in [draft PR #10](https://github.com/ja-dens/lahacksai/pull/10). The review does not publish application source or merge into main. Details are recorded in [methodology-update.json](methodology-update.json); issue documentation references use the immutable source commit so they survive review-branch deletion.

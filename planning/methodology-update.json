@@ -1,0 +1,132 @@
+{
+  "repository": "ja-dens/lahacksai",
+  "branch": "codex/sticker-methodology-update",
+  "source_commit": "285a956c327b27079472343ab548e26e9e962a90",
+  "base_commit": "ea679f30ba834c6a3ef3b77f5fa5a97b478dd1eb",
+  "source_files": [
+    "planning/backlog.json",
+    "planning/README.md",
+    "planning/METHODOLOGY_UPDATE.md",
+    "planning/issues/T0.md",
+    "planning/issues/T1.md",
+    "planning/issues/T2.md",
+    "planning/issues/T3.md",
+    "planning/issues/T4.md",
+    "planning/issues/T5.md",
+    "planning/issues/T6.md",
+    "planning/issues/T7.md",
+    "docs/PRODUCT_SPEC.md",
+    "docs/CONTRACTS.md",
+    "docs/ARCHITECTURE.md",
+    "README.md",
+    "planning/PULL_REQUEST_BODY.md"
+  ],
+  "application_source_published": false,
+  "pull_request": {
+    "number": 10,
+    "url": "https://github.com/ja-dens/lahacksai/pull/10",
+    "draft": true
+  },
+  "issues_updated": [
+    {
+      "id": "T0",
+      "number": 1,
+      "url": "https://github.com/ja-dens/lahacksai/issues/1",
+      "title": "[T0] Review v2 contracts, personalization and context-window fixtures",
+      "state": "open",
+      "assignees": [],
+      "comments": 0,
+      "verified": true
+    },
+    {
+      "id": "T1",
+      "number": 2,
+      "url": "https://github.com/ja-dens/lahacksai/issues/2",
+      "title": "[T1] Unblock Photon beta access and verify sticker/private delivery",
+      "state": "open",
+      "assignees": [],
+      "comments": 1,
+      "verified": true
+    },
+    {
+      "id": "T2",
+      "number": 3,
+      "url": "https://github.com/ja-dens/lahacksai/issues/3",
+      "title": "[T2] Connect authenticated Photon events to private outbox delivery",
+      "state": "open",
+      "assignees": [],
+      "comments": 0,
+      "verified": true
+    },
+    {
+      "id": "T3",
+      "number": 4,
+      "url": "https://github.com/ja-dens/lahacksai/issues/4",
+      "title": "[T3] Validate live multimodal interpretation and compatible-candidate policy",
+      "state": "open",
+      "assignees": [
+        "BeavyHombs"
+      ],
+      "comments": 0,
+      "verified": true
+    },
+    {
+      "id": "T4",
+      "number": 5,
+      "url": "https://github.com/ja-dens/lahacksai/issues/5",
+      "title": "[T4] Persist conversation history, immutable windows and recipient routing",
+      "state": "open",
+      "assignees": [],
+      "comments": 0,
+      "verified": true
+    },
+    {
+      "id": "T5",
+      "number": 6,
+      "url": "https://github.com/ja-dens/lahacksai/issues/6",
+      "title": "[T5] Connect an incoming sticker to an automatic private phone explanation",
+      "state": "open",
+      "assignees": [],
+      "comments": 0,
+      "verified": true
+    },
+    {
+      "id": "T6",
+      "number": 7,
+      "url": "https://github.com/ja-dens/lahacksai/issues/7",
+      "title": "[T6] Evaluate bounded context, personalization and interpretation uncertainty",
+      "state": "open",
+      "assignees": [],
+      "comments": 0,
+      "verified": true
+    },
+    {
+      "id": "T7",
+      "number": 8,
+      "url": "https://github.com/ja-dens/lahacksai/issues/8",
+      "title": "[T7] Publish reproducible setup, methodology and verified demo evidence",
+      "state": "open",
+      "assignees": [],
+      "comments": 0,
+      "verified": true
+    }
+  ],
+  "all_eight_verified": true,
+  "existing_comments_preserved": true,
+  "existing_metadata_preserved": true,
+  "documentation_reference_commit": "285a956c327b27079472343ab548e26e9e962a90",
+  "verified_date": "2026-10-17",
+  "timezone": "America/Los_Angeles",
+  "verification": {
+    "publisher_tests_passed": 11,
+    "local_backend_tests_passed": 21,
+    "live_model_accuracy_verified": false,
+    "live_photon_delivery_verified": false
+  },
+  "notes": [
+    "Updated existing issues rather than creating duplicates.",
+    "Preserved issue metadata, original comments and checked work.",
+    "Published planning/interface documentation only; application source remains local.",
+    "Review branch is unmerged; main was not changed by this update."
+  ]
+}
