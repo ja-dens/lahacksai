@@ -203,3 +203,24 @@ contract fixture checker, agent.py --check, and pip check passed. No application
 backend, Photon transport, or new live agent interaction was verified by this
 merge. Prevention: fetch and reconcile shared task definitions before starting
 new module work; keep earlier evidence clearly labeled as historical.
+
+## MODULE-001 — 2026-10-17: local runtime and SDK compatibility checks
+
+The first Jac installation attempt could not resolve PyPI inside the network
+sandbox. The same pinned install succeeded with approved network access; no
+package-version fallback was needed. Jac 0.16.7 and llvmlite 0.50.0 match the
+recorded prototype runtime; Pillow 12.0.0 supplies actual PNG verification.
+
+Initial ACP test code called build_schema_digest without the explicit model
+argument required by installed uagents 0.26.1. Corrected the test to use the real
+installed method signature. Initial Jac checks also caught a missing closing
+brace and dynamic-boundary type mismatches. Corrected the brace, kept runtime
+validation and added explicit conversions after validation. Subsequent module
+tests and both Jac module checks passed. Prevention: test actual installed SDK
+schemas and run the pinned compiler before claiming module completion.
+
+The final text/credential scan found generated binary .jir files in src/.jac/cache
+and stopped on decoding them as text. Added .jac/ to .gitignore so compiler caches
+stay local, then reran the changed-file scan. Prevention: exclude generated
+runtime files before reviewing/staging source; do not treat a mixed shell batch's
+last exit code as proof that every preceding check passed.

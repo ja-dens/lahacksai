@@ -6,7 +6,7 @@ Help older adults understand stickers in context. In an enabled conversation, th
 
 This revision publishes product/planning documentation, issue automation and synthetic interface fixtures. The application backend remains separate implementation/publication work. Fixture checks do not establish live Photon delivery, model accuracy or ASI:One availability.
 
-This branch also includes the standalone Fetch sponsor quickstart in [agent.py](agent.py), with [setup instructions](docs/FETCH_SETUP.md). Its sun-topic ASI:One exchange was verified on October 17, 2026. The saved-explanation/feedback adapter in T8 is a separate implementation task.
+This branch also includes the standalone Fetch sponsor quickstart in [agent.py](agent.py), with [setup instructions](docs/FETCH_SETUP.md). Its sun-topic ASI:One exchange was verified on October 17, 2026. Independent T8 [saved-result tools](docs/FETCH_AGENT_DEMO.md) and the T3 [one-call interpreter](docs/INTERPRETER.md) now have local mock-based tests; their live integration remains unverified.
 
 Read [the product decisions](docs/PRODUCT_SPEC.md), [internal contracts](docs/CONTRACTS.md), [parallel assignments](docs/DELEGATION.md), [roadmap and observed progress](PLANS.md), and [error log](ERROR_LOG.md). Original parent-folder planning informed the module split; the current specification records subsequent user choices.
 

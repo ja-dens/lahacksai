@@ -60,4 +60,4 @@ An agreed duplicate key is platform plus conversation_id plus message_id, with p
 
 ## Example exchange
 
-Use fixtures/chats/joke.json with the original synthetic PNG fixtures/stickers/laughing.png. The default fixture interpreter does not analyze the image; it supplies a fixed result to test coordination. The optional live model mode sends the actual PNG and frozen context through one API call after access is configured. Neither mode sends messages through Photon yet.
+Use fixtures/chats/joke.json with the user-provided demo PNG fixtures/stickers/hamster_tongue_out.png. The default fixture interpreter does not analyze the image; it supplies a fixed result to test coordination. The optional live model mode sends the actual PNG and frozen context through one API call after access is configured. Neither mode sends messages through Photon yet.

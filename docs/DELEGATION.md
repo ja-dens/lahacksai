@@ -2,7 +2,7 @@
 
 Use docs/PRODUCT_SPEC.md for current product choices and docs/CONTRACTS.md for interfaces. The older parent-folder STICKER_PROJECT_PLAN.md supplies the original module split; its rolling-only buffer and older dependency sequence are superseded by D08–D13 and this breakdown.
 
-Every module task can start with the published synthetic JSON boundaries in fixtures/contracts/ and the original PNG in fixtures/stickers/laughing.png. Run `python3 scripts/check_contract_fixtures.py` first; it uses Python's standard library and no credentials. Backend application source remains separate implementation/publication work. File names below are ownership targets, not a claim those implementations already exist on GitHub.
+Every module task can start with the published synthetic JSON boundaries in fixtures/contracts/ and the demo PNG in fixtures/stickers/hamster_tongue_out.png. Run `python3 scripts/check_contract_fixtures.py` first; it uses Python's standard library and no credentials. Backend application source remains separate implementation/publication work. File names below are ownership targets, not a claim those implementations already exist on GitHub.
 
 ## Independently completable tasks
 

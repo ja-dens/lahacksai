@@ -141,3 +141,83 @@ Reorientation checks passed: the current shared fixture checker, agent.py --chec
 pip check, and staged whitespace checks. The new T8 tools and T3 interpreter have
 not been implemented in this clone. The earlier 21-test/Jac results above describe
 the other workspace checkpoint, not application tests rerun in this branch.
+
+## October 17 T8 and T3 independent module implementation
+
+The user clarified that Codex should implement clear requirements and explicitly
+justify decisions, rather than requiring the user to invent the design first.
+Implemented the assigned independent modules on codex/fetch-tools. These are
+local working-tree changes; no commit, push, issue update, registration or paid
+model request was made for this implementation.
+
+T8: src/adapters/fetch_agent.py supplies the two narrow saved-result operations,
+an in-memory synthetic backend, bounded parsing of the approved prompts, and a
+thin ACP handler. The additional src/fetch_tools.jac contains scoped lookup,
+feedback validation and replay policy so important product rules remain in Jac.
+Missing, unknown and unauthorized windows return the same safe response. The
+trusted caller supplies identity; tool arguments cannot set it. Same-command
+replays return the original receipt without another write, while changed
+arguments under an existing command are rejected. Public synthetic serving is
+explicitly opt-in; it exposes fictional sample data rather than claiming real
+app authentication. No model or Photon operation is called by these tools.
+
+T3: src/interpreter.jac validates the frozen v2 context, orchestrates one model
+request and applies the published candidate policy. src/adapters/vision.py sends
+the actual decoded PNG and projected context to the replaceable OpenAI Responses
+adapter with retries disabled. It excludes recipient routing, feedback and
+older-history fields. Invalid inputs, corrupt media, invalid outputs, timeouts
+and provider failures preserve a failed-run snapshot in memory and raise rather
+than fabricate a meaning. prompts/sticker.txt keeps conversation/image content
+as evidence and presentation settings separate from inferred meaning.
+
+Rationale and tradeoffs are in docs/FETCH_AGENT_DEMO.md and docs/INTERPRETER.md.
+Explicit prompt matching avoids an unnecessary local model call for deterministic
+saved-result tools; arbitrary paraphrases are currently unsupported. Jac owns
+policy, Python owns external SDK/format decoding. A separate optional
+requirements-agent-modules.txt pins the runtime without rewriting another owner's
+unpublished dependency setup; T0 must consolidate the reviewed dependency files.
+Pillow enables actual PNG integrity/pixel checks before inference.
+
+Verification in this clone: all 26 unittest cases passed (15 Fetch, 11 interpreter),
+including real ACP message schemas with fake transport and real OpenAI SDK
+serialization through httpx.MockTransport. Tests cover both approved tool prompts,
+permission/identity failures, second-choice validation, repeated writes, published
+candidate/result fixtures, one serialized request containing the exact synthetic
+PNG, context exclusion, operational failures and disabled retries. Both Jac
+modules passed jac check src --nowarn. Shared fixture checks, the original
+agent.py --check, pip check, Python compilation and whitespace checks passed.
+The offline Fetch demo returned the stored explanation and a recipient_judgment
+receipt. These results do not establish semantic accuracy or live service access.
+
+Application source estimate: 289 Jac / 500 total nonblank, noncomment source lines
+under src/ = 57.8%. Count .jac and .py files, ignoring blank lines, lines beginning
+with #, and one-line triple-quoted docstrings. Exclude tests, prompts, scripts,
+docs, fixtures, dependencies and the standalone agent.py tutorial. This is an
+estimate for the currently published module scope, not a sponsor acceptance claim
+or the separate workspace's earlier whole-backend estimate.
+
+Remaining handoffs: T4's real database/authorized operations and durable atomic
+feedback-command deduplication; T5's verified account binding, model access,
+persistent run storage and Photon integration; T6's held-out semantic evaluation.
+The existing earlier sun tutorial's live round trip remains the only observed
+live Fetch interaction. The new tools' live registration/query and the vision
+smoke command are documented opt-in steps and have not been run. No issues were
+closed, no teammate messages were sent, and codex/fetch-ai-setup was preserved.
+
+## October 17 user-selected demo sticker
+
+Replaced the generated laughing image with the user-supplied
+fixtures/stickers/hamster_tongue_out.png (498 × 408 PNG), copied unchanged from
+the supplied attachment. Updated chat/contract references, the incoming and
+request base64 bytes and image hashes, and the saved request/snapshot hash.
+Fixture documentation now distinguishes the provided image from the fictional
+chat; no original authorship or regeneration claim is made for this image.
+Fixed model/candidate outputs remain policy-test examples, not measured
+interpretations of the replacement sticker. The prior synthetic-image checks
+above describe the earlier fixture revision.
+
+Verification: all 26 module tests, the shared contract fixture checker (including
+the image-byte comparison and snapshot hash), and git diff --check passed.
+No references to laughing.png remain in the active fixture/check/test guides.
+Existing staged work is preserved; replacement changes are left unstaged for
+the user's planned stage, commit and push.

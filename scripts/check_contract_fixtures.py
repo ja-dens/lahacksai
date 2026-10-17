@@ -1,4 +1,4 @@
-"""Check published synthetic interfaces without importing application/vendor code."""
+"""Check published demo interfaces without importing application/vendor code."""
 
 import base64
 import hashlib
@@ -39,7 +39,7 @@ def main():
     require("destination" not in request and "feedback" not in request, "Routing or feedback leaked into model input")
     media = request["sticker"]
     png = base64.b64decode(media["data_base64"], validate=True)
-    require(png == (ROOT / "fixtures/stickers/laughing.png").read_bytes(), "Image fixture mismatch")
+    require(png == (ROOT / "fixtures/stickers/hamster_tongue_out.png").read_bytes(), "Image fixture mismatch")
     require(png.startswith(b"\x89PNG\r\n\x1a\n") and len(png) <= 5_000_000, "Invalid initial image format/size")
     require(hashlib.sha256(png).hexdigest() == media["sha256"], "Image digest mismatch")
     require(event["sticker"] == media, "Event and request images differ")
@@ -69,7 +69,7 @@ def main():
     require(delivery["recipient_id"] == feedback["recipient_id"] == saved["recipient_id"] == fetch["trusted_demo_identity"], "Recipient mismatch")
     require(feedback["window_id"] == saved["window_id"] == fetch["lookup"]["window_id"] == fetch["feedback"]["window_id"], "Window mismatch")
     require(feedback["provenance"] == "recipient_judgment", "Feedback wrongly labeled sender confirmation")
-    print("Contract fixtures passed: synthetic image, v2 inputs, immutable snapshot, output cases, private delivery and Fetch examples. No network calls.")
+    print("Contract fixtures passed: demo image, v2 inputs, immutable snapshot, output cases, private delivery and Fetch examples. No network calls.")
 
 
 if __name__ == "__main__":

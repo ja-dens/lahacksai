@@ -5,7 +5,8 @@ first. The root `agent.py` keeps its sun-topic assistant, `asi1` model, ACP
 acknowledgements/replies, port 8001, and mailbox registration. Small changes load
 secrets from `.env`, use timezone-aware timestamps, keep runtime files in ignored
 `local-data/fetch/`, and provide an offline check. This example is setup code;
-sticker interpretation and Photon delivery are not implemented.
+the independent sticker modules have [their own guide](INTERPRETER.md), and
+Photon delivery remains unimplemented in this clone.
 
 Verified October 17, 2026: mailbox registration succeeded, the user received the
 sun-facts reply from the named agent in ASI:One, and the local runtime logged a
@@ -53,7 +54,8 @@ voluntary exchange-specific feedback. Use the scoped backend boundary in
 [CONTRACTS.md](CONTRACTS.md), starting with the published synthetic fixtures.
 Fetch does not trigger another sticker interpretation or enter the automatic
 Photon explanation path. The root agent.py remains a standalone transport
-tutorial; the adapter's assigned target is src/adapters/fetch_agent.py.
+tutorial. The implemented adapter and offline demo are documented in
+[FETCH_AGENT_DEMO.md](FETCH_AGENT_DEMO.md).
 
 The user also owns [T3/#4](https://github.com/ja-dens/lahacksai/issues/4), the
 separate one-call image interpreter and candidate policy. Its real model mode

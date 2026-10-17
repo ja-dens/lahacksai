@@ -1,0 +1,5 @@
+# Isolated T3/T8 setup, pending T0 consolidation with the unpublished backend.
+-r requirements-fetch.txt
+jaclang==0.16.7
+llvmlite==0.50.0
+Pillow==12.0.0

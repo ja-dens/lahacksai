@@ -2,7 +2,7 @@
 
 Run `python3 scripts/check_contract_fixtures.py` from the repository root. This uses Python's standard library only; no vendor packages, model key, Photon line, running application or network is needed.
 
-All identities and conversation text are synthetic. The original PNG is in ../stickers/laughing.png. Base64 image data is included in the JSON boundary so a module owner can exercise the real request shape. Fixed candidate/result files are interface examples, not measured model predictions or proof of sender intent.
+All identities and conversation text are synthetic. The user-provided demo PNG is in ../stickers/hamster_tongue_out.png. Its authorship is not asserted here; the synthetic label applies to the fictional exchange, not the image. Base64 image data is included in the JSON boundary so a module owner can exercise the real request shape. Fixed candidate/result files are interface examples, not measured model predictions or proof of sender intent.
 
 | Files | Consumer and purpose |
 | --- | --- |
