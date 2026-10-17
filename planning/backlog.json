@@ -64,7 +64,7 @@
   "issues": [
     {
       "id": "T0",
-      "title": "Agree internal types and one shared fixture",
+      "title": "Review v2 contracts, personalization and context-window fixtures",
       "owner_role": "C",
       "depends_on": [],
       "milestone": "modules",
@@ -76,7 +76,7 @@
     },
     {
       "id": "T1",
-      "title": "Verify Photon beta group stickers and private delivery",
+      "title": "Unblock Photon beta access and verify sticker/private delivery",
       "owner_role": "A",
       "depends_on": [],
       "milestone": "modules",
@@ -88,7 +88,7 @@
     },
     {
       "id": "T2",
-      "title": "Implement normalized Photon receive and private send",
+      "title": "Connect authenticated Photon events to private outbox delivery",
       "owner_role": "A",
       "depends_on": [
         "T0",
@@ -103,7 +103,7 @@
     },
     {
       "id": "T3",
-      "title": "Implement one multimodal sticker interpretation call",
+      "title": "Validate live multimodal interpretation and compatible-candidate policy",
       "owner_role": "B",
       "depends_on": [
         "T0"
@@ -117,7 +117,7 @@
     },
     {
       "id": "T4",
-      "title": "Implement context selection and enrollment routing",
+      "title": "Persist conversation history, immutable windows and recipient routing",
       "owner_role": "C",
       "depends_on": [
         "T0"
@@ -131,7 +131,7 @@
     },
     {
       "id": "T5",
-      "title": "Connect one real sticker to one private explanation",
+      "title": "Connect an incoming sticker to an automatic private phone explanation",
       "owner_role": "C",
       "depends_on": [
         "T2",
@@ -147,10 +147,11 @@
     },
     {
       "id": "T6",
-      "title": "Evaluate context benefit and uncertainty",
+      "title": "Evaluate bounded context, personalization and interpretation uncertainty",
       "owner_role": "B",
       "depends_on": [
-        "T3"
+        "T3",
+        "T4"
       ],
       "milestone": "demo",
       "labels": [
@@ -161,7 +162,7 @@
     },
     {
       "id": "T7",
-      "title": "Package reproducible setup and the working demo",
+      "title": "Publish reproducible setup, methodology and verified demo evidence",
       "owner_role": "C",
       "depends_on": [
         "T5",

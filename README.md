@@ -12,6 +12,8 @@ Start with one channel, static stickers, one language, and one enrolled test rec
 
 ## Start here
 
+- [Current product decisions and methodology](docs/PRODUCT_SPEC.md)
+- [October 17 methodology and issue update](planning/METHODOLOGY_UPDATE.md)
 - [Roadmap and progress](PLANS.md)
 - [Shared interfaces](docs/CONTRACTS.md)
 - [Independent assignments](docs/DELEGATION.md)

@@ -1,25 +1,24 @@
 ## Summary
 
-Establish the private sticker interpreter's implementation plan and independent three-person ownership. Add a repository workflow that publishes the task backlog, labels, and milestones from versioned planning files.
+The existing task backlog still describes bounded in-memory history and an earlier interpretation flow. Update T0–T7 and the shared methodology/interfaces for persistent history, per-sticker snapshots, 20–25 preceding messages with no age cutoff, declared personalization, evaluation-only feedback, and compatible candidate pairs.
 
 ## Features
 
-- A narrow MVP, roadmap, interfaces, ownership, and reusable work requests.
-- Eight task definitions with dependencies and acceptance evidence.
-- Issue and pull-request templates, synthetic text input, and credential placeholders.
-- A tested planning publisher that preserves human issue content and records actual published links.
+- Revised actionables and acceptance evidence in all eight existing tasks; T6 now depends on the model and context foundations.
+- The Photon access blocker is attributed to the existing T1 verification comment, whose checked work is preserved.
+- Local prototype progress is distinguished from unpublished application source and unverified live model/phone behavior.
+- Existing issue assignments, comments, state, milestones, and human notes remain intact.
 
 ## Jac Usage
 
-No application source is implemented in this change. Repository automation uses Node.js because it runs on GitHub Actions and calls the GitHub REST API without application dependencies. The implementation plan places important core behavior in Jac and retains the at least 40% Jac application-source requirement.
+No application source is changed or published by this planning-only review. The local prototype is separate; its previously measured Jac source share does not describe the contents of this PR.
 
 ## Testing
 
-- Publisher test suite: 11 tests passed, including reruns, lost responses, human edits, assignments, and PR restrictions.
-- Dry run: validated eight issues, eight labels, two milestones, and dependencies with zero external writes.
-- Workflow/form YAML, local Markdown links, and whitespace checks passed locally.
-- The publication report records actual remote results. These checks do not establish Photon or model functionality.
+- 11 planning-publisher tests and the dry run passed locally.
+- 21 backend tests passed as local checkpoint evidence; application/test source is not included in this PR.
+- Text whitespace and documentation links are checked before publishing.
 
 ## Known Issues
 
-Actual Photon project/line access, native sticker-format support, private delivery, model access/budget, and deployment remain unverified. Usernames have not been supplied. GitHub repository settings may prevent automatic draft PR creation; the publisher records that limitation without changing settings.
+Model access, native Photon sticker receipt/private delivery, live interpretation accuracy, authenticated operation, retries and production data controls remain open. T0/T7 track publishing the local implementation and reproducing it on another teammate's machine. This PR does not merge source changes or close any task issue.
