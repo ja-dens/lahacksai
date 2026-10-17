@@ -29,3 +29,13 @@ Why: the bundled Node runtime did not include that optional package.
 Correction: use the system Ruby YAML parser for the owned workflow/form files and account for its YAML 1.1 handling of the on key. Keep the publisher itself dependency-free.
 
 Prevention: check tool availability before relying on optional packages and make verification commands stop on a failed check.
+
+## 2026-10-17: repository blocked Actions-created pull requests
+
+What happened: issue and milestone publication succeeded, but the workflow's draft PR request returned HTTP 403: GitHub Actions is not permitted to create or approve pull requests.
+
+Why: this repository's Actions policy does not allow that operation. Contents and issue access do not establish permission to create PRs as the Actions app.
+
+Status and handling: eight issues, two milestones, and the review branch were published. The report includes the warning and compare link. No PR was created, main was left unchanged, and no repository setting was altered. PR creation remains available through a separately authenticated user or authorized integration.
+
+Prevention: verify each external operation separately and keep optional PR creation failure from discarding successfully published planning items.

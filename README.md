@@ -19,6 +19,12 @@ Start with one channel, static stickers, one language, and one enrolled test rec
 - [Eight publishable task definitions](planning/backlog.json)
 - [Reusable planning prompts](PROMPTS.md)
 
+## Published planning work
+
+The initial planning publication on October 17, 2026 used the codex/sticker-planning review branch and left main unchanged. GitHub Actions published [eight task issues](https://github.com/ja-dens/lahacksai/issues) and two milestones. [Review the branch changes](https://github.com/ja-dens/lahacksai/compare/main...codex%2Fsticker-planning).
+
+Automatic draft PR creation was blocked by this repository's GitHub Actions setting. No PR is claimed. The generated publication report records that warning and the actual issue/milestone URLs.
+
 The three-person, 24-hour baseline is a planning assumption carried from the project discussion. Owner A handles Photon, B handles interpretation, and C handles context and coordination. An optional fourth teammate handles user testing and demo evidence.
 
 ## GitHub planning automation
