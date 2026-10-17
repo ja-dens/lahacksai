@@ -2,6 +2,20 @@
 
 This module completes the independently testable T2 transport boundary. It does not establish a verified Photon line, native sticker marker, event subscription, phone receipt, or working end-to-end application. T1 supplies observed provider evidence; T4 owns persistent context/enrollment/outbox/deduplication; T5 wires authenticated ingress and real clients. No database, model or coordinator implementation is imported by T2.
 
+## Reminder: when the Photon API key is available
+
+**Adding the key is configuration; completing the live integration also requires the verified event hooks and real receive/send tests below.** The HTTP client accepts an API key already, but has only been tested with fake transports. Real payloads may require adapter corrections; their scope is not known until tested.
+
+- [ ] **T1:** Confirm Photon 2.0 beta project access, required permissions, a usable channel/line and authorized test participants.
+- [ ] **T5:** Load credentials outside tracked files and inject the key, project, platform and agent identities. This module does not automatically load a `.env` file; never put a real key in code, fixtures or logs.
+- [ ] **T1 → T2:** Collect a sanitized real event for the selected API version. Verify the envelope, message IDs/timestamps, native sticker marker, attachment metadata and actual media access. An ordinary image must not be guessed to be a sticker.
+- [ ] **T2/T5:** Supply the real `verify_event`, `decode_event` and `classify_attachment` implementations. The synthetic test signature, envelope and `metadata.demo.kind` marker are not production implementations.
+- [ ] **T4/T5:** Bind `resolve_destination` to verified enrollment, source membership and the recipient's private direct space. Do not derive the destination from model output or default to the source group.
+- [ ] **T1/T5:** Receive an actual supported sticker and send a fixed explanation privately. Record API acceptance and observed phone receipt separately; also verify replay/retry behavior using the original idempotency key before wiring the full automatic flow.
+- [ ] **T2:** Correct any observed API/media differences, add sanitized regression examples and rerun the standalone checks. Preserve v2 boundaries or coordinate changes through T0. Record dated results, remaining blockers and actual errors in the [T2 log](errors/T2_PHOTON_ADAPTER.md), existing ERROR_LOG.md and PLANS.md.
+
+Keep the offline mocks for repeatable tests after live access is configured. A passing mock suite does not complete this checklist; T1/T5 still own live integration evidence.
+
 ## Run the standalone checks
 
 From the repository root, with Python 3.10 or newer:
