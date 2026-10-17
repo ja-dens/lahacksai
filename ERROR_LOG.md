@@ -159,3 +159,13 @@ Status: local correction verified; remote publication is recorded after executio
 ## TOOL-006 — 2026-10-17: patch context differed from the current publisher
 
 A small dry-run-output patch expected a destructuring expression, while the file used an explicit task mapping. The patch failed without changing files. Read the exact current lines, applied the matching patch, and included the added integration-dependency output in the publisher tests. Prevention: inspect current source before constructing exact-context patches.
+
+## T3 implementation chat — October 17, 2026
+
+Detailed observed errors, reproductions, fixes and verification for this branch are maintained in [docs/T3_ERROR_LOG.md](docs/T3_ERROR_LOG.md). Initial verified defects in the earlier local prototype: T3-001 malformed candidate sets bypassed policy validation; T3-002 extra request fields reached the model text; T3-003 invalid media reached a mock SDK. These were reproduced with synthetic data and no network calls. Track resolution in the dedicated log; negative-test scenarios are not claims of additional observed incidents.
+
+T3 completion verification: all 34 standalone tests, Jac checking and synthetic contract checks passed. T3-001 through T3-005 are resolved in the dedicated log. Tests verify behavior with fake SDK clients and HTTP transports; no live inference/accuracy or phone delivery is claimed.
+
+T3-006 also corrects the legacy environment example's 8-message default to the agreed 25. Actual credentials/environment files were not edited. Shared example integration is documented for T0/T4.
+
+T3-007 excludes generated Jac caches. T3-008 aligns null relationship provenance with the reviewed v2 boundary and requires normalized nullable fields. All 34 T3 tests and Jac checking pass. Concurrent documentation work in the original checkout was observed and left intact; the original application source, prompts and tests remain unchanged by this task.

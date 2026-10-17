@@ -4,7 +4,7 @@ Help older adults understand stickers in context. In an enabled conversation, th
 
 ## Current repository scope
 
-This revision publishes product/planning documentation, issue automation and synthetic interface fixtures. The application backend remains separate implementation/publication work. Fixture checks do not establish live Photon delivery, model accuracy or ASI:One availability.
+This local T3 branch adds a standalone multimodal interpreter, Jac policy, mock-tested SDK adapter and fixture/live commands to the planning repository. Start with [the T3 guide](docs/T3_INTERPRETER.md). The rest of the application backend and Photon integration remain separate work. The branch has not been pushed or merged; fixture checks do not establish live model accuracy, Photon delivery or ASI:One availability.
 
 Read [the product decisions](docs/PRODUCT_SPEC.md), [internal contracts](docs/CONTRACTS.md), [parallel assignments](docs/DELEGATION.md), [roadmap and observed progress](PLANS.md), and [error log](ERROR_LOG.md). Original parent-folder planning informed the module split; the current specification records subsequent user choices.
 
@@ -36,3 +36,7 @@ node .github/scripts/sync-planning.cjs --dry-run
 ```
 
 Photon 2.0 beta line/sticker/private-send access, live model evaluation, authenticated enrollment and deployment still require verification. See T1's existing evidence and the task-specific done criteria. Keep credentials and real chat histories outside tracked files.
+
+## Local T3 component branch
+
+This branch adds the independently runnable multimodal interpreter. Start with [T3 setup, tests and handoff](docs/T3_INTERPRETER.md). Fixture command: `.venv/bin/python -m src.adapters.vision --case compatible`. The dedicated [T3 error log](docs/T3_ERROR_LOG.md) supplements the existing ERROR_LOG.md. These local changes are not pushed or merged and do not implement Photon delivery.

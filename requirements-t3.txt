@@ -1,0 +1,5 @@
+# T3-only dependencies; shared application dependencies remain owned by T0.
+jaclang==0.16.7
+llvmlite==0.50.0
+openai==3.34.0
+Pillow==13.0.0
