@@ -1,0 +1,23 @@
+name: Sticker interpreter bug
+description: Record a failure with reproducible evidence.
+title: "[Bug] "
+body:
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed and expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Use synthetic inputs and omit secrets and private chat content.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and environment
+    validations:
+      required: true

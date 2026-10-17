@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "repository": "ja-dens/lahacksai",
+  "owners": {
+    "A": null,
+    "B": null,
+    "C": null,
+    "D": null
+  },
+  "labels": [
+    {
+      "name": "sticker:planning",
+      "color": "5319e7",
+      "description": "Sticker project planning and shared foundations"
+    },
+    {
+      "name": "sticker:photon",
+      "color": "1d76db",
+      "description": "Photon 2.0 messaging integration"
+    },
+    {
+      "name": "sticker:model",
+      "color": "0e8a16",
+      "description": "Multimodal interpretation"
+    },
+    {
+      "name": "sticker:workflow",
+      "color": "006b75",
+      "description": "Context, enrollment, and delivery workflow"
+    },
+    {
+      "name": "sticker:integration",
+      "color": "d4c5f9",
+      "description": "End-to-end integration and demo"
+    },
+    {
+      "name": "sticker:evaluation",
+      "color": "fbca04",
+      "description": "Interpretation and usability evidence"
+    },
+    {
+      "name": "sticker:priority-1",
+      "color": "b60205",
+      "description": "Required for the first complete product flow"
+    },
+    {
+      "name": "sticker:priority-2",
+      "color": "d93f0b",
+      "description": "Evidence and reproducibility after the first flow"
+    }
+  ],
+  "milestones": [
+    {
+      "id": "modules",
+      "title": "Sticker MVP: independent modules",
+      "description": "Agree interfaces and implement independently usable messaging, interpretation, and workflow modules."
+    },
+    {
+      "id": "demo",
+      "title": "Sticker MVP: working phone demo",
+      "description": "Integrate and evaluate the first reproducible live sticker explanation flow."
+    }
+  ],
+  "issues": [
+    {
+      "id": "T0",
+      "title": "Agree internal types and one shared fixture",
+      "owner_role": "C",
+      "depends_on": [],
+      "milestone": "modules",
+      "labels": [
+        "sticker:planning",
+        "sticker:priority-1"
+      ],
+      "body_file": "planning/issues/T0.md"
+    },
+    {
+      "id": "T1",
+      "title": "Verify Photon beta group stickers and private delivery",
+      "owner_role": "A",
+      "depends_on": [],
+      "milestone": "modules",
+      "labels": [
+        "sticker:photon",
+        "sticker:priority-1"
+      ],
+      "body_file": "planning/issues/T1.md"
+    },
+    {
+      "id": "T2",
+      "title": "Implement normalized Photon receive and private send",
+      "owner_role": "A",
+      "depends_on": [
+        "T0",
+        "T1"
+      ],
+      "milestone": "modules",
+      "labels": [
+        "sticker:photon",
+        "sticker:priority-1"
+      ],
+      "body_file": "planning/issues/T2.md"
+    },
+    {
+      "id": "T3",
+      "title": "Implement one multimodal sticker interpretation call",
+      "owner_role": "B",
+      "depends_on": [
+        "T0"
+      ],
+      "milestone": "modules",
+      "labels": [
+        "sticker:model",
+        "sticker:priority-1"
+      ],
+      "body_file": "planning/issues/T3.md"
+    },
+    {
+      "id": "T4",
+      "title": "Implement context selection and enrollment routing",
+      "owner_role": "C",
+      "depends_on": [
+        "T0"
+      ],
+      "milestone": "modules",
+      "labels": [
+        "sticker:workflow",
+        "sticker:priority-1"
+      ],
+      "body_file": "planning/issues/T4.md"
+    },
+    {
+      "id": "T5",
+      "title": "Connect one real sticker to one private explanation",
+      "owner_role": "C",
+      "depends_on": [
+        "T2",
+        "T3",
+        "T4"
+      ],
+      "milestone": "demo",
+      "labels": [
+        "sticker:integration",
+        "sticker:priority-1"
+      ],
+      "body_file": "planning/issues/T5.md"
+    },
+    {
+      "id": "T6",
+      "title": "Evaluate context benefit and uncertainty",
+      "owner_role": "B",
+      "depends_on": [
+        "T3"
+      ],
+      "milestone": "demo",
+      "labels": [
+        "sticker:evaluation",
+        "sticker:priority-2"
+      ],
+      "body_file": "planning/issues/T6.md"
+    },
+    {
+      "id": "T7",
+      "title": "Package reproducible setup and the working demo",
+      "owner_role": "C",
+      "depends_on": [
+        "T5",
+        "T6"
+      ],
+      "milestone": "demo",
+      "labels": [
+        "sticker:integration",
+        "sticker:priority-2"
+      ],
+      "body_file": "planning/issues/T7.md"
+    }
+  ]
+}
