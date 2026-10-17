@@ -173,3 +173,9 @@ Correction: set the published template to 25, record existing defaults in config
 Prevention and verification: the regression suite explicitly substitutes the old value 8 and verifies rejection; it also keeps credentials/model placeholders empty and runs without application packages or network. CI now checks the configuration surfaces. Local check results and actual remote publication status are recorded in PLANS.md/T0's review.
 
 Status: correction implemented and locally verified; remote CI/source landing verified through the T0 PR.
+
+## T2 — 2026-10-17: Photon adapter discoveries and corrections
+
+The dedicated [T2 chat log](docs/errors/T2_PHOTON_ADAPTER.md) records ongoing adapter work on codex/t2-photon-adapter. T2-001: the generic documentation URL resolved to Spectrum and searches mixed unrelated Photon products; use explicit beta pages and a pinned official specification. T2-002: an AsyncAPI inspection assumed components.messages and failed; inspect actual structure and keep version-specific event decoding injected. T2-003: code review found credential/scope failures could become unsupported-media results and denied routing could become retryable send failures; narrowed the abstention error set, preserved operational errors, denied unauthorized destinations, and checked REST acknowledgment scope/status.
+
+Verification: 59 adapter tests, 10 shared-contract regression tests and the contract checker passed without credentials, installed application packages or network access. The test suite forbids socket creation and tests the auth/routing regressions. No live Photon failure, phone delivery or deployed fix is claimed. Preserve future errors and corrections in both logs; T1/T5 still verify actual beta event/sticker metadata and channel access.

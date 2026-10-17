@@ -1,0 +1,30 @@
+name: Check Photon adapter
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - src/adapters/photon.py
+      - tests/test_photon.py
+      - fixtures/stickers/laughing.png
+      - fixtures/contracts/**
+      - config/defaults.v2.json
+      - .github/workflows/check-photon-adapter.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  photon-adapter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Check standalone transport and shared contracts
+        run: |
+          python3 -S -m unittest discover -s tests -p 'test_photon.py'
+          python3 -S scripts/check_contract_fixtures.py
+          python3 -S -m unittest discover -s checks -p 'test_contract_fixtures.py'

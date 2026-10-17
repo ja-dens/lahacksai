@@ -1,0 +1,79 @@
+{
+  "evidence": "synthetic_mock_only; no live provider, model or phone operations",
+  "event_envelope_note": "Test-only decoder and metadata.demo.kind; not a verified Photon event envelope/sticker marker. The message resource fields follow the cited beta API.",
+  "provider_message": {
+    "id": "demo-3",
+    "projectId": "demo-project",
+    "platform": "imessage",
+    "status": "received",
+    "sentBy": {
+      "id": "demo-younger-sender",
+      "projectId": "demo-project",
+      "platform": "imessage"
+    },
+    "space": {
+      "id": "demo-family-chat",
+      "projectId": "demo-project",
+      "platform": "imessage"
+    },
+    "timestamps": {
+      "receivedAt": "2026-10-17T12:00:06-07:00"
+    },
+    "content": {
+      "type": "attachment",
+      "attachmentId": "demo-attachment",
+      "metadata": {
+        "demo": {
+          "kind": "sticker"
+        }
+      }
+    }
+  },
+  "ingress_receipt": {
+    "status": "forwarded",
+    "trigger": "interpret_sticker",
+    "event": {
+      "platform": "imessage",
+      "conversation_id": "demo-family-chat",
+      "message_id": "demo-3",
+      "sender_id": "demo-younger-sender",
+      "sent_at": "2026-10-17T19:00:06.000000+00:00",
+      "from_assistant": false,
+      "text": null,
+      "kind": "sticker",
+      "sticker": {
+        "mime_type": "image/png",
+        "data_base64": "iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAADdvvtQAAAFL0lEQVR4nO3dy40cZwxFYQWjhWHBIXhhOBdvHZQicgZOwRFQBgozkDQPVYs/efk4B9wJ06gmv2mtpP5gRI4+qB+AegcgcgUgcgUgcgUgcgUgcgUgcgUgcgUgcgUgcgUgcgUgcgUgcgUgcgUgcgUgcgUgcgUgcgUgcgUgcrUe0D9/HpjF7QN0RAyentoBKAHNVkyjAQndrJE0EZDcyiZJswDJcexjNAWQHMRWRv0ByRHsZtQZkPzwMOoKSH5sGD3VDZD8wDD6tlaA5HfF0IuaAJKfE0Zv1AGQ/IoYervygOT3qzCFKwxIfrZqU7KqgOTXqjn1KglIfqfKU6x6gOQXqj+VKgZIfpsuU6ZKgORX6TU1KgNIfo+OU6AagOSX6DvqCgCS36D7SFMDkm9/xuiSApLvfdKI0gGSb3zeKALQoFEkAiTf9dRJTwFIvuXZk1s6IPl+N0xiAJo4ieUCkm92z2SVCEi+022TEoDmTkpZgOTb3DnxAWj0xJcCSL7HzRMcgKZPcPGA5BtkIpsG6NePn67Rn63Os0UWDEhxnq9HjqbKs4U1BNCrFypiqMSzhRUJSH0eOaNazxZTY0A3zyNhVPHZYgoDpLvQD/9077MF1A/Qzd9jya975WcD0M/sPe1UlZ+tIaBcPaE/2/3Zog21B5Tz432fDUBvbln1Ir2erSGgiLf97X7rvFT9Z4s21A8Qrwagn1xr2des/GyvzNHaAGKOzdFOA5Jvh7kz5wLQyjkXgFbOuQC0cs4FoJVzrqOA5Hth7s+hSgD64/O/L0e/4mJzeEuH0gN6dS8YCt/SocSA3tkLhmK3dCgloB/uBUOBWzoUgKoPgFx7WW4ocEuHAlDpAdCBvaw1FLulQwGo7gAIQAB6qLC9LDQUvqVDAajoAAhAAHq0IqsZMQACEIAerchqRgyAAASgRyuymhEDIAAB6NGKrGbEAAhAAHq0IqsZMSsB2S1DANJv6VwAKjoAyl7N77/81msA9Fphv17D9AQZuvsJdy4AAciV5n8oO7sauYMgQ/X//jLhf3HHx8/xD6H8jx8DkHwA9KKbb+Pcv7mUI4gDdHBLfQDZ4Q8hAJX9+DH5Vx0c2YscQSigU1uaCej97dx8BTmCaEBHttQKkB0wdP/H5QgSAPm3FKHHigByjhxBDqADExCAAOSq8bc2A0iuxwAkHwC9G4CKAAprAqC+htL2E3fhYEDGh1ABQJENAdTRUNpmQs8bD8j4EBr78WOTAP0///31d5dJ20n0bVMAWZIhOYtygOIbBaiLobRtJBw2C5BhaKAeGwmosqHMJeRcNRGQbTc0T49lA7K9hkbqsdmA6hhKfteZ90wHZILv5l1EJ1ePaQDZFkPj9ZgMkGm+I3wyHYUe2wYogZHwfUnOqANkSkPHJcnfi+qGUkCmN+TBJH9muR7TA7JChrqOtAKADENd9VgVQIahlnqsECDDUD89VguQYaiZHisHyDDUSY9VBGQYaqPHigIyDPXQY3UBGYYa6LHSgK7kZ6swhSsPyNYbql0HQLbYUPmaALqSnxM6L2oFyNYY6lM3QFfyA0PnqZ6AruTH3k3nqjOgK/nht9K56g/oSo5gH52rKYCu5CA20bmaBehKjmMHnauJgJ6TW5nr5rnRgJ7DTVg7AH0daI62D9B3IcbXekDkC0DkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDkCkDk6gs7+frrnGAeGQAAAABJRU5ErkJggg==",
+        "sha256": "eda8c6ab8cecc74f6c1b8e8ab366b303566c648db3ac3955fb57da3819210263"
+      },
+      "reply_to_message_id": null
+    },
+    "warning": null,
+    "error_code": null,
+    "retryable": false
+  },
+  "private_delivery_request": {
+    "recipient_id": "demo-older-recipient",
+    "source_conversation_id": "demo-family-chat",
+    "source_message_id": "demo-3",
+    "text": "This probably means the joke was so funny they are crying.\nThis is a likely interpretation, not confirmed sender intent."
+  },
+  "private_send_body": {
+    "spaceId": "demo-private-thread",
+    "senderId": "demo-agent",
+    "content": {
+      "type": "text",
+      "format": "plain",
+      "text": "This probably means the joke was so funny they are crying.\nThis is a likely interpretation, not confirmed sender intent."
+    }
+  },
+  "send_receipt": {
+    "status": "accepted",
+    "idempotency_key": "sticker-explanation:v2:8ed116cda840e906475a6d55482fa97fa8eff589cb182dd876dd06d3c01f9f3e",
+    "provider_message_id": "accepted-1",
+    "provider_status": "accepted",
+    "delivered": false,
+    "error_code": null,
+    "retryable": false
+  }
+}
