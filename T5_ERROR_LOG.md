@@ -23,3 +23,9 @@ Verification: Jac checking passed after correction, and the integration suite im
 ## T5-BUILD-002 — 2026-10-17: compiler cache appeared under source
 
 Type: tooling. Running the new Jac coordinator generated src/.jac/cache bytecode, while the base ignore file excluded Python caches but not Jac output. The cache was untracked and was not committed. Added .jac/ and .jac_cache/ ignore patterns and excluded generated output from source counting. `git check-ignore` verified the generated cache is ignored. Prevention: stage explicit source paths and inspect staged files; do not count compiler output toward Jac usage. Status: resolved; no compiler cache was committed.
+
+## T5-GITHUB-003 — 2026-10-17: chat artifact used an assumed PR number
+
+Type: tooling / publication. The PR creation API returned #14, but the immediately following chat-artifact call mistakenly used an assumed #15. Removed the incorrect attachment and attached the actual returned PR #14; both correction calls succeeded. No issue, branch or remote PR content was changed by the mistaken attachment.
+
+Prevention: derive attachment URLs from the successful PR result instead of predicting the next number. Verification: the API confirms PR #14 has head codex/t5-mock-integration and commit 0dcc77719cb764fdf6deb34843f9bf193ebfbecf; the chat artifact points to that URL. Status: resolved.
