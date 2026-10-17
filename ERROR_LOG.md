@@ -159,3 +159,17 @@ Status: local correction verified; remote publication is recorded after executio
 ## TOOL-006 — 2026-10-17: patch context differed from the current publisher
 
 A small dry-run-output patch expected a destructuring expression, while the file used an explicit task mapping. The patch failed without changing files. Read the exact current lines, applied the matching patch, and included the added integration-dependency output in the publisher tests. Prevention: inspect current source before constructing exact-context patches.
+
+## CONFIG-001 — 2026-10-17: published context default still used eight messages
+
+Type: documentation/configuration drift.
+
+What happened: live main's .env.example retained CONTEXT_MESSAGE_LIMIT=8 while PRODUCT_SPEC.md, CONTRACTS.md and shared request fixtures selected default 25 within the user's 20–25 range. A teammate copying the published template could implement the wrong window despite consistent local prototype defaults.
+
+Cause: the earlier planning/fixture publication did not include the local configuration-template correction. Existing fixture checks did not compare the template with the agreed defaults.
+
+Correction: set the published template to 25, record existing defaults in config/defaults.v2.json, document task-based shared-file ownership/change review, and validate template/default/request consistency. This changes no v2 DTO fields and does not claim a runtime loader exists.
+
+Prevention and verification: the regression suite explicitly substitutes the old value 8 and verifies rejection; it also keeps credentials/model placeholders empty and runs without application packages or network. CI now checks the configuration surfaces. Local check results and actual remote publication status are recorded in PLANS.md/T0's review.
+
+Status: correction implemented and locally verified; remote CI/source landing verified through the T0 PR.
