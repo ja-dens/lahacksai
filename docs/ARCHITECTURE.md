@@ -21,7 +21,7 @@ Use features the Free plan actually includes, and use each one for the job it su
 
 iMessage sends on the shared line have no per-message Photon fee. The enrolled recipient is chosen by enrollment settings, never by the model. If SMS voice is added later, reuse that same enrollment record and context window so the call and the text thread stay one conversation. Do not answer the agent's own outbound messages.
 
-Going live still needs one human step on the beta project `pho_prj_01m55yjqt0esk81ms9g1w3kyxs`: add the demo sender's iMessage phone number or Apple-account email, assign a shared-pool number, and complete one real 1:1 exchange. That exchange is the qualification. A saved API key is not.
+The beta project `pho_prj_01m55yjqt0esk81ms9g1w3kyxs` has one shared-pool number, `+16285024649`, paired with the enrolled sender. That sender completed one real 1:1 text exchange on October 17, 2026. Sticker media and a private explanation are still untested. A saved API key is not qualification by itself.
 
 ## Platform checks
 

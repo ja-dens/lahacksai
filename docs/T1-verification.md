@@ -13,9 +13,9 @@ Signed in at https://app.beta.photon.codes as the same Google account used for S
 | Organization | Kalena's Org, `pho_org_01m55yft3jfvq9b64abja4yf5w` |
 | Project | `lahacksai`, slug `lahacksai`, Free, `pho_prj_01m55yjqt0esk81ms9g1w3kyxs` |
 | API key | `lahacksai-t1`, 90 days, `platforms:read`, `platforms:write`, `project:read`, `project:write`. The secret is only in the gitignored `.env`. |
-| Phone | Verification was offered and skipped. No phone number is on the account. |
-| iMessage line | Not assigned. The page asks for a sender phone number or iMessage email before a shared-pool number can be assigned. |
-| Ping/reply | Not run. No message was sent or received. |
+| Phone | Account phone verification was skipped. The owner later supplied an iMessage sender, stored only in gitignored `.env` as `PHOTON_TEST_SENDER`. |
+| iMessage line | Assigned on October 17, 2026. `POST /v1/projects/{id}/platforms/imessage/assignments` returned 201. Assignment `pho_asg_01m562efr8e8g8pc3qtjvbcmre`. Shared-pool number `+16285024649`. |
+| Ping/reply | Inbound plain text `Ping` received at 2026-10-17T23:19:28Z as `pho_msg_698qe8a1b9hbzsqdkkf0w9bf5b` in direct space `pho_spc_0nhxpaja9ngpfvaj6eevmkcmd2`. A threaded reply returned 409 `SPACE_NOT_SENDABLE`. A normal message in that space, `pho_msg_40ncpnpd8cg1vrr2x6x5g26vy5`, was accepted and later read back with status `delivered` at 2026-10-17T23:20:51Z. |
 | Sticker media | Not sent. No bytes, media ID, timestamp, or direction were observed. |
 | Private explanation | Not sent. |
 
@@ -43,4 +43,4 @@ No Spectrum message, sticker, or private reply was sent. Spectrum is not evidenc
 
 ## Check
 
-There is no passing command. The blocked check is the beta ping walkthrough above. It requires `PHOTON_TEST_SENDER` and an assigned shared line, neither of which exists.
+The shared line received one inbound text and delivered one outbound text in the same direct space. Sticker media and a private explanation remain untested.
