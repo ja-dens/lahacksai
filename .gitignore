@@ -8,3 +8,7 @@ node_modules/
 .DS_Store
 local-data/
 private-fixtures/
+
+# Jac compiler output is local, never application source.
+.jac/
+.jac_cache/

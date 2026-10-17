@@ -2,9 +2,22 @@
 
 Help older adults understand stickers in context. In an enabled conversation, the intended backend automatically interprets each incoming sticker and sends a short private explanation to the enrolled recipient. No separate per-sticker AI request or required feedback is part of the core flow.
 
+## T5 mock integration on this branch
+
+This branch adds an offline Jac coordinator with injected mock transport, interpreter and context-store components. Start with [the T5 runbook](docs/LIVE_INTEGRATION.md) for setup, test commands, retry behavior and later component handoff. No live model/Photon clients or durable T4 store are included. The user will provide working T2/T3/T4 versions before live integration; this PR is not to be merged into main yet.
+
+```sh
+python3.13 -m venv .venv
+.venv/bin/python -m pip install -r requirements-t5.txt
+.venv/bin/python -m unittest discover -s tests -p 'test_integration.py'
+.venv/bin/python -m src mock-demo --replay
+```
+
+T5 errors are tracked in [T5_ERROR_LOG.md](T5_ERROR_LOG.md) and the existing [ERROR_LOG.md](ERROR_LOG.md).
+
 ## Current repository scope
 
-This revision publishes product/planning documentation, issue automation and synthetic interface fixtures. The application backend remains separate implementation/publication work. Fixture checks do not establish live Photon delivery, model accuracy or ASI:One availability.
+The base project publishes product/planning documentation, issue automation and synthetic interface fixtures. This T5 branch adds the mock integration harness described above; real backend components remain separate implementation work. Fixture checks do not establish live Photon delivery, model accuracy or ASI:One availability.
 
 Read [the product decisions](docs/PRODUCT_SPEC.md), [internal contracts](docs/CONTRACTS.md), [parallel assignments](docs/DELEGATION.md), [roadmap and observed progress](PLANS.md), and [error log](ERROR_LOG.md). Original parent-folder planning informed the module split; the current specification records subsequent user choices.
 
@@ -26,7 +39,7 @@ This Python standard-library check needs no API key, installed application modul
 
 The [T0 baseline review](docs/T0_REVIEW.md) gives a complete incoming/request/result/delivery/feedback walkthrough, explicit trusted-routing responsibilities and the remaining human acknowledgments. [Configuration ownership](docs/CONFIGURATION.md) and [versioned defaults](config/defaults.v2.json) keep the shared window at 25 within the agreed 20–25 range. No record fields changed in this review.
 
-The backend is planned to use meaningful Jac core functionality with at least 40% Jac application source. No application code is published by this planning revision, so its Jac share is not applicable.
+The backend is planned to use meaningful Jac core functionality with at least 40% Jac application source. The T5 source-share report counts every .jac/.py file under src/, including the Python mocks; run scripts/check_t5_source_share.py for the measured result.
 
 ## GitHub planning
 

@@ -1,0 +1,3 @@
+# T5 mock harness only; live model/Photon dependencies belong to their owners.
+jaclang==0.16.7
+llvmlite==0.50.0
