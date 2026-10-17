@@ -1,8 +1,8 @@
 {
   "repository": "ja-dens/lahacksai",
-  "branch": "codex/sticker-planning",
-  "source_commit": "e66a865739a2b66c9541caaf183b50447a86e52a",
-  "generated_at": "2026-10-17T20:23:22.713Z",
+  "branch": "main",
+  "source_commit": "8a73e6cde84bbc39f3f3e15202196fa8b72b871a",
+  "generated_at": "2026-10-17T20:30:41.034Z",
   "complete": true,
   "issues": [
     {
@@ -74,8 +74,6 @@
       "url": "https://github.com/ja-dens/lahacksai/milestone/2"
     }
   ],
-  "warnings": [
-    "Draft PR could not be confirmed: POST /pulls: HTTP 403 - GitHub Actions is not permitted to create or approve pull requests."
-  ],
-  "compare_url": "https://github.com/ja-dens/lahacksai/compare/main...codex%2Fsticker-planning"
+  "warnings": [],
+  "compare_url": "https://github.com/ja-dens/lahacksai/compare/main...main"
 }
