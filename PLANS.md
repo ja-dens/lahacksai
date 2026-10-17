@@ -34,7 +34,7 @@ Aim for the first complete path within roughly hours 4–6 of the 24-hour refere
 - Interpretation starts with one multimodal call containing the actual sticker image and selected text.
 - The backend chooses recipients from enrollment settings.
 - Each owner develops against the shared format and substitutes unfinished dependencies.
-- No live data, API key, model endpoint, or phone line is assumed provisioned.
+- The qualifying live path is a Photon 2.0 beta shared iMessage thread, one enrolled sender, and a private explanation in that same thread. Group iMessage and iMessage calls need a dedicated line and are out of the hackathon demo. Voice, if pursued, is a separate SMS-number prize and is not attached to iMessage.
 - Owner roles are planning labels until teammates' GitHub usernames are supplied.
 - Existing general hackathon research stays outside this repository.
 
@@ -47,6 +47,8 @@ The Photon sponsor guidelines state that iMessage group chat requires a dedicate
 On October 17, 2026 the signed-in dashboard at https://app.photon.codes/dashboard was Spectrum, the stable product, for account Kalena D. A Free project named lahacksai was created with iMessage selected. Its project id is 9c35348c-9428-4dad-8a2c-b1eade874bce. The project secret is only in the gitignored local .env. Getting started reported account_phone_missing, so Spectrum cannot enroll a line until a phone is added from the account menu. This is not a Photon 2.0 beta project id (those start with pho_prj_). No application source was added.
 
 The same account then signed in to Photon 2.0 beta. Organization Kalena's Org is `pho_org_01m55yft3jfvq9b64abja4yf5w`. Free project lahacksai is `pho_prj_01m55yjqt0esk81ms9g1w3kyxs`. A 90-day project key named lahacksai-t1 has platforms and project read/write; its secret is only in `.env`. Shared iMessage is one to one and has no assigned line because no phone or iMessage email was added. A dedicated line, which is the documented group-chat option, requires Messaging Business at at least $250 a month and was not purchased. No ping, sticker, or private reply was sent. Details are in docs/T1-verification.md. T1 stays open.
+
+The October 17 hackathon brief awards the iMessage prize for a live Photon 2.0 beta channel and a separate voice prize for calls on an SMS number. Free includes shared iMessage, shared WhatsApp, and one email domain, and charges SMS and voice with no included allowance. The brief's Spectrum SDK link is not the beta client. The build follows docs/ARCHITECTURE.md: qualify on one shared iMessage thread, and add SMS voice only as a separate prize path.
 
 GitHub Actions uses a short-lived repository token for issue publishing. Repository settings can prevent draft PR creation. If so, preserve the branch and issues and record the limitation; do not change settings automatically.
 

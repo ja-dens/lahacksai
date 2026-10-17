@@ -1,8 +1,27 @@
 # Product architecture and feasibility checks
 
-Approved conversation → Photon adapter → context/enrollment checks → multimodal interpreter → validated explanation → private Photon delivery.
+Approved conversation → Photon 2.0 beta adapter → context/enrollment checks → multimodal interpreter → validated explanation → private delivery on the enrolled recipient's own thread.
 
 One backend owns this flow. GitHub stores source and tasks; a laptop or hosting service runs the backend. Start with a bounded in-memory conversation buffer and describe its restart limitations.
+
+## Hackathon channel plan
+
+The prize requires a project built on Photon 2.0 beta and live on at least one Photon channel. This project uses the beta API at `https://api.photon.codes/v1` and the beta clients (`@photon-ai/api`, `photonhq-api`). The Spectrum SDK (`spectrum-ts`) and the stable dashboard at `app.photon.codes` are a different product and do not qualify.
+
+Use features the Free plan actually includes, and use each one for the job it supports.
+
+| Feature | Use it for | Do not use it for |
+| --- | --- | --- |
+| Shared iMessage assignment (Free includes 25) | The qualifying text agent. One enrolled person texts a shared line, sends a sticker, and receives the private explanation in that same 1:1 thread. | Group chats, cold outreach, or phone calls. A shared assignment is direct only. |
+| Dedicated iMessage line | Group chats and calls on the same iMessage number. Business plan, $250 per line per month. | The hackathon demo. Do not buy it to imitate a group. |
+| SMS number plus a Voice profile | The separate Best Voice Agent prize. Calls go over SIP to one of Retell, ElevenLabs, LiveKit, or Twilio. | The sticker text flow. Voice does not run on iMessage. Free includes no SMS parts or voice minutes; US/Canada use is billed at about $0.01 per SMS part and $0.013 per voice minute. |
+| Shared WhatsApp assignment (Free includes 25) | A later reach channel, only after a real WhatsApp Business account is connected. | A stand-in for iMessage. |
+| Email domain (Free includes 1) | A later inbox channel, only with a domain the team controls. | The demo. |
+| Telegram bot | A later reach channel, only with a bot token the team controls. | The qualifying channel. |
+
+iMessage sends on the shared line have no per-message Photon fee. The enrolled recipient is chosen by enrollment settings, never by the model. If SMS voice is added later, reuse that same enrollment record and context window so the call and the text thread stay one conversation. Do not answer the agent's own outbound messages.
+
+Going live still needs one human step on the beta project `pho_prj_01m55yjqt0esk81ms9g1w3kyxs`: add the demo sender's iMessage phone number or Apple-account email, assign a shared-pool number, and complete one real 1:1 exchange. That exchange is the qualification. A saved API key is not.
 
 ## Platform checks
 

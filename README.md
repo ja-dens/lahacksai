@@ -8,7 +8,7 @@ A planned messaging assistant that explains a sticker's likely meaning using rec
 
 Supported sticker arrives in an approved conversation → select recent messages → one multimodal model call → short explanation delivered privately to the enrolled recipient.
 
-Start with one channel, static stickers, one language, and one enrolled test recipient. A private assistant thread is the candidate MVP; private annotations underneath existing messages remain unverified.
+Start with Photon 2.0 beta, one shared iMessage thread, static stickers, one language, and one enrolled test recipient. The explanation goes back to that recipient in the same 1:1 thread. Group iMessage needs a dedicated line and is not the hackathon demo. A private assistant thread is the MVP; invisible annotations inside someone else's chat remain unverified. Voice, if added, uses an SMS number and a SIP voice profile, not the iMessage line.
 
 ## Start here
 
@@ -47,7 +47,7 @@ These check the planning publisher. Application checks belong to the implementat
 
 ## Implementation baseline
 
-Use Jac for the core workflow, context selection, interpretation policy, validation, and delivery decisions. Thin Python clients may connect Photon 2.0 beta and one multimodal API. The project instructions require at least 40% Jac once application code exists; measure actual source usage rather than counting filenames. Planning automation is repository tooling, not an implemented application.
+Use Jac for the core workflow, context selection, interpretation policy, validation, and delivery decisions. Thin Python clients may connect Photon 2.0 beta (`https://api.photon.codes/v1`) and one multimodal API. Do not implement the agent on the Spectrum SDK. The project instructions require at least 40% Jac once application code exists; measure actual source usage rather than counting filenames. Planning automation is repository tooling, not an implemented application.
 
 GitHub stores the code and tasks. The application backend must run on a laptop or hosting service. Runtime model access and Photon project/line access are separate setup dependencies.
 
