@@ -13,6 +13,11 @@ on:
       - fixtures/contracts/**
       - fixtures/stickers/laughing.png
       - scripts/check_contract_fixtures.py
+      - checks/test_contract_fixtures.py
+      - config/defaults.v2.json
+      - .env.example
+      - docs/CONTRACTS.md
+      - docs/CONFIGURATION.md
   pull_request:
     branches: [main]
     paths:
@@ -22,6 +27,11 @@ on:
       - fixtures/contracts/**
       - fixtures/stickers/laughing.png
       - scripts/check_contract_fixtures.py
+      - checks/test_contract_fixtures.py
+      - config/defaults.v2.json
+      - .env.example
+      - docs/CONTRACTS.md
+      - docs/CONFIGURATION.md
   workflow_dispatch:
 
 permissions: {}
@@ -47,6 +57,7 @@ jobs:
           node --test .github/scripts/sync-planning.test.cjs
           node .github/scripts/sync-planning.cjs --dry-run
           python3 scripts/check_contract_fixtures.py
+          python3 -S -m unittest discover -s checks -p 'test_contract_fixtures.py'
 
   sync:
     if: github.repository == 'ja-dens/lahacksai' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'

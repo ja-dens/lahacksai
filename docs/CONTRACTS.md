@@ -4,7 +4,7 @@
 
 These are application-owned records, not Photon API field names. Use ordinary module calls for the MVP. A source adapter must normalize provider events into these records.
 
-Read [PRODUCT_SPEC.md](PRODUCT_SPEC.md) for the current behavior. This local v2 revision coordinates the new user-context and snapshot fields for the first implementation. Teammate review and live provider integration remain open; this is not a claim of team sign-off. D09 establishes three user-context record types, D10 keeps feedback out of live requests, and D11/D12 establish longer stored history plus separate snapshots with no age cutoff.
+Read [PRODUCT_SPEC.md](PRODUCT_SPEC.md) for current behavior. The user instructed retaining these v2 fields on October 17, 2026; this is the shared baseline for independent module development. [T0_REVIEW.md](T0_REVIEW.md) records the technical boundary review and explicitly pending human acknowledgments. D09 establishes separate user-context records, D10 excludes feedback from live requests, and D11/D12 establish longer stored history plus separate snapshots with no age cutoff. Live provider integration remains unverified.
 
 ## IncomingMessage
 
@@ -41,6 +41,40 @@ Explain likely conversational use in familiar language. Separate visual content 
 Fields: recipient_id, source_conversation_id, source_message_id, and text.
 
 The application resolves recipient_id and destination from explicit enrollment and checks configured membership. The model does not choose recipients or change settings. The local outbox uses pending status and delivered=false; it performs no network send. A later Photon adapter must verify actual membership/destination access and send privately rather than reusing the incoming group thread.
+
+## Normalized fields and routing
+
+The field catalogue below makes the existing v2 shape explicit; it adds no wire fields. Every field in a normalized record is present, using null where allowed, except interpreter metadata and Feedback.note, which are optional. A provider adapter can fill missing native optional values before returning IncomingMessage. Native provider payloads are not required to have these application field names.
+
+### Field catalogue
+
+| Record | Fields and JSON types | Trusted producer → consumer |
+| --- | --- | --- |
+| IncomingMessage | platform, conversation_id, message_id, sender_id, sent_at, kind: string; from_assistant: boolean; text, reply_to_message_id: string or null; sticker: Media or null | T2 verified normalization → T4 history/context; source content remains untrusted model input. |
+| InterpretationRequest | schema_version: integer 2; policy_version, source_message_id, platform, conversation_id, sender_id, recipient_id, sent_at: string; target_text, reply_to_message_id: string or null; target_text_truncated: boolean; sticker: Media for supported inference; recent_messages: array of RecentMessage; context_message_limit, context_text_character_budget: integer; context_age_limit: null; user_context: UserContext; interpreter: optional metadata object | T4 frozen snapshot → T3; source identities/settings are app-selected and do not grant a model authority over routing. Unsupported media follows the agreed abstention path rather than a vision call. |
+| InterpretationResult | source_message_id, status, meaning, context_cue, uncertainty_caveat, candidate_relation: string; alternative: string or null | T3 schema/policy validation → T4/T5 formatter/outbox. No recipient, destination, command or settings fields are returned. |
+| DeliveryRequest | recipient_id, source_conversation_id, source_message_id, text: string | T4/T5 trusted enrollment/formatting → T2 transport. The model cannot produce this record directly. |
+| Media | data_base64, mime_type, sha256: string | Actual decoded image bytes; normalizer computes lowercase SHA-256 from those bytes. Never trust a source-supplied digest without checking it. |
+| RecentMessage | message_id, sender_id, sent_at, kind: string; text, reply_to_message_id: string or null; text_truncated, media_not_interpreted: boolean | T4 selection from authorized same-chat history → saved request. |
+| UserContext | preferences: object with language/explanation_length strings; preferences_source: string; relationship, relationship_source: string or null | Explicit recipient settings/relationship or documented defaults; never a free-form older-chat summary. |
+| Candidate response | candidates: array of at most two strings; candidate_relation: none/single/compatible/opposing; rankable: boolean; context_cue, uncertainty_caveat: string | Untrusted model output → T3 validation/policy. Semantics need separate evaluation. |
+| Feedback | window_id: positive integer in the current SQLite baseline; recipient_id, selection, provenance, created_at: string; note: optional string or null | Authenticated recipient judgment → evaluation store; excluded from live inference. |
+
+Identifiers are opaque nonempty strings, except the current local window_id. Preserve platform/conversation scope; do not parse a provider ID to infer membership. sent_at and created_at are ISO-8601 timestamps with explicit timezone offsets or Z. Normalization may use UTC; comparisons must use instants rather than lexicographically comparing mixed timezone strings. Preserve absent text as null, rather than converting it into a fabricated empty message.
+
+kind is text/sticker/image/audio/other. status is interpreted/ambiguous/unsupported. For unsupported results meaning can be empty; the application formatter supplies the documented honest fallback. A model timeout/schema failure is an operational failure and must not be relabeled as a successful unsupported interpretation.
+
+### Delivery routing and evidence
+
+DeliveryRequest intentionally contains no private destination. T2 receives an application-controlled destination resolver (or equivalent trusted injected routing argument), keyed by enrollment and the supplied source/recipient identity. The resolver provides the verified private thread. Do not default to source_conversation_id, let a model choose it, or treat recipient_id in arbitrary user text as authentication. This clarifies existing routing responsibilities without changing v2 fields.
+
+| Evidence | What may be claimed |
+| --- | --- |
+| Synthetic result and pending outbox | Fixture/policy coordination only; no network send or model accuracy. |
+| Actual provider acceptance/message ID | The provider accepted the operation; phone receipt remains unverified unless separately observed. |
+| Observed phone receipt or verified receipt mechanism | Delivery evidence for that test, with the exact channel and method recorded. |
+
+The fixture checker cross-checks records, hashes, source IDs and declared settings. It does not establish authenticated membership, actual provider support, database immutability, distributed exactly-once delivery or model accuracy. T4/T5 must test those implementation properties separately. The exact engineering defaults and shared-file change procedure are in [CONFIGURATION.md](CONFIGURATION.md).
 
 ## Ownership
 

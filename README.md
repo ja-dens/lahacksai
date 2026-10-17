@@ -24,6 +24,8 @@ python3 scripts/check_contract_fixtures.py
 
 This Python standard-library check needs no API key, installed application modules or network. See [the serialized examples](fixtures/contracts/README.md) and [delegation guide](docs/DELEGATION.md) for mock strategies and owned files. Every module task can finish its standalone deliverable independently; final live assembly is T5.
 
+The [T0 baseline review](docs/T0_REVIEW.md) gives a complete incoming/request/result/delivery/feedback walkthrough, explicit trusted-routing responsibilities and the remaining human acknowledgments. [Configuration ownership](docs/CONFIGURATION.md) and [versioned defaults](config/defaults.v2.json) keep the shared window at 25 within the agreed 20–25 range. No record fields changed in this review.
+
 The backend is planned to use meaningful Jac core functionality with at least 40% Jac application source. No application code is published by this planning revision, so its Jac share is not applicable.
 
 ## GitHub planning
