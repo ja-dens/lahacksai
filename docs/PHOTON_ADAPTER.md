@@ -12,7 +12,7 @@ python3 -S scripts/check_contract_fixtures.py
 python3 -S -m unittest discover -s checks -p 'test_contract_fixtures.py'
 ```
 
-`-S` disables installed site packages. T2 needs only Python's standard library; its tests forbid socket creation and use synthetic events, a fake coordinator, a fake enrollment resolver and fake provider/HTTP clients. No environment file is loaded, no key is read and no message is sent. The dedicated PR workflow runs these checks without write permissions.
+`-S` disables installed site packages. T2 needs only Python's standard library; its tests forbid socket creation and use synthetic events, a fake coordinator, a fake enrollment resolver and fake provider/HTTP clients. The suite loads the adapter file directly so a later Jac application package initializer does not become a hidden test dependency; a subprocess regression forbids other application imports and network. No environment file is loaded, no key is read and no message is sent. The dedicated PR workflow runs these checks without write permissions.
 
 ## API and dependency injection
 
@@ -97,7 +97,7 @@ There is no automatic send retry or delivered-state mutation here. T4/T5 keep th
 
 [examples/T2_PHOTON_ADAPTER.json](examples/T2_PHOTON_ADAPTER.json) contains a synthetic provider Message, the complete normalized v2 input with actual original PNG data, the shared DeliveryRequest, actual fake-client send body and receipt. Its event decoder/metadata labels are explicitly provisional. These outputs were generated through this adapter with fake clients; they are not captured personal chats or live Photon results.
 
-59 T2 tests cover auth/tampering, source scope, text/sticker/photo/audio handling, timestamps/replies, grouped content, bounded media and APNG, transient failures, private binding, malicious destination fields, retry conflicts, idempotency, HTTP paths/statuses/scope, redaction and redirect rejection. The 10 shared-contract regression tests and contract checker also pass. T2's dedicated [error log](errors/T2_PHOTON_ADAPTER.md) records actual discoveries and corrections; the main ERROR_LOG.md links the same incidents.
+60 T2 tests cover auth/tampering, source scope, text/sticker/photo/audio handling, timestamps/replies, grouped content, bounded media and APNG, transient failures, private binding, malicious destination fields, retry conflicts, idempotency, HTTP paths/statuses/scope, redaction and redirect rejection. The 10 shared-contract regression tests and contract checker also pass. T2's dedicated [error log](errors/T2_PHOTON_ADAPTER.md) records actual discoveries and corrections; the main ERROR_LOG.md links the same incidents.
 
 T1's existing [access report](https://github.com/ja-dens/lahacksai/issues/2#issuecomment-6242039867) has not established native sticker media or private sending. No real key, account, phone or paid plan was used for T2. Live channel checks remain separate acceptance evidence in T1/T5.
 

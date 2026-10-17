@@ -4,9 +4,12 @@ import base64
 import copy
 import hashlib
 import hmac
+import importlib.util
 import json
 import socket
 import struct
+import subprocess
+import sys
 import unittest
 import zlib
 from dataclasses import replace
@@ -14,12 +17,17 @@ from pathlib import Path
 from unittest.mock import patch
 from urllib.error import HTTPError, URLError
 
-from src.adapters.photon import (
-    Attachment, HTTPResponse, MAX_MEDIA_BYTES, MAX_WEBHOOK_BYTES, PhotonAdapter,
-    PhotonError, PhotonHTTPClient, PrivateDestination, _NoRedirect, urllib_transport,
-)
-
 ROOT = Path(__file__).resolve().parents[1]
+# Load only T2's file: the Jac app's src/__init__.py may require its own runtime.
+SPEC = importlib.util.spec_from_file_location("_standalone_t2_photon", ROOT / "src/adapters/photon.py")
+PHOTON = importlib.util.module_from_spec(SPEC)
+sys.modules[SPEC.name] = PHOTON
+SPEC.loader.exec_module(PHOTON)
+Attachment, HTTPResponse = PHOTON.Attachment, PHOTON.HTTPResponse
+MAX_MEDIA_BYTES, MAX_WEBHOOK_BYTES = PHOTON.MAX_MEDIA_BYTES, PHOTON.MAX_WEBHOOK_BYTES
+PhotonAdapter, PhotonError = PHOTON.PhotonAdapter, PHOTON.PhotonError
+PhotonHTTPClient, PrivateDestination = PHOTON.PhotonHTTPClient, PHOTON.PrivateDestination
+_NoRedirect, urllib_transport = PHOTON._NoRedirect, PHOTON.urllib_transport
 PNG = (ROOT / "fixtures/stickers/laughing.png").read_bytes()
 PROJECT, AGENT, RECIPIENT = "demo-project", "demo-agent", "demo-older-recipient"
 SOURCE, PRIVATE, ATTACHMENT = "demo-family-chat", "demo-private-thread", "demo-attachment"
@@ -238,6 +246,28 @@ class IncomingTests(NoNetworkTests):
 
 
 class AuthenticationTests(NoNetworkTests):
+    def test_standalone_import_never_initializes_other_application_modules(self):
+        script = '''
+import importlib.abc, importlib.util, socket, sys, urllib.request
+from pathlib import Path
+def deny_network(*args, **kwargs):
+    raise RuntimeError("Network forbidden")
+socket.socket = deny_network
+socket.create_connection = deny_network
+class DenyApplication(importlib.abc.MetaPathFinder):
+    def find_spec(self, fullname, path=None, target=None):
+        if fullname == "src" or fullname.startswith("src."):
+            raise RuntimeError("Application import forbidden")
+sys.meta_path.insert(0, DenyApplication())
+spec = importlib.util.spec_from_file_location("_isolated_photon", Path("src/adapters/photon.py"))
+module = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = module
+spec.loader.exec_module(module)
+assert module.PhotonAdapter is not None
+'''
+        result = subprocess.run([sys.executable, "-S", "-c", script], cwd=ROOT, text=True, capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_authentication_uses_exact_raw_bytes_before_decoder(self):
         calls = []
         adapter = self.make_adapter(verify_event=lambda raw, headers: calls.append(raw) or False,
@@ -544,7 +574,7 @@ class HTTPClientTests(NoNetworkTests):
                 self.count = count
                 return b"x" * count
         response = Response()
-        with patch("src.adapters.photon.build_opener") as opener:
+        with patch.object(PHOTON, "build_opener") as opener:
             opener.return_value.open.return_value = response
             with self.assertRaisesRegex(PhotonError, "response_too_large"):
                 urllib_transport("GET", "https://api.photon.codes/test", headers={}, body=None, max_bytes=10, timeout=3)
@@ -552,7 +582,7 @@ class HTTPClientTests(NoNetworkTests):
 
     def test_live_transport_http_and_network_errors_are_safe(self):
         for error in (HTTPError("https://api.photon.codes/test", 401, "fake-api-key", {}, None), URLError("fake-api-key")):
-            with patch("src.adapters.photon.build_opener") as opener:
+            with patch.object(PHOTON, "build_opener") as opener:
                 opener.return_value.open.side_effect = error
                 if isinstance(error, HTTPError):
                     self.assertEqual(urllib_transport("GET", "https://api.photon.codes/test", headers={}, body=None, max_bytes=10, timeout=3).status, 401)

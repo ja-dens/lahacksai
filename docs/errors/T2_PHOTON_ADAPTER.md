@@ -30,10 +30,20 @@ Observed during code review: the first implementation sent all non-retryable med
 
 Correction: allow only explicit content/unavailable-media error codes into automatic abstention. Reject authentication/scope errors without forwarding; report denied destination access as non-retryable unauthorized_destination. Validate real REST acknowledgments against the requested project/space/sender and require the documented 202 status.
 
-Prevention/verification: regression tests reject media 401/403/cross-project scope, deny an unenrolled recipient without calling send, and reject mismatched acknowledgment scope/status. All 59 T2 tests and 10 shared-contract tests passed with network forbidden; the fixture checker passed with site packages disabled.
+Prevention/verification: regression tests reject media 401/403/cross-project scope, deny an unenrolled recipient without calling send, and reject mismatched acknowledgment scope/status. All 60 T2 tests and 10 shared-contract tests passed with network forbidden; the fixture checker passed with site packages disabled.
 
 Status: resolved in this branch. This is local software verification, not evidence of a deployed incident or a live Photon test.
 
 ## Verified publication checkpoint
 
 The implementation was committed as 31d52069dae9ef80c769f2959ba05bcedd1c0a89 and published for review in [PR #13](https://github.com/ja-dens/lahacksai/pull/13), on codex/t2-photon-adapter. Both remote adapter and planning checks passed. The PR remains open and unmerged; no live Photon/phone verification occurred. Future errors from work in this chat should continue here and in the existing ERROR_LOG.md.
+
+## T2-004 — standalone tests could initialize the Jac application package
+
+Observed during integration review: tests initially imported src.adapters.photon through Python's normal package path. The existing local prototype's src/__init__.py registers Jac, so merging that package initializer could make an otherwise independent T2 test command require unrelated application dependencies. The adapter itself imports only the standard library.
+
+Correction: load T2's module directly by file in its standalone suite and target that module for HTTP mocks. Add a subprocess regression that forbids all other application imports and socket access while loading the adapter.
+
+Prevention/verification: all 60 adapter tests passed with site packages disabled on Python 3.13 and 3.14; the isolation regression passes without a Jac runtime or backend. No production incident was observed.
+
+Status: resolved in this branch.
