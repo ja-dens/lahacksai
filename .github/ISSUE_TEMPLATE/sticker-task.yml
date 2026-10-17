@@ -1,0 +1,37 @@
+name: Sticker interpreter task
+description: Define one independently reviewable task for the sticker MVP.
+title: "[Task] "
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+      description: What will a user or another teammate be able to do?
+    validations:
+      required: true
+  - type: textarea
+    id: ownership
+    attributes:
+      label: Owner and files
+      description: State the owner role or username and the files they own.
+    validations:
+      required: true
+  - type: textarea
+    id: interface
+    attributes:
+      label: Inputs and outputs
+      description: Reference the agreed contract and describe substitutes for unfinished dependencies.
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Link required issues; explain what can start independently.
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance evidence
+      description: List observable checks and the evidence needed to close this task.
+    validations:
+      required: true

@@ -1,0 +1,33 @@
+{
+  "synthetic": true,
+  "conversation_id": "demo-family-chat",
+  "enrolled_recipient_id": "demo-older-recipient",
+  "messages": [
+    {
+      "message_id": "demo-1",
+      "sender_id": "demo-older-recipient",
+      "sent_at": "2026-10-17T12:00:00-07:00",
+      "text": "I tried to catch some fog yesterday. I mist."
+    },
+    {
+      "message_id": "demo-2",
+      "sender_id": "demo-younger-sender",
+      "sent_at": "2026-10-17T12:00:05-07:00",
+      "text": "That joke got me."
+    },
+    {
+      "message_id": "demo-3",
+      "sender_id": "demo-younger-sender",
+      "sent_at": "2026-10-17T12:00:06-07:00",
+      "text": null,
+      "sticker": null,
+      "media_required": true,
+      "visual_description_for_planning": "A dramatically crying character"
+    }
+  ],
+  "illustrative_expected_result": {
+    "status": "interpreted",
+    "meaning": "This probably means the joke was so funny they are crying.",
+    "context_cue": "They just said the joke got them."
+  }
+}
