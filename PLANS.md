@@ -122,3 +122,9 @@ T0's technical standalone criteria are complete; the original all-three-owner re
 User authorized fixing the open PRs and commits for main integration while preserving component functions. Merged main into T3 without rewriting its history, retained current v2/defaults and both owners' log entries, and added read-only T3 application CI. No model or phone call is part of this change. Verification is pending below.
 
 Verified refresh: 34 T3 tests, one Jac module check, 10 contract regressions, shared-fixture checker, 15 publisher tests and whitespace checks passed. Measured application source under src/ using the combined counter: 203 Jac / 374 total = 54.3%. T3 APIs, fixtures and one-call policy are unchanged.
+
+## October 17 component language-policy refresh
+
+Removed the Jac percentage/preference policy at the user's request; preserved component implementation and runtime dependencies. Main must remain unmerged. Component, contract and planning checks are run before this focused policy commit.
+
+Verified policy refresh: 34 interpreter tests, one Jac module check, 10 contract regressions and 15 publisher tests passed; whitespace clean. Application source unchanged.

@@ -187,3 +187,7 @@ Status: correction implemented and locally verified; remote CI/source landing ve
 ## INT-001 — October 17: T3 could not merge after the T0 baseline
 
 What happened: PR #15 conflicted with main in .env.example, ERROR_LOG.md and PLANS.md. Cause: its base predates the merged T0 default/configuration changes. Fixed by merging current main, retaining both T0/T3 records, the preferred model key and the 25-message default. Added dedicated interpreter CI so planning-only checks cannot mask an application failure. Prevention: refresh component branches and run their actual suites before integration. Verification is recorded in PLANS.md after the checks finish.
+
+## POLICY-001 — October 17: remove duplicated Jac quota
+
+The user requested removal of the Jac requirement. Removed percentage/preference wording from this component branch's guidance, templates and active task text. Existing application code is unchanged. Global Codex instruction removal and the informational source report are recorded in the combined integration branch. Prevention: implementation requirements must not be confused with optional source metrics.

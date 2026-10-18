@@ -26,7 +26,7 @@ This Python standard-library check needs no API key, installed application modul
 
 The [T0 baseline review](docs/T0_REVIEW.md) gives a complete incoming/request/result/delivery/feedback walkthrough, explicit trusted-routing responsibilities and the remaining human acknowledgments. [Configuration ownership](docs/CONFIGURATION.md) and [versioned defaults](config/defaults.v2.json) keep the shared window at 25 within the agreed 20–25 range. No record fields changed in this review.
 
-The backend is planned to use meaningful Jac core functionality with at least 40% Jac application source. No application code is published by this planning revision, so its Jac share is not applicable.
+Existing components use Jac and Python. No language quota or preference is required; current Jac source still needs its runtime and compilation checks.
 
 ## GitHub planning
 

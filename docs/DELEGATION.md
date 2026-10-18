@@ -33,6 +33,6 @@ Each owner supplies the test command and input/output example required by their 
 
 - One owner edits each shared file at a time. T0 coordinates src/contracts.jac, dependency/configuration changes and product decisions. T5 owns assembly; other module owners do not edit the coordinator to work around defects.
 - Publish small module PRs with their own tests and JSON input/output evidence. Teammates use separate clones; branches do not isolate concurrent edits in a shared directory.
-- Keep at least 40% meaningful Jac application source. Core context, policy, workflow and delivery decisions belong in Jac; Python is appropriate for thin vendor adapters. Recompute share when application source is published.
+- No language quota or preference is required. Preserve component interfaces and working behavior; choose implementation languages for clarity and compatibility. Existing Jac modules remain supported.
 - D13's example prompts are "Explain the sticker in saved demo exchange demo-3" and "Mark interpretation one as helpful for demo-3." They perform a saved-result read or scoped feedback write, with identity supplied by a trusted session. No Fetch call enters the automatic Photon flow.
 - Keep planning changes in backlog.json and planning/issues/ and sync from reviewed main. Human comments, assignments, state, milestones, labels and checked work remain intact. Do not alter a teammate's Fetch branch or send messages on their behalf.
