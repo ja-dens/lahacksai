@@ -541,6 +541,12 @@ class HTTPClientTests(NoNetworkTests):
         self.assertEqual(options["max_bytes"], 1_000_000)
         self.assertEqual(result, page)
 
+    def test_next_cursor_is_accepted_as_a_page_token(self):
+        page = {"items": [{"id": "received-1"}], "nextCursor": "cursor-2"}
+        self.responses = [HTTPResponse(200, json.dumps(page).encode(), {})]
+        result = self.client.list_messages(page_size=10, timeout=3)
+        self.assertEqual(result["nextPageToken"], "cursor-2")
+
     def test_get_message_requires_project_and_identity_match(self):
         valid = {"id": "provider-message", "projectId": PROJECT, "status": "delivered"}
         self.responses = [HTTPResponse(200, json.dumps(valid).encode(), {})]

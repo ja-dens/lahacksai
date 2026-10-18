@@ -379,3 +379,11 @@ configured, but no OpenAI API key is present locally. The project also had no
 image attachment during the smoke check. Therefore photo → OpenAI → delivered
 iMessage and visual phone receipt remain open; fixture output and provider
 status are not presented as that evidence.
+
+Follow-up correction: the live command initially exited before polling because
+it constructed the OpenAI client during startup, and its 300-second default
+lookback could skip the existing thread. The model client is now created on the
+first sticker. With lookback zero, `python -m src live --once` read two real
+received texts as history, made no model call, and sent nothing. A missing key
+on a sticker is stored as `api_key_not_configured`. The full 199-test suite
+passed after this correction.

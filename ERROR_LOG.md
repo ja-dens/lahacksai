@@ -360,3 +360,17 @@ put their own key in the ignored `.env` and send a permitted static image with
 the photo button while the service runs. Prevention: keep doctor checks explicit
 and never substitute fixture output for live model or phone evidence. Status:
 external configuration blocker; open.
+
+## LIVE-003 — October 17: startup required the model before any polling
+
+What happened: `python -m src live --once` raised `api_key_not_configured`
+before reading Photon, and the default five-minute lookback would also skip the
+existing direct-thread history. Cause: the OpenAI client was constructed in
+`LiveRuntime` initialization, and a missing cursor started at the current time
+minus 300 seconds. Correction: construct the model client on the first sticker,
+read all current received history when lookback is zero, and record a safe
+`api_key_not_configured` failure without sending. One malformed message is now
+recorded and skipped unless the provider error is retryable. Prevention: run
+the credential-free live command against the real message list and cover the
+missing-key path with a fake provider. Status: startup and history polling
+corrected; live inference remains blocked until an OpenAI key and photo exist.

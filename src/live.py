@@ -53,7 +53,7 @@ class LiveConfig:
     allowed_sender_handle: str
     database_path: str = "local-data/live.sqlite3"
     poll_seconds: float = 2.0
-    lookback_seconds: int = 300
+    lookback_seconds: int = 0
     request_timeout: float = 15.0
 
     @classmethod
@@ -61,7 +61,7 @@ class LiveConfig:
         values = dict(os.environ if environ is None else environ)
         try:
             poll_seconds = float(values.get("PHOTON_POLL_SECONDS", "2"))
-            lookback_seconds = int(values.get("PHOTON_LOOKBACK_SECONDS", "300"))
+            lookback_seconds = int(values.get("PHOTON_LOOKBACK_SECONDS", "0"))
             request_timeout = float(values.get("PHOTON_TIMEOUT_SECONDS", "15"))
         except ValueError:
             raise ValueError("Photon timing settings must be numeric") from None
@@ -83,6 +83,28 @@ class LiveConfig:
         )
 
 
+class DeferredOpenAIVision:
+    """Construct the network client on the first sticker, not at process startup."""
+
+    def __init__(self):
+        model = os.environ.get("VISION_MODEL", "").strip() or "gpt-4.1-mini"
+        self._vision = None
+        self.metadata = {"provider": "openai-api-key", "model": model}
+        self.last_call_metadata = None
+
+    def __call__(self, request):
+        if self._vision is None:
+            self._vision = OpenAIVision(model=self.metadata["model"])
+            self.metadata = dict(self._vision.metadata)
+        result = self._vision(request)
+        self.last_call_metadata = getattr(self._vision, "last_call_metadata", None)
+        return result
+
+    def close(self):
+        if self._vision is not None and callable(getattr(self._vision, "close", None)):
+            self._vision.close()
+
+
 class LiveRuntime:
     """One project, one verified direct space, one model adapter."""
 
@@ -92,7 +114,7 @@ class LiveRuntime:
         self.client = client or PhotonHTTPClient(
             project_id=config.project_id, api_key=config.api_key,
         )
-        self.vision = vision or OpenAIVision()
+        self.vision = vision or DeferredOpenAIVision()
         self.store = store or SQLiteStore(config.database_path)
         self._owns_vision = vision is None
         self._owns_store = store is None
@@ -246,6 +268,8 @@ class LiveRuntime:
         ).fetchone()
         if row:
             return _parse_time(row["value"])
+        if self.config.lookback_seconds == 0:
+            return None
         return self._clock() - timedelta(seconds=self.config.lookback_seconds)
 
     def _save_cursor(self, value):
@@ -306,15 +330,15 @@ class LiveRuntime:
             self.bootstrap()
         cursor = self._cursor()
         # A bounded overlap prevents equal-timestamp and commit-boundary misses.
-        since = cursor - timedelta(seconds=5)
-        messages = self._list_all(created_since=since.isoformat(), order="asc")
+        since = None if cursor is None else (cursor - timedelta(seconds=5)).isoformat()
+        messages = self._list_all(created_since=since, order="asc")
         messages.sort(key=lambda item: (
             item.get("timestamps", {}).get("receivedAt") or item.get("createdAt") or "",
             item.get("id") or "",
         ))
         result = {"seen": len(messages), "processed": 0, "duplicates": 0,
                   "history_only": 0, "sticker": 0, "ignored": 0}
-        latest = cursor
+        latest = cursor or datetime.min.replace(tzinfo=timezone.utc)
         for message in messages:
             message_id = message.get("id")
             if not isinstance(message_id, str) or not message_id:
@@ -327,15 +351,23 @@ class LiveRuntime:
                 result["duplicates"] += 1
                 latest = max(latest, received)
                 continue
-            identity = self._message_identity(message)
-            if not self._matches_bootstrap(identity):
-                self._mark_processed(message_id, "ignored_other_space")
+            try:
+                identity = self._message_identity(message)
+                if not self._matches_bootstrap(identity):
+                    self._mark_processed(message_id, "ignored_other_space")
+                    result["ignored"] += 1
+                    latest = max(latest, received)
+                    continue
+                normalized = self.transport.adapter.normalize_message(
+                    self._scoped_message(message)
+                )
+            except PhotonError as error:
+                if error.retryable:
+                    raise
+                self._mark_processed(message_id, "rejected_" + error.code)
                 result["ignored"] += 1
                 latest = max(latest, received)
                 continue
-            normalized = self.transport.adapter.normalize_message(
-                self._scoped_message(message)
-            )
             if normalized.event is None:
                 status = "ignored"
                 result["ignored"] += 1
@@ -367,6 +399,8 @@ class LiveRuntime:
             self._mark_processed(message_id, status)
             result["processed"] += 1
             latest = max(latest, received)
+        if latest == datetime.min.replace(tzinfo=timezone.utc):
+            latest = self._clock()
         self._save_cursor(latest)
         result["delivery"] = self.reconcile_deliveries()
         return result
@@ -396,6 +430,7 @@ class LiveRuntime:
 
 
 def run_live(*, once=False):
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s %(message)s")
     load_dotenv()
     config = LiveConfig.from_env()
     runtime = LiveRuntime(config)

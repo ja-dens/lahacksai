@@ -358,7 +358,10 @@ def run_window(pipeline: dict, window_id: int, retry: bool = False) -> dict:
             result = validate_result(raw, str(request["source_message_id"]))
             store.save_result(window_id, result)
         except Exception as error:
-            store.mark_failure(window_id, "interpretation_failed", type(error).__name__)
+            code = getattr(error, "code", None)
+            if not isinstance(code, str) or not code.strip() or len(code) > 80:
+                code = type(error).__name__
+            store.mark_failure(window_id, "interpretation_failed", code)
             return outcome(window_id, "interpretation_failed")
     try:
         result = validate_result(result, str(request["source_message_id"]))

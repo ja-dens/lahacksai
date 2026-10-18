@@ -1,7 +1,9 @@
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from src.adapters.photon import Attachment, PhotonError
 from src.adapters.vision import FixtureVision
@@ -132,6 +134,11 @@ class LiveRuntimeTests(unittest.TestCase):
         self.assertEqual(vision.calls, 1)
         self.assertEqual(len(client.sent), 1)
         self.assertNotIn("parentMessageId", client.sent[0])
+        chronological = [
+            call for call in client.list_calls if call.get("order") == "asc"
+        ]
+        self.assertTrue(chronological)
+        self.assertIsNone(chronological[0]["created_since"])
         db = SQLiteStore(self.db_path)
         try:
             attachment = db.db.execute("SELECT * FROM live_attachments").fetchone()
@@ -203,6 +210,51 @@ class LiveRuntimeTests(unittest.TestCase):
             self.assertEqual(runtime.poll_once()["processed"], 2)
         finally:
             store.close()
+
+    def test_one_invalid_message_does_not_block_the_verified_thread(self):
+        invalid = message(
+            "pho_msg_other", {"type": "text", "format": "plain", "text": "other"},
+            "2026-10-17T23:21:28.938Z",
+        )
+        invalid["sentBy"]["handle"] = "+15555550999"
+        client = FakePhoton([
+            message("pho_msg_good", {"type": "text", "format": "plain", "text": "hi"}),
+            invalid,
+        ])
+        store = SQLiteStore(self.db_path)
+        runtime = LiveRuntime(
+            self.config, client=client, vision=CountingVision(), store=store,
+        )
+        try:
+            result = runtime.poll_once()
+        finally:
+            store.close()
+        self.assertEqual(result["history_only"], 1)
+        self.assertEqual(result["ignored"], 1)
+
+    def test_missing_model_key_keeps_history_and_does_not_send(self):
+        client = FakePhoton([
+            message("pho_msg_text", {"type": "text", "format": "plain", "text": "hi"}),
+            message(
+                "pho_msg_photo",
+                {"type": "attachment", "attachmentId": "pho_att_image"},
+                "2026-10-17T23:20:28.938Z",
+            ),
+        ])
+        store = SQLiteStore(self.db_path)
+        runtime = LiveRuntime(self.config, client=client, store=store)
+        try:
+            with patch.dict(os.environ, {}, clear=True):
+                result = runtime.poll_once()
+            error = store.db.execute(
+                "SELECT error_code FROM interpretation_runs"
+            ).fetchone()
+        finally:
+            runtime.close()
+        self.assertEqual(result["history_only"], 1)
+        self.assertEqual(result["sticker"], 1)
+        self.assertEqual(client.sent, [])
+        self.assertEqual(error["error_code"], "api_key_not_configured")
 
     def test_stop_before_run_is_graceful(self):
         client = FakePhoton([message(

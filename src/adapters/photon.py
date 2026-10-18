@@ -426,6 +426,8 @@ class PhotonHTTPClient:
         if not isinstance(items, list) or any(not isinstance(item, Mapping) for item in items):
             raise PhotonError("invalid_provider_response")
         token = page.get("nextPageToken")
+        if token is None:
+            token = page.get("nextCursor")
         if token is not None:
             _identifier(token)
         return {"items": [dict(item) for item in items], "nextPageToken": token}

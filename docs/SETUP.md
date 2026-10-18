@@ -46,6 +46,10 @@ Run until SIGINT or SIGTERM:
 The service authenticates project-scoped REST reads, discovers only the
 configured sender's verified direct space, persists its cursor and receipts in
 SQLite, and uses that same space for replies. The model cannot choose routing.
+The first poll reads the current received history when `PHOTON_LOOKBACK_SECONDS`
+is zero. Later polls continue from the saved cursor. A missing model key does
+not stop history polling; a sticker is recorded as `api_key_not_configured`
+and is not sent.
 
 ## Supported media
 
