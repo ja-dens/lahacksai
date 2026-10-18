@@ -322,8 +322,13 @@ Fresh-environment verification completed: the exact combined requirements.lock i
 
 Retained the T1 branch commits/report while reconciling older README/architecture/task wording with current persisted context and direct/group routing. Later issue evidence is linked explicitly: native sticker API ingress remains blocked. This documentation change does not establish a live test.
 
+
 ## October 17 component language-policy refresh
 
 Removed the Jac percentage/preference policy at the user's request; preserved component implementation and runtime dependencies. Main must remain unmerged. Component, contract and planning checks are run before this focused policy commit.
 
 Verified policy refresh: 60 adapter tests, 10 contract regressions and 15 publisher tests passed; whitespace clean. Application source unchanged.
+
+Verified policy refresh: 34 interpreter tests, one Jac module check, 10 contract regressions and 15 publisher tests passed; whitespace clean. Application source unchanged.
+
+Final component heads included: T2 831aee6 and T3 69a7d21. Both quota-removal commits retain application source and their independently passing suites. The combined branch includes T1/T2/T3/T5/Fetch history and the new durable T4 implementation. Main remains unchanged and must not be merged.
