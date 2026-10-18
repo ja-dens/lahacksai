@@ -332,3 +332,5 @@ Verified policy refresh: 60 adapter tests, 10 contract regressions and 15 publis
 Verified policy refresh: 34 interpreter tests, one Jac module check, 10 contract regressions and 15 publisher tests passed; whitespace clean. Application source unchanged.
 
 Final component heads included: T2 831aee6 and T3 69a7d21. Both quota-removal commits retain application source and their independently passing suites. The combined branch includes T1/T2/T3/T5/Fetch history and the new durable T4 implementation. Main remains unchanged and must not be merged.
+
+Refreshed against externally updated main 5a97907, preserving its exact AGENTS.md policy removal and wording. No application source changed.

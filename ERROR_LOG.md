@@ -321,3 +321,7 @@ The T1 branch modified README, architecture and task wording against an older pl
 ## POLICY-001 — October 17: remove duplicated Jac quota
 
 The user requested removal of the Jac requirement. Removed percentage/preference wording from this component branch's guidance, templates and active task text. Existing application code is unchanged. Global Codex instruction removal and the informational source report are recorded in the combined integration branch. Prevention: implementation requirements must not be confused with optional source metrics.
+
+## INT-012 — October 17: main advanced during PR publication
+
+What happened: remote main advanced from 89d0c0c to 5a97907 while the branch repairs were being published, introducing overlapping AGENTS.md policy edits. Cause: an independent main update removed the same Jac rules. Refreshed the component PR branches against that commit, preserved its exact guidance wording, and merged their updated heads into the integration branch. No main write/merge was performed by this task. Prevention: re-read remote heads and mergeability at publication, rather than assuming the starting base is current. Application source was unchanged; relevant contract/planning checks passed.
