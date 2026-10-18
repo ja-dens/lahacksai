@@ -26,7 +26,9 @@ python3 scripts/check_contract_fixtures.py
 
 This Python standard-library check needs no API key, installed application modules or network. See [the serialized examples](fixtures/contracts/README.md) and [delegation guide](docs/DELEGATION.md) for mock strategies and owned files. Every module task can finish its standalone deliverable independently; final live assembly is T5.
 
-The backend is planned to use meaningful Jac core functionality with at least 40% Jac application source. No application code is published by this planning revision, so its Jac share is not applicable.
+All application modules use Python. Install the independent modules with
+`python -m pip install -r requirements-agent-modules.txt`; no additional language
+runtime or source-percentage requirement applies.
 
 ## GitHub planning
 

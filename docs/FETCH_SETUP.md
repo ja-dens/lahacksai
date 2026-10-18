@@ -69,5 +69,5 @@ data until account binding is implemented and verified.
 The [Fetch challenge](https://www.fetch.ai/events/hackathons/la-hacks-ai-hackathon-2026/hackpack)
 requires a discoverable ACP agent and a useful primary workflow completed from
 ASI:One with meaningful tool execution/orchestration. This basic chatbot is only
-the starting point. No product Jac percentage is claimed for the standalone
-sponsor example; the at least 40% Jac application-source requirement remains.
+the starting point. The application and sponsor example use Python; no
+application-language percentage requirement applies to this project.

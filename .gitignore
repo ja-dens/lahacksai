@@ -3,7 +3,6 @@
 !.env.example
 .venv/
 __pycache__/
-.jac/
 *.py[cod]
 node_modules/
 .DS_Store

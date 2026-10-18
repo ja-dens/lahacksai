@@ -1,5 +1,13 @@
 # Sticker interpreter roadmap
 
+## Current implementation language
+
+The user corrected the inherited project context: all application code must use
+Python. The former Jac requirement and source-share targets are superseded.
+Earlier checkpoints below record historical work and are not current setup
+instructions. Use src/interpreter.py and src/fetch_tools.py with ordinary Python
+imports; no Jac compiler, importer or runtime is required.
+
 ## Outcome and scope
 
 An enrolled recipient receives a short private explanation of a supported sticker, based on recent messages from an approved conversation. An existing multimodal model performs interpretation. One channel, static images, one language, and bounded conversation context form the first scope. The user selected longer database history, separate saved context windows, and no age cutoff. The local prototype uses SQLite and defaults to 25 preceding messages within the selected 20–25 range; production retention remains open.
@@ -221,3 +229,35 @@ the image-byte comparison and snapshot hash), and git diff --check passed.
 No references to laughing.png remain in the active fixture/check/test guides.
 Existing staged work is preserved; replacement changes are left unstaged for
 the user's planned stage, commit and push.
+
+## October 17 Python-only correction
+
+The user reported that the inherited Jac requirement came from an unrelated
+past project and explicitly requested no Jac application code. This supersedes
+the former language split and all source-share targets recorded above.
+
+Converted src/interpreter.jac to src/interpreter.py and src/fetch_tools.jac to
+src/fetch_tools.py, preserving the published interfaces, input validation,
+candidate display policy, authorization checks and feedback replay behavior.
+src/__init__.py now has no importer side effects. Removed Jac/LLVM dependency
+pins from requirements-agent-modules.txt, uninstalled jaclang/llvmlite from the
+local venv and removed src/.jac's generated compiler artifacts. The existing
+hamster image, context fixtures, transport and model adapters remain in place.
+
+Updated active AGENTS.md guidance, README/setup/module docs, contracts/delegation,
+PR templates and canonical T0/T3/T4/T5/T7 ownership/checks to use Python. Removed
+source-share tooling requirements. Historical Jac references remain only in
+explicitly superseded progress/error/methodology notes. No other teammate's
+unpublished workspace was inspected or converted.
+
+Observed checks passed after removing the runtime: all 26 existing module tests,
+all 15 planning-publisher tests, publisher dry run with zero external writes,
+the shared fixture checker, offline saved-result demo, original agent.py --check,
+Python compilation and pip check. Source/import inspection confirms no existing
+.jac source files or Jac/LLVM imports, and neither runtime package is installed.
+
+The branch was clean and already pushed at the start of this correction. These
+new edits are local and unstaged on codex/fetch-tools; no commit, push, PR update,
+issue publication, teammate message or live service call was performed. GitHub's
+existing source and issue wording still require the normal commit/push/review/
+merge path before this correction becomes the shared version.

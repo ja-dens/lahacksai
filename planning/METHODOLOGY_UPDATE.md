@@ -1,5 +1,10 @@
 # October 17 parallel-task and methodology update
 
+Current language correction: the user removed the inherited Jac/source-share
+requirement. Application modules and task ownership now use Python. Earlier
+prototype verification references below are historical and do not establish the
+current implementation language or setup requirements.
+
 The source of truth is docs/PRODUCT_SPEC.md plus planning/backlog.json and planning/issues/. The parent-folder STICKER_PROJECT_PLAN.md contributes the original project/module structure; later confirmed D01–D13 supersede its rolling-only buffer, simplified output policy and older dependencies. This update retains existing issues T0–T7 (#1–#8) and adds one optional T8, rather than replacing the backlog.
 
 ## Method carried from the planning discussion

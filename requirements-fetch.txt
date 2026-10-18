@@ -1,4 +1,4 @@
-# Sponsor quickstart example, separate from the planned Jac application.
+# Sponsor quickstart and Python module SDK dependencies.
 uagents==0.26.1
 openai==3.34.0
 python-dotenv==1.2.4

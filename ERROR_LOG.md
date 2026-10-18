@@ -1,5 +1,8 @@
 # Error log and prevention notes
 
+Current setup uses Python only. Earlier Jac-specific entries are historical,
+superseded notes, not instructions to install or reintroduce that runtime.
+
 Purpose: retain actual problems, their causes, corrections, and prevention checks so later product work does not repeat them. Preserve earlier entries. Product decisions live in [docs/PRODUCT_SPEC.md](docs/PRODUCT_SPEC.md).
 
 Separate observed incidents from anticipated failure modes. A design revision is not automatically an error, a test scenario is not a bug already observed, and a proposed correction is not a verified runtime fix.
@@ -224,3 +227,24 @@ and stopped on decoding them as text. Added .jac/ to .gitignore so compiler cach
 stay local, then reran the changed-file scan. Prevention: exclude generated
 runtime files before reviewing/staging source; do not treat a mixed shell batch's
 last exit code as proof that every preceding check passed.
+
+## LANGUAGE-001 — 2026-10-17: inherited language constraint was from another project
+
+The user clarified that the Jac requirement came from unrelated prior project
+context and requested that no application code use it. Earlier module work had
+followed that requirement as written in AGENTS.md and the canonical task bodies.
+
+Correction: ported the two policy modules to ordinary Python, removed the
+importer and runtime/dependency pins, uninstalled jaclang and llvmlite from the
+local venv, and removed generated compiler cache files. Updated active project
+instructions, PR templates, setup docs and task ownership/checks to Python.
+Historical checkpoints remain explicitly superseded rather than rewritten as
+Python verification that did not happen at the time.
+
+Verification: the unchanged 26 application tests, 15 planning-publisher tests,
+publisher dry run (zero external writes), fixture checker, offline Fetch demo,
+original agent check, Python compilation and pip check passed. Source/import
+inspection found no remaining .jac files or Jac/LLVM imports in the working
+application, and neither removed package is installed. Prevention: use the
+current user's project-specific language decision and keep the repository's
+active instructions and generated task sources consistent with it.

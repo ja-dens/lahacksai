@@ -1,6 +1,6 @@
 # One-call interpreter (#4 / T3)
 
-`src/interpreter.jac` validates the frozen v2 context, coordinates exactly one
+`src/interpreter.py` validates the frozen v2 context, coordinates exactly one
 adapter invocation, and applies the candidate policy. `src/adapters/vision.py`
 contains PNG decoding and the replaceable OpenAI Responses SDK boundary.
 
@@ -8,7 +8,7 @@ contains PNG decoding and the replaceable OpenAI Responses SDK boundary.
 source .venv/bin/activate
 python -m pip install -r requirements-agent-modules.txt
 python -m unittest discover -s tests -p 'test_interpreter.py'
-jac check src --nowarn
+python -m compileall -q src tests
 ```
 
 The tests use the real installed SDK with `httpx.MockTransport`. They inspect
@@ -20,7 +20,7 @@ serialized requests, including the supplied PNG bytes, and never contact a model
 | --- | --- |
 | One image-and-context request | The model sees the actual sticker and frozen conversation together; personalization does not add a second request. |
 | Keep OpenAI Responses behind an injected adapter | Matches the recorded local prototype direction, while preserving a replaceable boundary. ASI:One's chat API is a separate service and its key is not silently reused. |
-| Use strict JSON schema plus Jac validation | Structured output constrains shape; Jac still checks counts, duplicate wording, rankability and the display policy. Neither proves the model's judgment is correct. |
+| Use strict JSON schema plus Python validation | Structured output constrains shape; Python still checks counts, duplicate wording, rankability and the display policy. Neither proves the model's judgment is correct. |
 | Select model-input fields explicitly | Recipient routing, API keys, feedback, older history and unknown extra fields are not sent. T4 owns selecting/freezing the correct conversation window. |
 | Disable SDK retries | A timeout or server error stays one attempted request. Retry policy belongs to later integration. |
 | Decode PNGs before inference | Corrupt, animated, oversized or hash-mismatched media fails before spending a request. This adds Pillow as an isolated dependency. |
@@ -71,7 +71,7 @@ No exception message or credentials are included in the failure record.
 To replace the provider, supply the same orchestration hooks (`start_run`,
 `generate(snapshot, context)`, `finish_run`, `fail_run`) to
 `src.interpreter.interpret_sticker`. `generate` returns the candidate dictionary;
-Jac retains the validation and display policy. The current Python adapter's
+The Python core retains the validation and display policy. The current adapter's
 `client` may also be replaced with an SDK-compatible fake for testing.
 
 ## Opt-in live smoke check
@@ -96,5 +96,6 @@ not establish live compatibility with an unconfigured model.
 
 `requirements-agent-modules.txt` isolates the module setup from the unpublished
 backend dependencies. T0 should consolidate it with that backend's reviewed
-dependency configuration. `src/fetch_tools.jac` is a small additional T8 core
-module so product rules remain in Jac rather than expanding the Python transport.
+dependency configuration. `src/fetch_tools.py` is a small additional T8 core
+module that keeps product rules separate from the external transport. All
+application modules use Python with ordinary imports.
