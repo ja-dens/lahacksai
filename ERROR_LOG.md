@@ -312,3 +312,7 @@ A patch attempted delete/add operations on the same CLI path. The patch tool rej
 ## INT-010 — October 17: Fetch overlapped T3 and the current fixture checker
 
 What happened: full Fetch integration conflicted with the canonical interpreter, shared image/checker and Pillow pin. Fixed by retaining T3's implementation/tests and main's strengthened checker/original exchange, keeping the hamster asset separately and unifying Pillow at 13.0.0 in the combined lock. Optional saved-result tools and sponsor quickstart are retained. Prevention: run all component suites and shared regressions in one locked environment; keep separate optional fixtures from changing canonical request hashes. Status: implementation reconciled; combined verification follows.
+
+## INT-011 — October 17: older channel documents conflicted with current application scope
+
+The T1 branch modified README, architecture and task wording against an older planning base. Preserved the integrated README and current context methodology, retained the original verification record with a dated link to later issue evidence, and documented native media as blocked. Prevention: distinguish historical provider evidence from the current application and do not turn text delivery into sticker support. No live check was inferred or performed.

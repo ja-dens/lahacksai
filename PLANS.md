@@ -41,7 +41,7 @@ Aim for the first complete path within roughly hours 4–6 of the 24-hour refere
 - Interpretation starts with one multimodal call containing the actual sticker image and selected text.
 - The backend chooses recipients from enrollment settings.
 - Each owner develops against the shared format and substitutes unfinished dependencies.
-- No live data, API key, model endpoint, or phone line is assumed provisioned.
+- The qualifying live path is a Photon 2.0 beta shared iMessage thread, one enrolled sender, and a private explanation in that same thread. Group iMessage and iMessage calls need a dedicated line and are out of the hackathon demo. Voice, if pursued, is a separate SMS-number prize and is not attached to iMessage.
 - Owner roles are planning labels until teammates' GitHub usernames are supplied.
 - Existing general hackathon research stays outside this repository.
 
@@ -50,6 +50,12 @@ Aim for the first complete path within roughly hours 4–6 of the 24-hour refere
 The target repository initially contained a single README and an initial commit. Git can read the repository and its push dry run permits a feature branch. The in-app browser is signed out; authenticated GitHub API access is not assumed.
 
 The Photon sponsor guidelines state that iMessage group chat requires a dedicated line. Static-sticker media access, private-delivery behavior, the actual model budget, and deployment access still require real tests.
+
+On October 17, 2026 the signed-in dashboard at https://app.photon.codes/dashboard was Spectrum, the stable product, for account Kalena D. A Free project named lahacksai was created with iMessage selected. Its project id is 9c35348c-9428-4dad-8a2c-b1eade874bce. The project secret is only in the gitignored local .env. Getting started reported account_phone_missing, so Spectrum cannot enroll a line until a phone is added from the account menu. This is not a Photon 2.0 beta project id (those start with pho_prj_). No application source was added.
+
+The same account then signed in to Photon 2.0 beta. Organization Kalena's Org is `pho_org_01m55yft3jfvq9b64abja4yf5w`. Free project lahacksai is `pho_prj_01m55yjqt0esk81ms9g1w3kyxs`. A 90-day project key named lahacksai-t1 has platforms and project read/write; its secret is only in `.env`. Shared iMessage is one to one. On October 17, 2026 the owner's iMessage number was assigned a Free shared-pool line, `+16285024649`, assignment `pho_asg_01m562efr8e8g8pc3qtjvbcmre`. The sender stays in gitignored `.env`. A dedicated line, which is the documented group-chat option, requires Messaging Business at at least $250 a month and was not purchased. The enrolled sender then texted `Ping`. Photon stored it as a received direct-space message. A threaded reply was rejected with `SPACE_NOT_SENDABLE`. A normal text in that same space was delivered. Sticker media and a private explanation are still untested. Details are in docs/T1-verification.md. T1 stays open.
+
+The October 17 hackathon brief awards the iMessage prize for a live Photon 2.0 beta channel and a separate voice prize for calls on an SMS number. Free includes shared iMessage, shared WhatsApp, and one email domain, and charges SMS and voice with no included allowance. The brief's Spectrum SDK link is not the beta client. The build follows docs/ARCHITECTURE.md: qualify on one shared iMessage thread, and add SMS voice only as a separate prize path.
 
 GitHub Actions uses a short-lived repository token for issue publishing. Repository settings can prevent draft PR creation. If so, preserve the branch and issues and record the limitation; do not change settings automatically.
 
@@ -311,3 +317,7 @@ Merged the Fetch branch history while retaining canonical T3 interfaces/tests, t
 Observed verification: 172 application tests, all ten Jac modules, 10 contract regressions, 15 publisher tests, dry run (zero writes), dependency checks, group/direct replay demos, optional Fetch demo and sponsor offline check passed. Local Markdown links and whitespace passed. The new lock is being installed in a fresh environment before publication. Main must remain unmerged at the user's explicit request. No live model, phone send or saved-result agent registration was performed.
 
 Fresh-environment verification completed: the exact combined requirements.lock installed successfully into a new Python 3.13 virtual environment; all 172 tests, ten Jac modules and pip check passed there. Canonical T3 implementation/tests/prompt and shared checker/exchange bytes were explicitly compared with the pre-Fetch commit and are unchanged. The inspector removes binary data from its printed copy. Source quota removal was verified with a zero-Jac Python-only source tree.
+
+## October 17 T1 history reconciliation
+
+Retained the T1 branch commits/report while reconciling older README/architecture/task wording with current persisted context and direct/group routing. Later issue evidence is linked explicitly: native sticker API ingress remains blocked. This documentation change does not establish a live test.
