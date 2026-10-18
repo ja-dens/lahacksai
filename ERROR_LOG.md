@@ -387,3 +387,37 @@ without restarting. Prevention: the live regression covers an unconfigured
 poll, a second poll that must not repeat inference, and a third poll that sends
 once after the key appears. Status: retry path tested offline. No OpenAI key or
 image attachment is present, so phone delivery remains unverified.
+
+## LOCAL-001 — October 18: Messages database blocked by macOS privacy
+
+What happened: reading `~/Library/Messages/chat.db` for the local Messages
+popup failed with `authorization denied`, and listing `~/Library/Messages`
+returned `Operation not permitted`. Cause: macOS requires Full Disk Access for
+any process that reads the Messages database. Correction: the watcher opens
+the database read-only and, when access is denied, prints the Full Disk Access
+instruction and exits with code 2 instead of a traceback. The user agreed to
+grant access to Cursor and restart it. Prevention: run
+`python -m src imessage --check` before a demo. Status: open until access is
+granted and a real sticker is observed.
+
+## LOCAL-002 — October 18: OpenAI account has no credit
+
+What happened: a single fixture call through `python -m src.adapters.vision
+--mode live` returned `model_rate_limited`. The provider error type was
+`insufficient_quota` with code `credit_balance_exhausted`. Cause: the
+configured OpenAI account has no remaining credit, which the adapter reports
+as a rate limit. Correction: the local popup now says OpenAI is out of credit
+or busy instead of inventing a meaning. Prevention: check billing before a live
+demo; a configured key does not prove a usable key. Status: open; no live
+interpretation has succeeded.
+
+## TEST-001 — October 18: two live-runtime tests called the real model
+
+What happened: `test_missing_model_key_keeps_history_and_does_not_send` and
+`test_saved_sticker_retries_after_the_model_key_appears` failed with
+`model_rate_limited` once `.env` contained a real key. Cause: `poll_once`
+calls `load_dotenv(override=True)`, which reloaded the real `.env` after the
+tests cleared `os.environ`, so they made real OpenAI requests. Correction: both
+tests now patch `src.live.load_dotenv`. Prevention: tests that clear the
+environment must also stub every `.env` reload. Status: corrected; the full
+suite passes.

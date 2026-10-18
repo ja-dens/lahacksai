@@ -419,3 +419,28 @@ switching that open popup to the compatible pair and the abstain wording, and
 the note used when you send the sticker yourself. `tests.test_local_demo`
 passed. This is still fixture evidence: no OpenAI request, no Photon request,
 and no phone receipt.
+
+## October 18 local Messages watcher
+
+At the user's request, added `python -m src imessage`, a Mac-only path separate
+from Photon. It polls this Mac's Messages database read-only, interprets new
+stickers from one chosen contact in a one-to-one chat with the existing
+one-call `interpret_sticker` and `OpenAIVision`, and shows the result in a
+local panel at `http://127.0.0.1:8766` plus a macOS notification. Nothing is
+sent back into the chat; the recipient is always the Mac owner. The user
+confirmed the friend agreed to sending stickers and preceding messages to
+OpenAI. Stickers (usually HEIC) are converted to PNG with `sips`; the request
+uses the v2 contract with up to 25 earlier messages and no age cutoff.
+
+Verified: eight new tests against a synthetic Messages schema (friend sticker
+to popup with one model call, history before start ignored, group/other/own
+stickers ignored, one explanation per message, waiting for a sticker download,
+model failure shown without a meaning, 25-message bound). A real HEIC file
+converted to PNG, and the panel served cards and images in the browser. The
+full suite passed with 201 tests after fixing two live tests that reloaded the
+real `.env`.
+
+Not verified: reading the real Messages database (macOS denied access until
+Full Disk Access is granted) and any live interpretation. A fixture model call
+returned `insufficient_quota` / `credit_balance_exhausted`, so the OpenAI
+account needs credit before a real sticker can be explained.

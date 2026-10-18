@@ -252,7 +252,7 @@ class LiveRuntimeTests(unittest.TestCase):
         store = SQLiteStore(self.db_path)
         runtime = LiveRuntime(self.config, client=client, store=store)
         try:
-            with patch.dict(os.environ, {}, clear=True):
+            with patch.dict(os.environ, {}, clear=True), patch("src.live.load_dotenv"):
                 result = runtime.poll_once()
             error = store.db.execute(
                 "SELECT error_code FROM interpretation_runs"
@@ -275,10 +275,11 @@ class LiveRuntimeTests(unittest.TestCase):
             self.config, client=client, vision=vision, store=store,
         )
         try:
-            with patch.dict(os.environ, {}, clear=True):
+            with patch.dict(os.environ, {}, clear=True), patch("src.live.load_dotenv"):
                 first = runtime.poll_once()
                 second = runtime.poll_once()
-            with patch.dict(os.environ, {"OPENAI_API_KEY": "test-only"}, clear=True):
+            with patch.dict(os.environ, {"OPENAI_API_KEY": "test-only"}, clear=True), \
+                    patch("src.live.load_dotenv"):
                 third = runtime.poll_once()
         finally:
             store.close()

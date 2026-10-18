@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sticker meanings</title>
+<style>
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f2f2f7; color: #1c1c1e; }
+  header { position: sticky; top: 0; background: rgba(242,242,247,.94); backdrop-filter: blur(8px); padding: 14px 16px 10px; border-bottom: 1px solid #e5e5ea; }
+  h1 { margin: 0; font-size: 17px; }
+  .status { margin: 4px 0 0; color: #6e6e73; font-size: 13px; }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #34c759; margin-right: 6px; vertical-align: 1px; }
+  .dot.off { background: #ff3b30; }
+  main { padding: 12px; }
+  .empty { color: #6e6e73; font-size: 14px; line-height: 1.45; text-align: center; padding: 40px 16px; }
+  .card { background: #fff; border-radius: 16px; padding: 14px; margin: 0 0 12px; box-shadow: 0 1px 3px rgba(0,0,0,.08); display: grid; grid-template-columns: 72px 1fr; gap: 12px; align-items: start; }
+  .card.new { animation: pop .35s ease-out; box-shadow: 0 0 0 3px #0a84ff55, 0 6px 18px rgba(0,0,0,.12); }
+  .card img { width: 72px; height: 72px; object-fit: contain; }
+  .card .noimg { width: 72px; height: 72px; border-radius: 12px; background: #e5e5ea; }
+  .who { margin: 0 0 4px; color: #6e6e73; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+  .text { margin: 0; white-space: pre-wrap; font-size: 16px; line-height: 1.4; }
+  .cue { margin: 6px 0 0; color: #6e6e73; font-size: 13px; line-height: 1.35; }
+  .card.error .text { color: #b42318; }
+  .toast { position: fixed; left: 12px; right: 12px; bottom: 12px; background: #1c1c1e; color: #fff; border-radius: 14px; padding: 12px 14px; font-size: 14px; line-height: 1.35; box-shadow: 0 10px 30px rgba(0,0,0,.3); }
+  .toast[hidden] { display: none; }
+  @keyframes pop { from { transform: scale(.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Sticker meanings</h1>
+  <p class="status"><span class="dot" id="dot"></span><span id="status">Watching Messages on this Mac</span></p>
+</header>
+<main id="list">
+  <p class="empty" id="empty">When your friend sends a sticker in Messages, what it probably means shows up here. Only you see this.</p>
+</main>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+const list = document.getElementById("list");
+const empty = document.getElementById("empty");
+const toast = document.getElementById("toast");
+const dot = document.getElementById("dot");
+const statusText = document.getElementById("status");
+let last = 0;
+let toastTimer = null;
+
+function card(item) {
+  const el = document.createElement("article");
+  el.className = "card new" + (item.status === "error" ? " error" : "");
+  if (item.image) {
+    const img = document.createElement("img");
+    img.src = item.image;
+    img.alt = "Sticker";
+    el.append(img);
+  } else {
+    const blank = document.createElement("div");
+    blank.className = "noimg";
+    el.append(blank);
+  }
+  const body = document.createElement("div");
+  const who = document.createElement("p");
+  who.className = "who";
+  who.textContent = item.sender + " sent a sticker";
+  const text = document.createElement("p");
+  text.className = "text";
+  text.textContent = item.text;
+  body.append(who, text);
+  if (item.cue) {
+    const cue = document.createElement("p");
+    cue.className = "cue";
+    cue.textContent = "Why: " + item.cue;
+    body.append(cue);
+  }
+  el.append(body);
+  setTimeout(() => el.classList.remove("new"), 4000);
+  return el;
+}
+
+function showToast(item) {
+  toast.textContent = item.text.split("\n")[0];
+  toast.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { toast.hidden = true; }, 6000);
+}
+
+async function poll() {
+  try {
+    const response = await fetch("/events?after=" + last, {cache: "no-store"});
+    const items = await response.json();
+    for (const item of items) {
+      last = Math.max(last, item.id);
+      empty.remove();
+      list.prepend(card(item));
+      showToast(item);
+      window.focus();
+    }
+    dot.classList.remove("off");
+    statusText.textContent = "Watching Messages on this Mac";
+  } catch (error) {
+    dot.classList.add("off");
+    statusText.textContent = "Watcher stopped. Restart it in the terminal.";
+  }
+  setTimeout(poll, 1000);
+}
+poll();
+</script>
+</body>
+</html>
