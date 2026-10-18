@@ -5,6 +5,7 @@ import hashlib
 import json
 from datetime import datetime
 from pathlib import Path
+from .routing import verified_direct
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -68,7 +69,7 @@ class MockStore:
             return []
         ids = []
         for route in routes:
-            if route['recipient_id'] == event['sender_id']:
+            if route['recipient_id'] == event['sender_id'] and not verified_direct(route):
                 continue
             job_key = (*key, route['recipient_id'])
             if job_key not in self.index:

@@ -4,6 +4,7 @@ import hashlib;
 import json;
 import from datetime { datetime }
 import from pathlib { Path }
+import from .routing { verified_direct }
 
 
 def clone(value: any) -> any {
@@ -137,7 +138,7 @@ def private_route(store: any, window_id: int, request: dict) -> dict {
         raise PermissionError("Conversation membership missing");
     }
     destination = route.get("destination");
-    if not isinstance(destination, str) or not destination.strip() or destination == request["conversation_id"] {
+    if not isinstance(destination, str) or not destination.strip() or (destination == request["conversation_id"] and not verified_direct(route)) {
         raise PermissionError("Verified private destination required");
     }
     return route;

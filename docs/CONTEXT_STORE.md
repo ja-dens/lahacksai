@@ -1,0 +1,15 @@
+# Persistent context and coordinator storage
+
+`src.context_store.SQLiteStore(path)` exposes T5's store ports over Jac SQLite logic. Core source was retained from the local T4 prototype; scheduling, claims, results, acknowledgment state and lookup/feedback operations are now integrated.
+
+The store preserves longer per-platform/conversation history. Each sticker/recipient gets an immutable v2 snapshot with up to 25 preceding messages, configurable from 20–25, no age cutoff and explicit text budgets. Later messages, preferences and feedback do not alter it. Feedback stays evaluation-only. Existing prototype snapshots/results migrate without another inference call.
+
+`observe`, `load_job`, `resolve_route`, `claim`, `save_result`, `mark_failure` and `mark_accepted` implement the coordinator ports. Result persistence creates a pending private outbox entry; `accepted` requires a provider message ID and never asserts visual phone receipt. Claims use conditional SQLite updates. Source replays and process restarts do not resend accepted jobs. Interrupted interpreting/sending claims and unknown acknowledgments require reconciliation; there is no distributed exactly-once guarantee or automatic billed retry.
+
+Trusted setup uses `enroll`, `set_preferences` and `set_relationship`. These calls record supplied configuration; they do not independently verify platform identity. Ordinary group mode requires a separate destination and skips recipient-authored stickers. A shared direct assistant thread is allowed only when enrollment explicitly supplies `source_kind="direct"`, `source_verified=True`, an `assistant_id` and exactly that assistant plus recipient as members. The transport setup must establish that binding; fields in an incoming message cannot authorize direct mode. Assistant echoes remain ignored.
+
+`get_explanation(window_id, authenticated_recipient_id)` returns only the saved output fields. `save_feedback(window_id, authenticated_recipient_id, selection, note=None)` checks ownership, choices actually shown and note size. The trusted transport/session supplies identity. Missing and other-recipient windows use the same lookup denial. No history or image is returned by these operations.
+
+Run the database checks with `python -m unittest discover -s tests -p 'test_context_store.py'`. They use temporary real SQLite files and deny socket creation. Coverage includes restart, frozen windows, long/old history, time ordering, deduplication, multiple recipients, direct/group routing, rollback, competing claims, explicit retries, uncertain sends, scoped feedback and legacy queued results.
+
+`src.repository.purge_conversation(db, platform, conversation)` explicitly deletes that conversation's history, windows, jobs, outbox, feedback and enrollment through foreign-key cascades. Account-level preferences/relationships remain separately scoped settings. Keep database files in ignored `local-data/` with operating-system account access; real-data retention and deployment account authentication require a separate operational policy.

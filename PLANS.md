@@ -142,3 +142,9 @@ Verified refresh: 34 T3 tests, one Jac module check, 10 contract regressions, sh
 ## October 17 T5/T3 assembly checkpoint
 
 Combined the preserved T5 mock coordinator with the refreshed T3 component and main/T0 baseline. Both existing suites (70 tests total), both Jac modules, 10 contract regressions, fixtures and whitespace checks passed. Source-share gate passed; the emitted counter is the canonical measurement. Component APIs and the existing mock-demo command are retained. Runtime bridges and durable T4 scheduling are the next focused change.
+
+## October 17 persistent T4/T5 integration
+
+Retained the four local Jac core modules in the isolated integration checkout and added Jac durable scheduling/outbox ports with a thin SQLiteStore adapter. Added explicit trusted direct-source enrollment, immutable snapshots, migration of local queued results, scoped lookup/feedback and conditional claims. Source/recipient routing remains outside model data; feedback stays evaluation-only. Original checkouts were not changed.
+
+Verification: 89 application tests (including 19 real-SQLite integration cases), all eight Jac modules and whitespace checks passed. Source share is 1,012 Jac / 1,436 total nonblank/noncomment src/ lines = 70.5%, including Python mocks and adapter glue. Existing 10 contract checks and 15 publisher checks passed in the preceding component checkpoint; their source is unchanged. No live model or phone call occurred.

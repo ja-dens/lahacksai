@@ -207,3 +207,19 @@ What happened: PR #15 conflicted with main in .env.example, ERROR_LOG.md and PLA
 ## INT-002 — October 17: component documents collided during assembly
 
 T3/T5 both owned README, Jac importer initialization and appended evidence logs. Preserved both logs, retained one Jac-registration initializer and both component runbook links. Application modules and fixtures were retained unchanged. Prevention: assign shared assembly files to T5 and run both component suites together.
+
+## INT-003 — October 17: Jac rejected untyped context settings at the store boundary
+
+What happened: the new store ran its tests but `jac check` reported four E1053 errors when dictionary values were passed to typed integer context parameters. Cause: runtime dictionary lookup has an unknown static type. Fixed by validating exact integer types/positive values and then explicitly converting the validated values at the boundary. Prevention: run Jac checks as well as execution tests. Status: correction implemented; combined reverification follows.
+
+## INT-004 — October 17: feedback exclusion assertion matched a message ID
+
+What happened: a new regression test searched the entire serialized request for the word feedback, which was also in its own source message ID. No stored feedback had entered the request. Fixed the test to use a unique feedback-content canary and inspect the user-context keys. Prevention: make privacy assertions about actual data/fields rather than incidental identifier substrings. Status: test corrected; product behavior unchanged.
+
+## INT-005 — October 17: local database did not implement the coordinator ports
+
+What happened: T4's connection-oriented local functions could not replace T5's mock store. Accepted-send/claim state was absent from the prototype. Fixed by retaining the Jac history/context/repository modules, adding Jac transaction/job/outbox logic and a thin SQLiteStore object port. Existing queued results migrate without repeating inference. Conditional claims, stable identities and persisted uncertain outcomes are covered by real temporary-database tests. Prevention: exercise real component ports together, including restarts, before describing assembly as complete. Status: implemented; live provider reconciliation remains external work.
+
+## INT-006 — October 17: direct assistant threads were rejected by group-only guards
+
+What happened: the selected shared-direct demo was blocked when source and destination matched, and recipient submissions created no job. Fixed with an explicit trusted direct-source enrollment mode requiring exactly the configured assistant and recipient. Group restrictions, unverified same-thread rejection and echo filtering remain. Prevention: cover both direct and group routes with a real store; do not derive verification from event/model fields. Status: offline regression cases pass; actual Photon bindings remain unverified.
