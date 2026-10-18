@@ -18,13 +18,14 @@ choose which saved explanation the next sticker uses: one meaning, a compatible
 pair, an opposing pair, abstain, or the direct-thread wording. The page makes
 no OpenAI or Photon request, and it does not show phone receipt.
 
-## Your own Messages app with a friend
+## Your own Messages app
 
-This path watches the Messages app on this Mac. When the chosen friend sends a
-sticker in your one-to-one chat, a small "Sticker meanings" window and a Mac
-notification show what it probably means. Nothing is posted back into the
-chat. It makes one OpenAI call per sticker, using the sticker image and up to
-25 earlier messages from that chat, so your friend must agree to that first.
+This path watches the Messages app on this Mac. When anyone sends a sticker in
+any chat, including a group and a sticker you send, a popup explains why and
+shows another sticker from the same pack when this Mac already has one.
+Nothing is posted back into the chat. It makes one OpenAI call per sticker,
+using the sticker image and up to 25 earlier messages from that chat. People
+in those chats need to agree to that first.
 
 Setup, once:
 
@@ -39,19 +40,27 @@ Setup, once:
 .venv/bin/python -m src imessage --check
 ```
 
-Run it with your friend's phone number or email exactly as Messages knows them:
+Run it for every Messages chat:
+
+```sh
+.venv/bin/python -m src imessage
+```
+
+To watch only one friend, pass their phone number or email as Messages knows
+them:
 
 ```sh
 .venv/bin/python -m src imessage --contact "+15551234567" --relationship friend
 ```
 
-The popup window opens at `http://127.0.0.1:8766`. Text back and forth in
-Messages as usual. When your friend sends a sticker from the sticker drawer,
-the window shows the sticker, what it probably means, and why. Add
-`--include-mine` to also explain stickers you send, and `--include-photos` to
-treat photos as stickers. Only stickers that arrive after the watcher starts
-are explained, and each sticker is explained once. Group chats and other
-contacts are ignored. Press Ctrl+C to stop.
+The popup window opens at `http://127.0.0.1:8766`. Text in any Messages chat.
+When a sticker is sent, the popup shows the sticker, what it probably means,
+why, and another sticker from that same pack if one is already on this Mac.
+With `--contact`, only that person's one-to-one chat is watched; add
+`--include-mine` to also explain stickers you send there. Add
+`--include-photos` to treat photos as stickers. Only stickers that arrive
+after the watcher starts are explained, and each sticker is explained once.
+Press Ctrl+C to stop.
 
 If OpenAI fails (for example, the account is out of credit), the window says
 so instead of guessing a meaning.

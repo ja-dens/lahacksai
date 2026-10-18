@@ -21,28 +21,61 @@
   .text { margin: 0; white-space: pre-wrap; font-size: 16px; line-height: 1.4; }
   .cue { margin: 6px 0 0; color: #6e6e73; font-size: 13px; line-height: 1.35; }
   .card.error .text { color: #b42318; }
-  .toast { position: fixed; left: 12px; right: 12px; bottom: 12px; background: #1c1c1e; color: #fff; border-radius: 14px; padding: 12px 14px; font-size: 14px; line-height: 1.35; box-shadow: 0 10px 30px rgba(0,0,0,.3); }
-  .toast[hidden] { display: none; }
+  .suggest { display: flex; gap: 10px; align-items: center; margin-top: 10px; background: #f2f2f7; border-radius: 12px; padding: 8px; }
+  .suggest[hidden], .sheet .sticker[hidden] { display: none; }
+  .suggest img { width: 56px; height: 56px; object-fit: contain; }
+  .suggest p { margin: 0; }
+  .suggest .suggest-series { color: #6e6e73; font-size: 12px; margin-top: 2px; }
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,.36); display: flex; align-items: flex-end; z-index: 3; }
+  .modal[hidden] { display: none; }
+  .sheet { width: min(420px, 100%); margin: 0 auto; background: #fff; border-radius: 18px 18px 0 0; padding: 18px 18px 22px; box-sizing: border-box; box-shadow: 0 -8px 30px rgba(0,0,0,.18); }
+  .kicker { margin: 0 0 6px; color: #6e6e73; font-size: 12px; font-weight: 650; letter-spacing: .04em; text-transform: uppercase; }
+  .sheet h2 { margin: 0 0 10px; font-size: 20px; }
+  .sheet .sticker { width: 88px; height: 88px; object-fit: contain; display: block; margin: 0 0 10px; }
+  .sheet .text { margin: 0 0 8px; white-space: pre-wrap; font-size: 16px; line-height: 1.4; }
+  .sheet .ok { width: 100%; border: 0; border-radius: 12px; background: #0a84ff; color: #fff; font: inherit; font-size: 17px; padding: 12px; cursor: pointer; margin-top: 12px; }
   @keyframes pop { from { transform: scale(.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 </style>
 </head>
 <body>
 <header>
   <h1>Sticker meanings</h1>
-  <p class="status"><span class="dot" id="dot"></span><span id="status">Watching Messages on this Mac</span></p>
+  <p class="status"><span class="dot" id="dot"></span><span id="status">Watching every Messages chat on this Mac</span></p>
 </header>
 <main id="list">
-  <p class="empty" id="empty">When your friend sends a sticker in Messages, what it probably means shows up here. Only you see this.</p>
+  <p class="empty" id="empty">When a sticker is sent in any Messages chat, a popup explains why and suggests another sticker from the same series. Only you see this.</p>
 </main>
-<div class="toast" id="toast" role="status" hidden></div>
+<div class="modal" id="modal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <p class="kicker" id="modal-who"></p>
+    <h2 id="modal-title">Why this sticker</h2>
+    <img class="sticker" id="modal-sticker" alt="Sticker" hidden>
+    <p class="text" id="modal-text"></p>
+    <p class="cue" id="modal-why"></p>
+    <div class="suggest" id="modal-suggestion" hidden>
+      <img id="modal-suggestion-img" alt="Suggested sticker">
+      <div>
+        <p>Try this from the same series</p>
+        <p class="suggest-series" id="modal-series"></p>
+      </div>
+    </div>
+    <p class="cue" id="modal-note" hidden></p>
+    <button type="button" class="ok" id="modal-ok">OK</button>
+  </div>
+</div>
 <script>
 const list = document.getElementById("list");
 const empty = document.getElementById("empty");
-const toast = document.getElementById("toast");
+const modal = document.getElementById("modal");
 const dot = document.getElementById("dot");
 const statusText = document.getElementById("status");
 let last = 0;
-let toastTimer = null;
+const queue = [];
+
+function whoLine(item) {
+  const who = item.chat ? item.sender + " in " + item.chat : item.sender;
+  return who + " sent a sticker";
+}
 
 function card(item) {
   const el = document.createElement("article");
@@ -60,7 +93,7 @@ function card(item) {
   const body = document.createElement("div");
   const who = document.createElement("p");
   who.className = "who";
-  who.textContent = item.sender + " sent a sticker";
+  who.textContent = whoLine(item);
   const text = document.createElement("p");
   text.className = "text";
   text.textContent = item.text;
@@ -71,16 +104,70 @@ function card(item) {
     cue.textContent = "Why: " + item.cue;
     body.append(cue);
   }
+  if (item.suggestion_image) {
+    const box = document.createElement("div");
+    box.className = "suggest";
+    const img = document.createElement("img");
+    img.src = item.suggestion_image;
+    img.alt = "Suggested sticker";
+    const copy = document.createElement("div");
+    const title = document.createElement("p");
+    title.textContent = "Try this from the same series";
+    const series = document.createElement("p");
+    series.className = "suggest-series";
+    series.textContent = item.suggestion_series || "Same series";
+    copy.append(title, series);
+    box.append(img, copy);
+    body.append(box);
+  } else if (item.suggestion_note) {
+    const note = document.createElement("p");
+    note.className = "cue";
+    note.textContent = item.suggestion_note;
+    body.append(note);
+  }
   el.append(body);
   setTimeout(() => el.classList.remove("new"), 4000);
   return el;
 }
 
-function showToast(item) {
-  toast.textContent = item.text.split("\n")[0];
-  toast.hidden = false;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { toast.hidden = true; }, 6000);
+function showModal(item) {
+  document.getElementById("modal-who").textContent = whoLine(item);
+  document.getElementById("modal-text").textContent = item.text;
+  const why = document.getElementById("modal-why");
+  why.textContent = item.cue ? "Why: " + item.cue : "";
+  why.hidden = !item.cue;
+  const sticker = document.getElementById("modal-sticker");
+  if (item.image) {
+    sticker.src = item.image;
+    sticker.hidden = false;
+  } else {
+    sticker.removeAttribute("src");
+    sticker.hidden = true;
+  }
+  const suggestion = document.getElementById("modal-suggestion");
+  const note = document.getElementById("modal-note");
+  if (item.suggestion_image) {
+    document.getElementById("modal-suggestion-img").src = item.suggestion_image;
+    document.getElementById("modal-series").textContent = item.suggestion_series || "Same series";
+    suggestion.hidden = false;
+    note.hidden = true;
+  } else {
+    suggestion.hidden = true;
+    note.textContent = item.suggestion_note || "";
+    note.hidden = !item.suggestion_note;
+  }
+  modal.hidden = false;
+  document.getElementById("modal-ok").focus();
+}
+
+function showNext() {
+  if (!modal.hidden || queue.length === 0) return;
+  showModal(queue.shift());
+}
+
+function closeModal() {
+  modal.hidden = true;
+  showNext();
 }
 
 async function poll() {
@@ -91,17 +178,23 @@ async function poll() {
       last = Math.max(last, item.id);
       empty.remove();
       list.prepend(card(item));
-      showToast(item);
+      queue.push(item);
+      showNext();
       window.focus();
     }
     dot.classList.remove("off");
-    statusText.textContent = "Watching Messages on this Mac";
+    statusText.textContent = "Watching every Messages chat on this Mac";
   } catch (error) {
     dot.classList.add("off");
     statusText.textContent = "Watcher stopped. Restart it in the terminal.";
   }
   setTimeout(poll, 1000);
 }
+document.getElementById("modal-ok").addEventListener("click", closeModal);
+modal.addEventListener("click", (event) => { if (event.target === modal) closeModal(); });
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !modal.hidden) closeModal();
+});
 poll();
 </script>
 </body>

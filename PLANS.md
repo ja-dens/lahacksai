@@ -444,3 +444,21 @@ Not verified: reading the real Messages database (macOS denied access until
 Full Disk Access is granted) and any live interpretation. A fixture model call
 returned `insufficient_quota` / `credit_balance_exhausted`, so the OpenAI
 account needs credit before a real sticker can be explained.
+
+## October 18 any-chat popup
+
+At the user's request, `python -m src imessage` with no contact watches every
+Messages chat on this Mac, including group chats and stickers you send. A
+sticker still uses one `interpret_sticker` call. The popup shows why, and when
+another sticker from the same Messages pack is already on this Mac it shows
+that image. Pack identity comes from the attachment `pid`, with the pack name
+when Messages stored one. Nothing is posted back into the chat. `--contact`
+still limits watching to one one-to-one chat.
+
+Verified: the local Messages tests, 14 total, passed. They cover every chat,
+a same-pack suggestion, a different pack left unsuggested, missing pack
+metadata, and the existing one-contact filter. A browser check of the panel
+showed the popup with the explanation, the why line, and a same-series
+sticker; OK dismissed the popup and left the card. The Messages database on
+this Mac was readable and sticker rows expose `pid`. No live model call was
+made for this change.

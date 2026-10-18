@@ -25,7 +25,7 @@ def main(argv=None):
                         help='Serve the offline demo as a page on this machine')
     parser.add_argument('--port', type=int, default=8765)
     parser.add_argument('--contact', default=os.getenv('IMESSAGE_CONTACT', ''),
-                        help="Friend's phone number or email in Messages (imessage only)")
+                        help='Limit to one phone number or email. Omit to watch every Messages chat')
     parser.add_argument('--relationship', default=os.getenv('IMESSAGE_RELATIONSHIP') or None,
                         help='How you know them, for example friend (imessage only)')
     parser.add_argument('--include-mine', action='store_true',
@@ -60,9 +60,7 @@ def main(argv=None):
             if args.check:
                 result = check_access()
             else:
-                if not args.contact:
-                    parser.error('--contact (or IMESSAGE_CONTACT) is required')
-                run_imessage(args.contact, relationship=args.relationship,
+                run_imessage(args.contact.strip() or None, relationship=args.relationship,
                              include_mine=args.include_mine,
                              include_photos=args.include_photos,
                              port=8766 if args.port == 8765 else args.port,

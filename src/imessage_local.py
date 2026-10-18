@@ -1,8 +1,11 @@
 """Watch this Mac's Messages database and explain new stickers in a local popup.
 
-The Messages database is opened read-only. Only stickers sent by one consenting
-contact in a one-to-one chat are interpreted. Explanations stay on this Mac:
-nothing is posted back into the conversation.
+The Messages database is opened read-only. A sticker in any Messages chat,
+including group chats and stickers you send, opens a popup on this Mac. The
+popup explains the sticker and, when this Mac already has another sticker from
+the same pack, shows that sticker as a suggestion. Nothing is posted back into
+the conversation. Pass a contact to limit watching to that person's one-to-one
+chat.
 """
 from __future__ import annotations
 
@@ -11,6 +14,7 @@ import hashlib
 import json
 import logging
 import os
+import plistlib
 import re
 import shutil
 import sqlite3
@@ -109,7 +113,11 @@ class MessagesReader:
 
     def __init__(self, db: sqlite3.Connection):
         self.db = db
-        self.has_sticker_flag = "is_sticker" in _columns(db, "attachment")
+        attachment_columns = _columns(db, "attachment")
+        self.has_sticker_flag = "is_sticker" in attachment_columns
+        self.has_sticker_info = "sticker_user_info" in attachment_columns
+        self.has_attribution = "attribution_info" in attachment_columns
+        self.has_display_name = "display_name" in _columns(db, "chat")
         self.has_body = "attributedBody" in _columns(db, "message")
 
     def max_rowid(self) -> int:
@@ -134,11 +142,40 @@ class MessagesReader:
 
     def attachments(self, message_rowid: int):
         flag = "a.is_sticker" if self.has_sticker_flag else "0"
+        info = "a.sticker_user_info" if self.has_sticker_info else "NULL"
+        attribution = "a.attribution_info" if self.has_attribution else "NULL"
         return self.db.execute(
             f"""SELECT a.ROWID AS rowid, a.filename, a.mime_type, a.uti, a.transfer_state,
-                {flag} AS is_sticker
+                {flag} AS is_sticker, {info} AS sticker_user_info,
+                {attribution} AS attribution_info
             FROM message_attachment_join j JOIN attachment a ON a.ROWID = j.attachment_id
             WHERE j.message_id = ?""", (message_rowid,)).fetchall()
+
+    def chat_label(self, chat_id: int) -> str | None:
+        if self.has_display_name:
+            row = self.db.execute(
+                "SELECT display_name FROM chat WHERE ROWID = ?", (chat_id,)).fetchone()
+            if row and row["display_name"] and str(row["display_name"]).strip():
+                return str(row["display_name"]).strip()
+        members = self.db.execute(
+            """SELECT h.id FROM chat_handle_join j JOIN handle h ON h.ROWID = j.handle_id
+            WHERE j.chat_id = ?""", (chat_id,)).fetchall()
+        if len(members) > 1:
+            return "Group chat"
+        return None
+
+    def max_attachment_rowid(self) -> int:
+        return int(self.db.execute(
+            "SELECT COALESCE(MAX(ROWID), 0) FROM attachment").fetchone()[0])
+
+    def sticker_catalog(self):
+        if not self.has_sticker_flag or not self.has_sticker_info:
+            return []
+        attribution = "a.attribution_info" if self.has_attribution else "NULL"
+        return self.db.execute(
+            f"""SELECT a.ROWID AS rowid, a.filename, a.sticker_user_info,
+                {attribution} AS attribution_info
+            FROM attachment a WHERE a.is_sticker = 1""").fetchall()
 
     def earlier_in_chat(self, chat_id: int, before_rowid: int, limit: int):
         body = "m.attributedBody" if self.has_body else "NULL"
@@ -170,12 +207,23 @@ def sender_label(row) -> str:
     return OWNER_ID if row["is_from_me"] else (row["handle"] or "unknown")
 
 
+def is_sticker_attachment(item) -> bool:
+    """Recognize Messages stickers without depending on one schema-era flag."""
+    if bool(item["is_sticker"]):
+        return True
+    uti = (item["uti"] or "").casefold()
+    if "sticker" in uti:
+        return True
+    filename = (item["filename"] or "").replace("\\", "/").casefold()
+    return "/stickers/" in filename or "/sticker/" in filename
+
+
 def attachment_kind(reader, row) -> str:
     if not row["cache_has_attachments"]:
         return "text"
     kinds = set()
     for item in reader.attachments(row["rowid"]):
-        if item["is_sticker"]:
+        if is_sticker_attachment(item):
             kinds.add("sticker")
         elif (item["mime_type"] or "").startswith("image/"):
             kinds.add("image")
@@ -187,6 +235,60 @@ def attachment_kind(reader, row) -> str:
         if kind in kinds:
             return kind
     return "text"
+
+
+_SERIES_LABEL_SKIP = {
+    "com", "app", "ios", "stickers", "sticker", "stickerpackextension",
+    "messagesextension", "stickerext", "messages",
+}
+
+
+def series_label(series_id: str, pack_name: str | None) -> str:
+    """Human name for a sticker pack. Pack metadata wins over the bundle id."""
+    if pack_name and pack_name.strip():
+        return pack_name.strip()[:80]
+    pid = series_id or ""
+    lowered = pid.lower()
+    if "usergenerated" in lowered:
+        return "Saved stickers"
+    if "genmoji" in lowered:
+        return "Genmoji"
+    if "animoji" in lowered or "memoji" in lowered or "jellyfish" in lowered:
+        return "Memoji"
+    parts = [part for part in pid.split(":")[-1].split(".") if part]
+    named = [part for part in parts if part.lower() not in _SERIES_LABEL_SKIP]
+    if named:
+        return named[-1][:80]
+    return "Same series"
+
+
+def sticker_series(blob, attribution_blob) -> dict | None:
+    """Read the pack id from Messages sticker metadata. Returns None if absent."""
+    if not blob:
+        return None
+    try:
+        info = plistlib.loads(blob)
+    except (plistlib.InvalidFileException, ValueError, TypeError):
+        return None
+    if not isinstance(info, dict):
+        return None
+    pid = info.get("pid")
+    if not isinstance(pid, str) or not pid.strip():
+        return None
+    pack_name = None
+    if attribution_blob:
+        try:
+            attribution = plistlib.loads(attribution_blob)
+        except (plistlib.InvalidFileException, ValueError, TypeError):
+            attribution = None
+        if isinstance(attribution, dict) and isinstance(attribution.get("name"), str):
+            pack_name = attribution["name"]
+    sid = info.get("sid")
+    return {
+        "series_id": pid.strip(),
+        "sid": sid.strip() if isinstance(sid, str) else "",
+        "label": series_label(pid, pack_name),
+    }
 
 
 def sticker_png(path: Path, workdir: Path) -> bytes:
@@ -261,13 +363,18 @@ class PopupBoard:
         self._lock = threading.Lock()
         self._items = []
         self._images = {}
+        self._suggestions = {}
 
-    def add(self, item: dict, png: bytes | None = None) -> dict:
+    def add(self, item: dict, png: bytes | None = None,
+            suggestion: bytes | None = None) -> dict:
         with self._lock:
             item = dict(item, id=len(self._items) + 1)
             if png is not None:
                 self._images[item["id"]] = png
                 item["image"] = "/sticker/%d.png" % item["id"]
+            if suggestion is not None:
+                self._suggestions[item["id"]] = suggestion
+                item["suggestion_image"] = "/suggestion/%d.png" % item["id"]
             self._items.append(item)
             return item
 
@@ -278,6 +385,53 @@ class PopupBoard:
     def image(self, item_id: int):
         with self._lock:
             return self._images.get(item_id)
+
+    def suggestion_image(self, item_id: int):
+        with self._lock:
+            return self._suggestions.get(item_id)
+
+
+class StickerSeries:
+    """Other sticker files on this Mac that share a pack id."""
+
+    def __init__(self, reader: MessagesReader):
+        self.reader = reader
+        self._max_rowid = -1
+        self._by_series = {}
+
+    def refresh(self) -> None:
+        if not self.reader.has_sticker_info:
+            return
+        current = self.reader.max_attachment_rowid()
+        if current == self._max_rowid:
+            return
+        grouped = {}
+        for row in self.reader.sticker_catalog():
+            meta = sticker_series(row["sticker_user_info"], row["attribution_info"])
+            if meta is None or not row["filename"]:
+                continue
+            grouped.setdefault(meta["series_id"], []).append({
+                "sid": meta["sid"],
+                "path": Path(os.path.expanduser(row["filename"])),
+                "rowid": int(row["rowid"]),
+            })
+        for items in grouped.values():
+            items.sort(key=lambda item: item["rowid"], reverse=True)
+        self._by_series = grouped
+        self._max_rowid = current
+
+    def other(self, series_id: str, sid: str, current_path, skip_paths=()):
+        self.refresh()
+        current = Path(current_path)
+        skipped = {Path(path) for path in skip_paths}
+        for item in self._by_series.get(series_id, ()):
+            if sid and item["sid"] == sid:
+                continue
+            if item["path"] == current or item["path"] in skipped:
+                continue
+            if item["path"].exists():
+                return item
+        return None
 
 
 def notify(title: str, body: str) -> None:
@@ -291,17 +445,17 @@ def notify(title: str, body: str) -> None:
 
 
 class StickerWatcher:
-    """Poll the Messages database and interpret new stickers from one contact."""
+    """Poll the Messages database and interpret new stickers."""
 
-    def __init__(self, reader, vision, board, *, contact, state_path,
+    def __init__(self, reader, vision, board, *, contact=None, state_path,
                  relationship=None, include_mine=False, include_photos=False,
                  notifier=notify, converter=sticker_png, workdir=None):
         self.reader = reader
         self.vision = vision
         self.board = board
-        self.contact = normalize_contact(contact)
-        if not self.contact:
-            raise ValueError("A contact phone number or email is required")
+        self.series = StickerSeries(reader)
+        normalized = normalize_contact(contact) if contact else ""
+        self.contact = normalized or None
         self.relationship = relationship
         self.include_mine = include_mine
         self.include_photos = include_photos
@@ -347,22 +501,60 @@ class StickerWatcher:
             (guid, status, explanation, datetime.now(timezone.utc).isoformat()))
         self.state.commit()
 
-    def _sticker_file(self, message):
+    def _sticker_choice(self, message):
         for item in self.reader.attachments(message["rowid"]):
             mime = item["mime_type"] or ""
-            if item["is_sticker"] or (self.include_photos and mime.startswith("image/")):
-                if not item["filename"]:
-                    return None, True
-                path = Path(os.path.expanduser(item["filename"]))
-                return (path, False) if path.exists() else (None, True)
-        return None, False
+            recognized_sticker = is_sticker_attachment(item)
+            if not (
+                recognized_sticker
+                or (self.include_photos and mime.startswith("image/"))
+            ):
+                continue
+            meta = sticker_series(
+                item["sticker_user_info"], item["attribution_info"]
+            ) if recognized_sticker else None
+            if not item["filename"]:
+                return None, True, meta
+            path = Path(os.path.expanduser(item["filename"]))
+            return (path, False, meta) if path.exists() else (None, True, meta)
+        return None, False, None
 
     def _eligible(self, message) -> bool:
+        if self.contact is None:
+            return True
         if message["is_from_me"] and not self.include_mine:
             return False
         if not message["is_from_me"] and normalize_contact(message["handle"] or "") != self.contact:
             return False
         return self.reader.direct_chat(message["chat_id"], self.contact)
+
+    def _sender_name(self, message) -> str:
+        if message["is_from_me"]:
+            return "You"
+        if self.contact is not None:
+            return "Your friend"
+        return message["handle"] or "Someone"
+
+    def _suggestion(self, meta, path):
+        if not meta:
+            return None, None
+        skipped = set()
+        for _ in range(5):
+            item = self.series.other(meta["series_id"], meta["sid"], path, skipped)
+            if item is None:
+                return None, meta["label"]
+            try:
+                return self.converter(item["path"], self.workdir), meta["label"]
+            except (ValueError, OSError, subprocess.SubprocessError):
+                skipped.add(item["path"])
+        return None, meta["label"]
+
+    def _with_suggestion(self, item, suggestion, label, meta):
+        if suggestion is not None and label:
+            item["suggestion_series"] = label
+        elif meta and label:
+            item["suggestion_note"] = "No other sticker from this series is on this Mac."
+        return item
 
     def poll_once(self) -> dict:
         summary = {"seen": 0, "stickers": 0, "explained": 0, "waiting": 0}
@@ -375,7 +567,7 @@ class StickerWatcher:
             if self._done(guid) or not self._eligible(message):
                 self.pending.pop(guid, None)
                 continue
-            path, waiting = self._sticker_file(message)
+            path, waiting, meta = self._sticker_choice(message)
             if path is None:
                 if waiting:
                     self.attempts[guid] = self.attempts.get(guid, 0) + 1
@@ -388,21 +580,24 @@ class StickerWatcher:
                 continue
             self.pending.pop(guid, None)
             summary["stickers"] += 1
-            self._explain(message, path)
+            self._explain(message, path, meta)
             summary["explained"] += 1
         self._save_cursor(cursor)
         return summary
 
-    def _explain(self, message, path):
+    def _explain(self, message, path, meta):
         guid = message["guid"]
-        sender = "You" if message["is_from_me"] else "Your friend"
+        sender = self._sender_name(message)
+        chat = self.reader.chat_label(message["chat_id"])
+        title = "%s sent a sticker" % sender if not chat else "%s in %s sent a sticker" % (sender, chat)
         try:
             png = self.converter(path, self.workdir)
         except (ValueError, OSError, subprocess.SubprocessError):
             self._record(guid, "sticker_conversion_failed")
-            self.board.add({"status": "error", "sender": sender,
+            self.board.add({"status": "error", "sender": sender, "chat": chat,
                             "text": "This sticker could not be opened for an explanation."})
             return
+        suggestion, label = self._suggestion(meta, path)
         try:
             request = build_request(self.reader, message, png, self.relationship)
             result = interpret_sticker(request, self.vision)
@@ -413,12 +608,18 @@ class StickerWatcher:
             LOG.warning("Sticker interpretation failed code=%s", code)
             self._record(guid, "failed_" + str(code))
             text = FAILURE_TEXT.get(str(code), "Could not explain this sticker (%s)." % code)
-            self.board.add({"status": "error", "sender": sender, "text": text}, png)
+            item = self._with_suggestion(
+                {"status": "error", "sender": sender, "chat": chat, "text": text},
+                suggestion, label, meta)
+            self.board.add(item, png, suggestion)
             return
         self._record(guid, status, text)
-        self.board.add({"status": status, "sender": sender, "text": text,
-                        "cue": result.get("context_cue") or ""}, png)
-        self.notifier("%s sent a sticker" % sender, text)
+        item = self._with_suggestion(
+            {"status": status, "sender": sender, "chat": chat, "text": text,
+             "cue": result.get("context_cue") or ""},
+            suggestion, label, meta)
+        self.board.add(item, png, suggestion)
+        self.notifier(title, text)
 
 
 def panel_page() -> bytes:
@@ -451,6 +652,11 @@ def serve_panel(board: PopupBoard, port: int):
             match = re.fullmatch(r"/sticker/(\d+)\.png", url.path)
             if match:
                 png = board.image(int(match.group(1)))
+                if png is not None:
+                    return self._send(png, "image/png")
+            match = re.fullmatch(r"/suggestion/(\d+)\.png", url.path)
+            if match:
+                png = board.suggestion_image(int(match.group(1)))
                 if png is not None:
                     return self._send(png, "image/png")
             self.send_error(404)
@@ -514,7 +720,10 @@ def run_imessage(contact, *, relationship=None, include_mine=False, include_phot
                              include_photos=include_photos)
     server, url = serve_panel(board, port)
     print("Sticker popup panel: " + url, flush=True)
-    print("Watching new stickers from the chosen contact. Press Ctrl+C to stop.", flush=True)
+    if watcher.contact is None:
+        print("Watching new stickers in every Messages chat. Press Ctrl+C to stop.", flush=True)
+    else:
+        print("Watching new stickers from the chosen contact. Press Ctrl+C to stop.", flush=True)
     if open_window:
         open_panel(url)
     try:
