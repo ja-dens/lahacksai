@@ -117,4 +117,4 @@ T1's existing [access report](https://github.com/ja-dens/lahacksai/issues/2#issu
 
 ## Source ownership and Jac accounting
 
-This is a Python vendor-transport boundary, as assigned in T2. It does not move context, interpretation policy, enrollment storage, coordinator or delivery-policy ownership out of Jac. This branch contains no Jac application source yet; report its standalone source share as 0%, not the percentage of the unrelated unpublished local prototype. The whole project's at-least-40% Jac requirement must be measured again when the Jac core owners' implementations are integrated. No filler Jac or copied teammate implementation is added to inflate this module's ratio.
+This is the Python vendor-transport boundary assigned to T2. The user removed language quotas and preferences. Existing component interfaces and behavior remain unchanged.

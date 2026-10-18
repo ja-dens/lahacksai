@@ -181,3 +181,7 @@ The dedicated [T2 chat log](docs/errors/T2_PHOTON_ADAPTER.md) records ongoing ad
 Verification: 60 adapter tests, 10 shared-contract regression tests and the contract checker passed without credentials, installed application packages or network access. The test suite forbids socket creation and tests the auth/routing regressions. No live Photon failure, phone delivery or deployed fix is claimed. Preserve future errors and corrections in both logs; T1/T5 still verify actual beta event/sticker metadata and channel access.
 
 T2-004 follow-up: review identified that importing through src in the standalone test harness could initialize the separate Jac app after core integration. Tests now load only the adapter file; a subprocess regression forbids other app imports and network. All 60 T2 tests pass on Python 3.13/3.14 with site packages disabled. See the dedicated T2 log for the cause, correction and prevention evidence.
+
+## POLICY-001 — October 17: remove duplicated Jac quota
+
+The user requested removal of the Jac requirement. Removed percentage/preference wording from this component branch's guidance, templates and active task text. Existing application code is unchanged. Global Codex instruction removal and the informational source report are recorded in the combined integration branch. Prevention: implementation requirements must not be confused with optional source metrics.

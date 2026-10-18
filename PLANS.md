@@ -126,3 +126,9 @@ T2 isolation follow-up: the standalone test harness now loads only the transport
 ### Reminder for the Photon API key handoff
 
 The user requested a persistent reminder of what follows obtaining a Photon key. [PHOTON_ADAPTER.md](docs/PHOTON_ADAPTER.md#reminder-when-the-photon-api-key-is-available) now has an unchecked T1/T2/T4/T5 checklist covering beta access/configuration, actual event and sticker evidence, real verifier/decoder/classifier hooks, authorized private routing, phone receive/send and replay tests, regression updates and dated evidence/error recording. Adding the key alone does not establish a working integration. This reminder changes documentation only and stays in PR #13; it neither uses credentials nor merges the branch.
+
+## October 17 component language-policy refresh
+
+Removed the Jac percentage/preference policy at the user's request; preserved component implementation and runtime dependencies. Main must remain unmerged. Component, contract and planning checks are run before this focused policy commit.
+
+Verified policy refresh: 60 adapter tests, 10 contract regressions and 15 publisher tests passed; whitespace clean. Application source unchanged.
