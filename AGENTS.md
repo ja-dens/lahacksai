@@ -8,8 +8,6 @@ User instructions define the authorized scope. Preserve supplied materials and u
 
 ## Implementation agreements
 
-- No language quota or preference is required. Preserve working component behavior; choose languages for clarity and compatibility. Existing Jac modules remain supported until deliberately migrated.
-
 - Keep one backend and one multimodal model call for the initial flow.
 - Use the existing internal contracts. Coordinate changes to shared contracts and dependency files.
 - Keep source conversation context and recipient routing separate. The model never chooses a recipient.
@@ -20,8 +18,8 @@ User instructions define the authorized scope. Preserve supplied materials and u
 
 Run available relevant checks before committing. Check imports, logic, and unused code. Log new errors in ERROR_LOG.md with cause, correction, and prevention.
 
-Before every commit, summarize changed files and checks. Use focused messages in the form type: description.
+Before every commit, summarize changed files, and checks. Use focused messages in the form type: description.
 
-Before a PR, review functionality and regressions. Include Summary, Features, Implementation, Testing, and Known Issues. Distinguish planning/tooling verification from application verification. For planning-only changes, distinguish planning verification from application behavior.
+Before a PR, review functionality and regressions. Include Summary, Features, Testing, and Known Issues. Distinguish planning/tooling verification from application verification. For planning-only changes, report that no application source exists; do not invent a Jac percentage.
 
 Respect the current request's scope when making external changes. Use a feature branch for review and retain actual issue/PR links in the planning report.
