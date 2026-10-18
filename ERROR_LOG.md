@@ -374,3 +374,16 @@ recorded and skipped unless the provider error is retryable. Prevention: run
 the credential-free live command against the real message list and cover the
 missing-key path with a fake provider. Status: startup and history polling
 corrected; live inference remains blocked until an OpenAI key and photo exist.
+
+## LIVE-004 — October 17: a missing-key sticker could not be retried
+
+What happened: a sticker processed before `OPENAI_API_KEY` existed was stored as
+finished. A later poll treated the provider message as a duplicate and never
+opened the saved snapshot again. Cause: the receipt ledger had no window link
+and did not distinguish configuration failure from completion. Correction: save
+the window id and, once either model key is present, retry that immutable
+snapshot on a later poll. Reloading `.env` on each poll picks up a key added
+without restarting. Prevention: the live regression covers an unconfigured
+poll, a second poll that must not repeat inference, and a third poll that sends
+once after the key appears. Status: retry path tested offline. No OpenAI key or
+image attachment is present, so phone delivery remains unverified.

@@ -22,7 +22,7 @@ from .adapters.photon import (
 )
 from .adapters.vision import OpenAIVision
 from .context_store import SQLiteStore
-from .main import create_pipeline, load_settings, process_event
+from .main import create_pipeline, load_settings, process_event, run_window
 
 LOG = logging.getLogger("sticker_interpreter.live")
 
@@ -133,7 +133,7 @@ class LiveRuntime:
             );
             CREATE TABLE IF NOT EXISTS live_receipts (
                 message_id TEXT PRIMARY KEY, status TEXT NOT NULL,
-                processed_at TEXT NOT NULL
+                processed_at TEXT NOT NULL, window_id INTEGER
             );
             CREATE TABLE IF NOT EXISTS live_delivery_status (
                 provider_message_id TEXT PRIMARY KEY, status TEXT NOT NULL,
@@ -149,6 +149,12 @@ class LiveRuntime:
                 recorded_at TEXT NOT NULL
             );
         """)
+        receipt_columns = {
+            row["name"]
+            for row in self.store.db.execute("PRAGMA table_info(live_receipts)")
+        }
+        if "window_id" not in receipt_columns:
+            self.store.db.execute("ALTER TABLE live_receipts ADD COLUMN window_id INTEGER")
         self.store.db.commit()
 
     def close(self):
@@ -285,12 +291,43 @@ class LiveRuntime:
             "SELECT 1 FROM live_receipts WHERE message_id=?", (message_id,),
         ).fetchone() is not None
 
-    def _mark_processed(self, message_id, status):
+    def _mark_processed(self, message_id, status, window_id=None):
         self.store.db.execute(
-            "INSERT OR REPLACE INTO live_receipts VALUES (?, ?, ?)",
-            (message_id, status, self._clock().isoformat()),
+            """INSERT INTO live_receipts(message_id, status, processed_at, window_id)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(message_id) DO UPDATE SET
+                status=excluded.status, processed_at=excluded.processed_at,
+                window_id=COALESCE(excluded.window_id, live_receipts.window_id)""",
+            (message_id, status, self._clock().isoformat(), window_id),
         )
         self.store.db.commit()
+
+    def _model_configured(self):
+        return bool(
+            os.environ.get("OPENAI_API_KEY", "").strip()
+            or os.environ.get("VISION_API_KEY", "").strip()
+        )
+
+    def _retry_saved_configuration_failures(self):
+        if not self._model_configured():
+            return 0
+        rows = self.store.db.execute(
+            """SELECT r.window_id FROM live_receipts r
+            JOIN interpretation_runs i ON i.window_id = r.window_id
+            WHERE r.window_id IS NOT NULL AND i.status = 'interpretation_failed'
+            AND i.error_code IN ('api_key_not_configured', 'model_not_configured')"""
+        ).fetchall()
+        for row in rows:
+            outcome = run_window(self.pipeline, int(row["window_id"]), retry=True)
+            self._mark_processed(
+                self.store.db.execute(
+                    "SELECT message_id FROM live_receipts WHERE window_id=?",
+                    (row["window_id"],),
+                ).fetchone()["message_id"],
+                str(outcome.get("status", "processed")),
+                int(row["window_id"]),
+            )
+        return len(rows)
 
     def _matches_bootstrap(self, identity):
         return all(identity[key] == self.identity[key] for key in (
@@ -326,8 +363,10 @@ class LiveRuntime:
         return counts
 
     def poll_once(self):
+        load_dotenv(override=True)
         if self.pipeline is None:
             self.bootstrap()
+        retried = self._retry_saved_configuration_failures()
         cursor = self._cursor()
         # A bounded overlap prevents equal-timestamp and commit-boundary misses.
         since = None if cursor is None else (cursor - timedelta(seconds=5)).isoformat()
@@ -337,7 +376,7 @@ class LiveRuntime:
             item.get("id") or "",
         ))
         result = {"seen": len(messages), "processed": 0, "duplicates": 0,
-                  "history_only": 0, "sticker": 0, "ignored": 0}
+                  "history_only": 0, "sticker": 0, "ignored": 0, "retried": retried}
         latest = cursor or datetime.min.replace(tzinfo=timezone.utc)
         for message in messages:
             message_id = message.get("id")
@@ -347,6 +386,7 @@ class LiveRuntime:
                 message.get("timestamps", {}).get("receivedAt")
                 or message.get("createdAt")
             )
+            window_id = None
             if self._was_processed(message_id):
                 result["duplicates"] += 1
                 latest = max(latest, received)
@@ -386,6 +426,7 @@ class LiveRuntime:
                     self.pipeline, normalized.event, authenticated=True,
                 )
                 status = str(outcomes[0].get("status", "processed"))
+                window_id = outcomes[0].get("window_id")
                 model_metadata = getattr(self.vision, "last_call_metadata", None)
                 if normalized.event["kind"] == "sticker" and isinstance(model_metadata, dict):
                     self.store.db.execute(
@@ -396,7 +437,7 @@ class LiveRuntime:
                     self.store.db.commit()
                 result["sticker" if normalized.event["kind"] == "sticker"
                        else "history_only"] += 1
-            self._mark_processed(message_id, status)
+            self._mark_processed(message_id, status, window_id)
             result["processed"] += 1
             latest = max(latest, received)
         if latest == datetime.min.replace(tzinfo=timezone.utc):

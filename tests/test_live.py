@@ -6,7 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from src.adapters.photon import Attachment, PhotonError
-from src.adapters.vision import FixtureVision
+from src.adapters.vision import FixtureVision, VisionError
 from src.context_store import SQLiteStore
 from src.live import LiveConfig, LiveRuntime
 
@@ -80,6 +80,14 @@ class CountingVision(FixtureVision):
     def __call__(self, request):
         self.calls += 1
         return super().__call__(request)
+
+
+class KeyGateVision(CountingVision):
+    def __call__(self, request):
+        self.calls += 1
+        if not (os.environ.get("OPENAI_API_KEY") or os.environ.get("VISION_API_KEY")):
+            raise VisionError("api_key_not_configured")
+        return FixtureVision.__call__(self, request)
 
 
 class LiveConfigTests(unittest.TestCase):
@@ -255,6 +263,30 @@ class LiveRuntimeTests(unittest.TestCase):
         self.assertEqual(result["sticker"], 1)
         self.assertEqual(client.sent, [])
         self.assertEqual(error["error_code"], "api_key_not_configured")
+
+    def test_saved_sticker_retries_after_the_model_key_appears(self):
+        client = FakePhoton([message(
+            "pho_msg_photo",
+            {"type": "attachment", "attachmentId": "pho_att_image"},
+        )])
+        vision = KeyGateVision()
+        store = SQLiteStore(self.db_path)
+        runtime = LiveRuntime(
+            self.config, client=client, vision=vision, store=store,
+        )
+        try:
+            with patch.dict(os.environ, {}, clear=True):
+                first = runtime.poll_once()
+                second = runtime.poll_once()
+            with patch.dict(os.environ, {"OPENAI_API_KEY": "test-only"}, clear=True):
+                third = runtime.poll_once()
+        finally:
+            store.close()
+        self.assertEqual(first["sticker"], 1)
+        self.assertEqual(second["retried"], 0)
+        self.assertEqual(vision.calls, 2)
+        self.assertEqual(third["retried"], 1)
+        self.assertEqual(len(client.sent), 1)
 
     def test_stop_before_run_is_graceful(self):
         client = FakePhoton([message(

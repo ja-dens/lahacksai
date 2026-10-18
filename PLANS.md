@@ -387,3 +387,10 @@ first sticker. With lookback zero, `python -m src live --once` read two real
 received texts as history, made no model call, and sent nothing. A missing key
 on a sticker is stored as `api_key_not_configured`. The full 199-test suite
 passed after this correction.
+
+A later poll now reloads `.env` and retries a saved sticker whose only failure
+was a missing model key. The regression covers no repeated inference while the
+key is absent and exactly one send after it appears. Rechecked Photon on
+October 17: five messages total, two received texts, three delivered agent
+texts, and zero attachments. The suite is now 200 tests. Phone delivery remains
+unverified.
