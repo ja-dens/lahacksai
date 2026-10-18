@@ -1,0 +1,33 @@
+{
+  "id": "pho_msg_exampleinboundtext000001",
+  "platform": "imessage",
+  "status": "received",
+  "createdAt": "2026-10-17T23:19:28.938Z",
+  "sentBy": {
+    "kind": "human",
+    "handle": "+15555550123",
+    "id": "pho_usr_examplehuman0000000001"
+  },
+  "receivedBy": {
+    "kind": "agent",
+    "handle": "+15555550188",
+    "id": "pho_usr_exampleagent0000000001",
+    "details": {
+      "type": "shared"
+    }
+  },
+  "space": {
+    "kind": "direct",
+    "id": "pho_spc_exampledirect000000001",
+    "platform": "imessage",
+    "participantIds": [
+      "pho_usr_examplehuman0000000001",
+      "pho_usr_exampleagent0000000001"
+    ]
+  },
+  "content": {
+    "type": "text",
+    "format": "plain",
+    "text": "Ping"
+  }
+}

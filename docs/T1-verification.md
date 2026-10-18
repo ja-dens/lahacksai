@@ -49,4 +49,10 @@ The shared line received one inbound text and delivered one outbound text in the
 
 This report above is the original branch checkpoint. Later [issue #2 text/explanation evidence](https://github.com/ja-dens/lahacksai/issues/2#issuecomment-6243175043) records a fixed explanation read back with provider status delivered; that is not visual phone receipt. The [native-sticker follow-up](https://github.com/ja-dens/lahacksai/issues/2#issuecomment-6243333423) says the phone showed a sticker delivered but repeated API reads through 2026-10-17T23:48:27Z still returned three text messages and zero attachments. Native sticker input is therefore blocked, not a completed integration.
 
+The integration target is now an explicit image-attachment fallback: send a
+static PNG/JPEG/WebP from the enrolled sender using the iMessage photo button.
+This is not a claim that native sticker bubbles work. Authenticated local polling
+was observed to read two existing received text messages on October 17, 2026;
+no image attachment or model call was present in that smoke test.
+
 The integration repair performed no new live Photon checks. The synthetic adapter/demo checks verify local behavior only. Real sticker event/media evidence and observed phone receipt are still needed.

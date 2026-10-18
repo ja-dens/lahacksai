@@ -241,6 +241,8 @@ class AdapterTests(OfflineCase):
         self.assertEqual(interpret_sticker(self.request, vision), fixture("interpretation_result"))
         self.assertEqual(self.request, before)
         self.assertEqual(len(client.calls), 1)
+        self.assertEqual(vision.last_call_metadata["status"], "completed")
+        self.assertGreaterEqual(vision.last_call_metadata["latency_ms"], 0)
         call = client.calls[0]
         content = call["input"][0]["content"]
         self.assertEqual(base64.b64decode(content[1]["image_url"].split(",", 1)[1]),
@@ -378,6 +380,44 @@ class MediaTests(OfflineCase):
                                             append_images=[Image.new("RGBA", (2, 2), "blue")], duration=100)
         self.replace_bytes(data.getvalue())
         self.assert_rejected_before_sdk(self.request, "animated_media_unsupported")
+
+    def test_static_jpeg_and_webp_are_normalized_to_png_for_one_sdk_call(self):
+        for image_format, mime_type in (("JPEG", "image/jpeg"), ("WEBP", "image/webp")):
+            with self.subTest(image_format=image_format):
+                raw = io.BytesIO()
+                Image.new("RGB", (8, 6), "purple").save(raw, format=image_format)
+                request = copy.deepcopy(self.request)
+                data = raw.getvalue()
+                request["sticker"] = {
+                    "mime_type": mime_type,
+                    "data_base64": base64.b64encode(data).decode(),
+                    "sha256": hashlib.sha256(data).hexdigest(),
+                }
+                client = FakeClient()
+                result = interpret_sticker(
+                    request, OpenAIVision(model="unit-model", client=client)
+                )
+                self.assertEqual(result, fixture("interpretation_result"))
+                self.assertEqual(len(client.calls), 1)
+                encoded = client.calls[0]["input"][0]["content"][1]["image_url"]
+                normalized = base64.b64decode(encoded.split(",", 1)[1])
+                self.assertTrue(normalized.startswith(b"\x89PNG\r\n\x1a\n"))
+
+    def test_animated_webp_is_explicitly_unsupported(self):
+        raw = io.BytesIO()
+        Image.new("RGB", (2, 2), "red").save(
+            raw, format="WEBP", save_all=True,
+            append_images=[Image.new("RGB", (2, 2), "blue")], duration=100,
+        )
+        data = raw.getvalue()
+        self.request["sticker"] = {
+            "mime_type": "image/webp",
+            "data_base64": base64.b64encode(data).decode(),
+            "sha256": hashlib.sha256(data).hexdigest(),
+        }
+        self.assert_rejected_before_sdk(
+            self.request, "animated_media_unsupported"
+        )
 
 
 class SDKTransportTests(OfflineCase):

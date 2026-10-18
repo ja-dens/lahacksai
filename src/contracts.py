@@ -82,7 +82,12 @@ def normalize_event(raw: dict) -> dict:
 
 def supported_sticker(event: dict) -> bool:
     media = event.get("sticker")
-    if not media or media["mime_type"] != "image/png":
+    if not media or media["mime_type"] not in ("image/png", "image/jpeg", "image/webp"):
         return False
     data = base64.b64decode(media["data_base64"])
-    return data.startswith(b"\x89PNG\r\n\x1a\n")
+    return (
+        (media["mime_type"] == "image/png" and data.startswith(b"\x89PNG\r\n\x1a\n"))
+        or (media["mime_type"] == "image/jpeg" and data.startswith(b"\xff\xd8\xff"))
+        or (media["mime_type"] == "image/webp" and len(data) >= 12
+            and data.startswith(b"RIFF") and data[8:12] == b"WEBP")
+    )

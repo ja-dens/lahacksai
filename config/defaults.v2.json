@@ -7,7 +7,7 @@
   "context_text_character_budget": 24000,
   "message_text_character_limit": 4000,
   "target_text_character_limit": 4000,
-  "target_sticker_mime_types": ["image/png"],
+  "target_sticker_mime_types": ["image/png", "image/jpeg", "image/webp"],
   "target_sticker_max_bytes": 5000000,
   "language": "en",
   "explanation_length": "short",

@@ -8,10 +8,11 @@ import io
 import json
 import math
 import os
+import time
 import warnings
 from pathlib import Path
 
-from PIL import Image, UnidentifiedImageError
+from PIL import Image, ImageOps, UnidentifiedImageError
 
 from src.interpreter import (
     interpret_sticker, model_output_schema, prepare_request, validate_model_output,
@@ -29,19 +30,29 @@ class VisionError(RuntimeError):
         super().__init__(code)
 
 
-def _check_png(media):
+def _normalize_image(media):
     data = base64.b64decode(media["data_base64"], validate=True)
     try:
+        detected_format = None
         with warnings.catch_warnings():
             warnings.simplefilter("error", Image.DecompressionBombWarning)
-            with Image.open(io.BytesIO(data), formats=("PNG",)) as image:
+            with Image.open(io.BytesIO(data), formats=("PNG", "JPEG", "WEBP")) as image:
+                detected_format = image.format
                 if image.width * image.height > MAX_IMAGE_PIXELS:
                     raise VisionError("image_dimensions_exceeded")
                 if getattr(image, "is_animated", False):
                     raise VisionError("animated_media_unsupported")
                 image.verify()
-            with Image.open(io.BytesIO(data), formats=("PNG",)) as image:
+            with Image.open(io.BytesIO(data), formats=("PNG", "JPEG", "WEBP")) as image:
                 image.load()
+                image = ImageOps.exif_transpose(image)
+                if image.mode not in ("RGB", "RGBA"):
+                    image = image.convert("RGBA")
+                if detected_format == "PNG":
+                    return data
+                output = io.BytesIO()
+                image.save(output, format="PNG", optimize=True)
+                return output.getvalue()
     except VisionError:
         raise
     except (UnidentifiedImageError, OSError, SyntaxError, ValueError,
@@ -95,7 +106,7 @@ class FixtureVision:
 
     def __call__(self, request):
         evidence = prepare_request(request)
-        _check_png(evidence["sticker"])
+        _normalize_image(evidence["sticker"])
         return copy.deepcopy(self.result)
 
 
@@ -127,6 +138,8 @@ class OpenAIVision:
             "provider": "openai-api-key", "model": self.model,
             "prompt_sha256": hashlib.sha256(self.prompt.encode()).hexdigest(),
         }
+        self.last_call_metadata = None
+        self.call_count = 0
 
     def close(self):
         if self._owns_client:
@@ -140,32 +153,75 @@ class OpenAIVision:
 
         evidence = prepare_request(request)
         media = evidence.pop("sticker")
-        _check_png(media)
+        normalized = _normalize_image(media)
         evidence["sticker_metadata"] = {"mime_type": media["mime_type"], "sha256": media["sha256"]}
+        started = time.monotonic()
         try:
+            self.call_count += 1
             response = self.client.responses.create(
                 model=self.model, instructions=self.prompt,
                 input=[{"role": "user", "content": [
                     {"type": "input_text", "text": json.dumps(evidence, ensure_ascii=False)},
-                    {"type": "input_image", "image_url": f"data:image/png;base64,{media['data_base64']}"},
+                    {"type": "input_image", "image_url": "data:image/png;base64,"
+                     + base64.b64encode(normalized).decode("ascii")},
                 ]}],
                 text={"format": {"type": "json_schema", "name": "sticker_interpretation",
                                  "strict": True, "schema": model_output_schema()}},
                 store=False, max_output_tokens=1500,
             )
         except (APITimeoutError, TimeoutError):
+            self.last_call_metadata = {
+                "status": "error", "error_code": "model_timeout",
+                "latency_ms": round((time.monotonic() - started) * 1000),
+            }
             raise VisionError("model_timeout") from None
         except AuthenticationError:
+            self.last_call_metadata = {
+                "status": "error", "error_code": "model_authentication_failed",
+                "latency_ms": round((time.monotonic() - started) * 1000),
+            }
             raise VisionError("model_authentication_failed") from None
         except RateLimitError:
+            self.last_call_metadata = {
+                "status": "error", "error_code": "model_rate_limited",
+                "latency_ms": round((time.monotonic() - started) * 1000),
+            }
             raise VisionError("model_rate_limited") from None
         except APIConnectionError:
+            self.last_call_metadata = {
+                "status": "error", "error_code": "model_connection_failed",
+                "latency_ms": round((time.monotonic() - started) * 1000),
+            }
             raise VisionError("model_connection_failed") from None
         except APIStatusError:
+            self.last_call_metadata = {
+                "status": "error", "error_code": "model_http_error",
+                "latency_ms": round((time.monotonic() - started) * 1000),
+            }
             raise VisionError("model_http_error") from None
         except APIError:
+            self.last_call_metadata = {
+                "status": "error", "error_code": "model_api_error",
+                "latency_ms": round((time.monotonic() - started) * 1000),
+            }
             raise VisionError("model_api_error") from None
-        return _read_output(response)
+        try:
+            result = _read_output(response)
+        except VisionError as error:
+            self.last_call_metadata = {
+                "status": "error", "error_code": error.code,
+                "latency_ms": round((time.monotonic() - started) * 1000),
+            }
+            raise
+        usage = _field(response, "usage", {})
+        self.last_call_metadata = {
+            "status": "completed",
+            "latency_ms": round((time.monotonic() - started) * 1000),
+            "input_tokens": _field(usage, "input_tokens"),
+            "output_tokens": _field(usage, "output_tokens"),
+            "total_tokens": _field(usage, "total_tokens"),
+        }
+        return result
 
 
 def main(argv=None):

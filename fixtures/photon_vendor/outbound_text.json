@@ -1,0 +1,33 @@
+{
+  "id": "pho_msg_exampleoutboundtext00001",
+  "platform": "imessage",
+  "status": "delivered",
+  "createdAt": "2026-10-17T23:20:50.180Z",
+  "sentBy": {
+    "kind": "agent",
+    "handle": "+15555550188",
+    "id": "pho_usr_exampleagent0000000001",
+    "details": {
+      "type": "shared"
+    }
+  },
+  "addressedTo": {
+    "kind": "human",
+    "handle": "+15555550123",
+    "id": "pho_usr_examplehuman0000000001"
+  },
+  "space": {
+    "kind": "direct",
+    "id": "pho_spc_exampledirect000000001",
+    "platform": "imessage"
+  },
+  "content": {
+    "type": "text",
+    "format": "plain",
+    "text": "Hello from your Photon agent!"
+  },
+  "timestamps": {
+    "dispatchedAt": "2026-10-17T23:20:50.180Z",
+    "deliveredAt": "2026-10-17T23:20:51.485Z"
+  }
+}

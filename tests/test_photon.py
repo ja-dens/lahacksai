@@ -328,7 +328,10 @@ class MediaTests(NoNetworkTests):
     def test_media_limit_matches_shared_v2_configuration(self):
         defaults = json.loads((ROOT / "config/defaults.v2.json").read_text())
         self.assertEqual(MAX_MEDIA_BYTES, defaults["target_sticker_max_bytes"])
-        self.assertEqual(defaults["target_sticker_mime_types"], ["image/png"])
+        self.assertEqual(
+            defaults["target_sticker_mime_types"],
+            ["image/png", "image/jpeg", "image/webp"],
+        )
 
     def test_unavailable_attachment_keeps_automatic_abstention_path(self):
         self.provider.fetch_error = PhotonError("provider_http_404")
@@ -363,7 +366,7 @@ class MediaTests(NoNetworkTests):
         self.assertEqual(self.seen, [])
 
     def test_unsupported_mime_and_oversized_bytes_are_not_sent_to_coordinator_as_media(self):
-        for attachment, warning in ((Attachment(PNG, "image/webp"), "unsupported_media"),
+        for attachment, warning in ((Attachment(PNG, "image/webp"), "invalid_media_response"),
                                     (Attachment(b"x" * (MAX_MEDIA_BYTES + 1), "image/png"), "media_too_large")):
             self.provider.attachment = attachment
             result = self.receive(message())
@@ -521,6 +524,36 @@ class HTTPClientTests(NoNetworkTests):
         self.assertEqual(result, Attachment(PNG, "image/png"))
         self.assertTrue(self.calls[1][1].endswith("/attachments/demo-attachment/content"))
         self.assertEqual(self.calls[1][2]["max_bytes"], MAX_MEDIA_BYTES)
+
+    def test_list_messages_uses_bounded_project_query_and_pagination(self):
+        page = {"items": [{"id": "received-1"}], "nextPageToken": "next-token"}
+        self.responses = [HTTPResponse(200, json.dumps(page).encode(), {})]
+        result = self.client.list_messages(
+            created_since="2026-10-17T23:19:28Z", page_token="page token",
+            page_size=25, timeout=3,
+        )
+        method, url, options = self.calls[0]
+        self.assertEqual(method, "GET")
+        self.assertIn("/messages?", url)
+        self.assertIn("createdSince=", url)
+        self.assertIn("pageToken=page+token", url)
+        self.assertIn("direction=received", url)
+        self.assertEqual(options["max_bytes"], 1_000_000)
+        self.assertEqual(result, page)
+
+    def test_get_message_requires_project_and_identity_match(self):
+        valid = {"id": "provider-message", "projectId": PROJECT, "status": "delivered"}
+        self.responses = [HTTPResponse(200, json.dumps(valid).encode(), {})]
+        self.assertEqual(
+            self.client.get_message("provider-message", timeout=3)["status"],
+            "delivered",
+        )
+        for change in ({"id": "other"}, {"projectId": "other"}):
+            self.responses = [
+                HTTPResponse(200, json.dumps(dict(valid, **change)).encode(), {})
+            ]
+            with self.assertRaisesRegex(PhotonError, "message_scope_mismatch"):
+                self.client.get_message("provider-message", timeout=3)
 
     def test_metadata_prevents_oversized_unsupported_or_cross_project_download(self):
         base = {"id": ATTACHMENT, "projectId": PROJECT, "contentType": "image/png", "sizeBytes": len(PNG)}

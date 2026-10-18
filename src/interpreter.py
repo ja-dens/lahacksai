@@ -53,9 +53,10 @@ def integer(value: Any, label: str, minimum: int, maximum: int) -> int:
 
 def prepare_media(media: Any) -> dict:
     require(isinstance(media, dict), "Sticker media is required")
+    mime_type = media.get("mime_type")
     require(
-        media.get("mime_type") == "image/png",
-        "Only static PNG stickers are supported initially",
+        mime_type in ("image/png", "image/jpeg", "image/webp"),
+        "Only static PNG, JPEG, and WebP images are supported",
     )
     encoded = media.get("data_base64")
     require(
@@ -68,10 +69,15 @@ def prepare_media(media: Any) -> dict:
     except (ValueError, binascii.Error):
         raise ValueError("Sticker base64 is invalid")
     require(0 < len(data) <= 5000000, "Sticker must contain at most 5 MB")
-    require(data.startswith(b"\x89PNG\r\n\x1a\n"), "Sticker is not a PNG")
+    signatures = {
+        "image/png": data.startswith(b"\x89PNG\r\n\x1a\n"),
+        "image/jpeg": data.startswith(b"\xff\xd8\xff"),
+        "image/webp": len(data) >= 12 and data.startswith(b"RIFF") and data[8:12] == b"WEBP",
+    }
+    require(signatures[mime_type], "Sticker bytes do not match the declared image type")
     digest = hashlib.sha256(data).hexdigest()
     require(media.get("sha256") == digest, "Sticker digest does not match its bytes")
-    return {"mime_type": "image/png", "data_base64": encoded, "sha256": digest}
+    return {"mime_type": mime_type, "data_base64": encoded, "sha256": digest}
 
 
 def prepare_user_context(value: Any) -> dict:

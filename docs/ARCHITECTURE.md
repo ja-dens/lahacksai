@@ -4,8 +4,19 @@ One backend joins authenticated Photon normalization, persistent same-chat conte
 
 The default context window is 25 preceding messages, configurable from 20–25, with no age cutoff. Longer history and per-sticker/per-recipient frozen inputs are distinct from model context. Declared settings/relationships remain separate; saved feedback is evaluation-only.
 
-The T1 branch proposed a shared iMessage direct-thread demonstration. The integrated routing supports an explicitly verified two-participant direct source and preserves separate private destinations for group sources. A direct assistant thread exposes only its own context, not an unrelated family chat. Real source/destination verification must be provided externally.
+The local Photon 2.0 beta runtime polls project-scoped received messages and
+accepts only the configured human handle, assigned agent handle, and discovered
+two-participant direct space. It stores a cursor with overlap, durable source
+receipts, attachment metadata, model-call metadata, provider acknowledgments,
+and reconciled delivery status. Routing is resolved from that frozen enrollment;
+message text and model output cannot supply a destination. Group-source support
+remains a separate dedicated-line path.
 
-The offline demo exercises the real modules over synthetic provider I/O. The source verifier/decoder/classifier used there must not be deployed as Photon authentication. [T1-verification.md](T1-verification.md) preserves earlier evidence and links the newer native-sticker blocker. Live model quality and phone receipt remain unverified. No paid line, channel change or live send was performed by this integration.
+The offline demo exercises the same modules over synthetic provider I/O.
+Photon did not emit a Message or Attachment for a native sticker bubble in the
+tested shared thread. The live runtime therefore treats a static image sent with
+the photo button as the explicit trigger only after direct-space identity
+verification. [T1-verification.md](T1-verification.md) preserves that evidence.
+Live OpenAI quality and a complete photo-to-phone round trip remain unverified.
 
 Python implements the backend, including validation, routing, SQLite transactions, SDK adapters and coordination. These modules use no graph/walker features; the language migration preserves the v2 boundaries and database schema while removing Jac and LLVM runtime dependencies. See [PYTHON_MIGRATION.md](PYTHON_MIGRATION.md).

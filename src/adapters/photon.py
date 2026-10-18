@@ -17,12 +17,15 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Protocol
 from urllib.error import HTTPError, URLError
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 MAX_MEDIA_BYTES = 5_000_000
 MAX_WEBHOOK_BYTES = 1_000_000
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
+JPEG_SIGNATURE = b"\xff\xd8\xff"
+WEBP_RIFF = b"RIFF"
+SUPPORTED_IMAGE_TYPES = {"image/png", "image/jpeg", "image/jpg", "image/webp"}
 DELIVERY_FIELDS = {"recipient_id", "source_conversation_id", "source_message_id", "text"}
 MEDIA_ABSTENTIONS = {"unsupported_media", "media_too_large", "invalid_png", "animated_media_unsupported",
                      "invalid_media_response", "response_too_large", "provider_http_404"}
@@ -236,10 +239,20 @@ class PhotonAdapter:
                     raise PhotonError("invalid_media_response")
                 if len(attachment.data) > MAX_MEDIA_BYTES:
                     raise PhotonError("media_too_large")
-                if attachment.mime_type != "image/png":
+                mime_type = attachment.mime_type.lower()
+                if mime_type not in SUPPORTED_IMAGE_TYPES:
                     raise PhotonError("unsupported_media")
-                _static_png(attachment.data)
-                event["sticker"] = {"mime_type": "image/png", "data_base64": base64.b64encode(attachment.data).decode("ascii"),
+                if mime_type == "image/png":
+                    _static_png(attachment.data)
+                elif mime_type in ("image/jpeg", "image/jpg"):
+                    if not attachment.data.startswith(JPEG_SIGNATURE):
+                        raise PhotonError("invalid_media_response")
+                    mime_type = "image/jpeg"
+                elif (not attachment.data.startswith(WEBP_RIFF)
+                      or len(attachment.data) < 12
+                      or attachment.data[8:12] != b"WEBP"):
+                    raise PhotonError("invalid_media_response")
+                event["sticker"] = {"mime_type": mime_type, "data_base64": base64.b64encode(attachment.data).decode("ascii"),
                                     "sha256": hashlib.sha256(attachment.data).hexdigest()}
             except PhotonError as error:
                 if error.retryable or error.code not in MEDIA_ABSTENTIONS:
@@ -360,7 +373,11 @@ class PhotonHTTPClient:
         self.base_url = "https://api.photon.codes/v1/projects/" + quote(project_id, safe="")
 
     def _request(self, method, path, *, max_bytes, timeout, body=None, key=None, expected_status=200):
-        headers = {"Authorization": "Bearer " + self._api_key, "Accept": "application/json"}
+        headers = {
+            "Authorization": "Bearer " + self._api_key,
+            "Accept": "application/json",
+            "User-Agent": "lahacksai-sticker-interpreter/0.1",
+        }
         if body is not None:
             headers["Content-Type"] = "application/json"
         if key is not None:
@@ -379,6 +396,58 @@ class PhotonHTTPClient:
             raise PhotonError("response_too_large")
         return result
 
+    def _json_response(self, method, path, *, max_bytes=1_000_000, timeout=10.0,
+                       body=None, key=None, expected_status=200):
+        try:
+            return _object(_json_load(self._request(
+                method, path, max_bytes=max_bytes, timeout=timeout, body=body,
+                key=key, expected_status=expected_status,
+            ).body))
+        except PhotonError:
+            raise
+        except (ValueError, UnicodeError, TypeError):
+            raise PhotonError("invalid_provider_response") from None
+
+    def list_messages(self, *, created_since=None, page_token=None, page_size=100,
+                      platform="imessage", direction="received", order="asc",
+                      timeout=10.0):
+        if type(page_size) is not int or not 1 <= page_size <= 200:
+            raise ValueError("page_size must be 1-200")
+        query = {
+            "pageSize": str(page_size), "platform": _identifier(platform),
+            "direction": _identifier(direction), "order": _identifier(order),
+        }
+        if created_since is not None:
+            query["createdSince"] = _timestamp(created_since)
+        if page_token is not None:
+            query["pageToken"] = _identifier(page_token)
+        page = self._json_response("GET", "/messages?" + urlencode(query), timeout=timeout)
+        items = page.get("items")
+        if not isinstance(items, list) or any(not isinstance(item, Mapping) for item in items):
+            raise PhotonError("invalid_provider_response")
+        token = page.get("nextPageToken")
+        if token is not None:
+            _identifier(token)
+        return {"items": [dict(item) for item in items], "nextPageToken": token}
+
+    def get_message(self, message_id, *, timeout=10.0):
+        message = self._json_response(
+            "GET", "/messages/" + quote(_identifier(message_id), safe=""),
+            max_bytes=256_000, timeout=timeout,
+        )
+        if (message.get("id") != message_id
+                or message.get("projectId", self.project_id) != self.project_id):
+            raise PhotonError("message_scope_mismatch")
+        return dict(message)
+
+    def get_imessage_platform(self, *, timeout=10.0):
+        result = self._json_response(
+            "GET", "/platforms/imessage", max_bytes=64_000, timeout=timeout,
+        )
+        if result.get("mode") not in ("shared", "dedicated"):
+            raise PhotonError("invalid_provider_response")
+        return dict(result)
+
     def fetch_attachment(self, attachment_id, *, max_bytes, timeout):
         path = "/attachments/" + quote(_identifier(attachment_id), safe="")
         try:
@@ -386,23 +455,26 @@ class PhotonHTTPClient:
         except (ValueError, UnicodeError):
             raise PhotonError("invalid_media_response") from None
         size = metadata.get("sizeBytes")
-        if metadata.get("id") != attachment_id or metadata.get("projectId") != self.project_id:
+        if (metadata.get("id") != attachment_id
+                or metadata.get("projectId", self.project_id) != self.project_id):
             raise PhotonError("media_scope_mismatch")
         if type(size) is not int or size <= 0 or size > max_bytes:
             raise PhotonError("media_too_large")
-        if metadata.get("contentType") != "image/png":
+        metadata_type = str(metadata.get("contentType", "")).split(";", 1)[0].strip().lower()
+        if metadata_type not in SUPPORTED_IMAGE_TYPES:
             raise PhotonError("unsupported_media")
         result = self._request("GET", path + "/content", max_bytes=max_bytes, timeout=timeout)
         content_type = next((v for k, v in result.headers.items() if k.lower() == "content-type"), "")
-        if content_type.split(";", 1)[0].strip().lower() != "image/png" or len(result.body) != size:
+        response_type = content_type.split(";", 1)[0].strip().lower()
+        if response_type != metadata_type or len(result.body) != size:
             raise PhotonError("invalid_media_response")
-        return Attachment(result.body, "image/png")
+        return Attachment(result.body, "image/jpeg" if metadata_type == "image/jpg" else metadata_type)
 
     def send_message(self, body, *, idempotency_key, timeout):
         response = self._request("POST", "/messages", max_bytes=128_000, timeout=timeout, body=body, key=idempotency_key, expected_status=202)
         try:
             message = _object(_json_load(response.body))
-            if (message.get("projectId") != self.project_id or _object(message.get("space")).get("id") != body["spaceId"]
+            if (message.get("projectId", self.project_id) != self.project_id or _object(message.get("space")).get("id") != body["spaceId"]
                     or _object(message.get("sentBy")).get("id") != body["senderId"]):
                 raise PhotonError("send_scope_mismatch")
             return message

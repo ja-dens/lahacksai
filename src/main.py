@@ -197,9 +197,16 @@ def supported_media(request: dict, settings: dict) -> bool:
         return False
     try:
         data = base64.b64decode(str(media["data_base64"]), validate=True)
+        mime_type = media.get("mime_type")
+        signature_matches = (
+            (mime_type == "image/png" and data.startswith(b"\x89PNG\r\n\x1a\n"))
+            or (mime_type == "image/jpeg" and data.startswith(b"\xff\xd8\xff"))
+            or (mime_type == "image/webp" and len(data) >= 12
+                and data.startswith(b"RIFF") and data[8:12] == b"WEBP")
+        )
         return (
             len(data) <= settings["target_sticker_max_bytes"]
-            and data.startswith(b"\x89PNG\r\n\x1a\n")
+            and signature_matches
             and (hashlib.sha256(data).hexdigest() == media.get("sha256"))
         )
     except (ValueError, TypeError, KeyError):

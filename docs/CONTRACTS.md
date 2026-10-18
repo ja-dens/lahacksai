@@ -10,7 +10,16 @@ Read [PRODUCT_SPEC.md](PRODUCT_SPEC.md) for current behavior. The user instructe
 
 Fields: platform, conversation_id, message_id, sender_id, sent_at (timestamp with timezone), from_assistant (boolean, false by default), text (string or null), kind (text/sticker/image/audio/other), sticker (Media or null), and reply_to_message_id (string or null).
 
-Media uses data_base64, mime_type, and a computed sha256 in the JSON boundary and saved snapshots. The initial supported target is PNG with a 5 MB byte limit; a PNG signature check is not a complete image-decoding guarantee. Ordinary text updates context without triggering interpretation. Other prior media is represented by type and an explicit not-interpreted flag. The Photon adapter must classify actual sticker events; a photograph is not automatically a sticker.
+Media uses data_base64, mime_type, and a computed sha256 in the JSON boundary
+and saved snapshots. The supported local target is static PNG, JPEG, or WebP
+with a 5 MB encoded-file limit. Pillow decodes pixels, enforces the configured
+dimension bound, rejects malformed/animated input, and normalizes non-PNG input
+to PNG for the model. Ordinary text updates context without triggering
+interpretation. Other prior media is represented by type and an explicit
+not-interpreted flag. Photon 2.0 beta did not expose a native sticker bubble in
+the tested shared thread. Only in the verified, enrolled direct-space runtime,
+an authorized photo-button image attachment is the explicit sticker fallback;
+the reusable transport adapter still requires an injected classifier.
 
 ## InterpretationRequest
 
@@ -94,4 +103,9 @@ An agreed duplicate key is platform plus conversation_id plus message_id, with p
 
 ## Example exchange
 
-Use fixtures/chats/joke.json with the original synthetic PNG fixtures/stickers/laughing.png. The default fixture interpreter does not analyze the image; it supplies a fixed result to test coordination. The optional live model mode sends the actual PNG and frozen context through one API call after access is configured. Neither mode sends messages through Photon yet.
+Use fixtures/chats/joke.json with the original synthetic PNG
+fixtures/stickers/laughing.png. The default fixture interpreter does not analyze
+the image; it supplies a fixed result to test coordination. The optional live
+model mode sends the normalized image and frozen context through one API call
+after access is configured. `python -m src live` polls and sends through the
+verified Photon direct space; fixture/demo modes never do.

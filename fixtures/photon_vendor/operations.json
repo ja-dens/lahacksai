@@ -1,0 +1,45 @@
+{
+  "channel": "photon-2.0-beta shared imessage",
+  "operations": [
+    {
+      "name": "shared line assignment",
+      "result": "supported",
+      "evidence": "POST /v1/projects/{id}/platforms/imessage/assignments returned 201. Assignment pho_asg_01m562efr8e8g8pc3qtjvbcmre. Pool number +16285024649."
+    },
+    {
+      "name": "inbound text",
+      "result": "supported",
+      "evidence": "Human text Ping was stored as pho_msg_698qe8a1b9hbzsqdkkf0w9bf5b at 2026-10-17T23:19:28.938Z in direct space pho_spc_0nhxpaja9ngpfvaj6eevmkcmd2."
+    },
+    {
+      "name": "outbound text in that direct space",
+      "result": "supported",
+      "evidence": "Normal text pho_msg_40ncpnpd8cg1vrr2x6x5g26vy5 reached provider status delivered at 2026-10-17T23:20:51.485Z. A fixed explanation, pho_msg_1v7312gj71g3js27mej9b0nbpq, reached provider status delivered at 2026-10-17T23:32:41.606Z. Provider delivered is not a visual phone receipt."
+    },
+    {
+      "name": "threaded reply",
+      "result": "unsupported",
+      "evidence": "parentMessageId on the inbound Ping returned 409 SPACE_NOT_SENDABLE, detail Replies are not supported for this Space."
+    },
+    {
+      "name": "group imessage",
+      "result": "blocked",
+      "evidence": "Platform mode is shared. Shared assignments are direct only. No dedicated line was purchased, and no group send was attempted."
+    },
+    {
+      "name": "dedicated line",
+      "result": "blocked",
+      "evidence": "GET platform returned mode shared and dedicatedLineAvailableNow true. No dedicated resource was created. The true flag is not an owned line."
+    },
+    {
+      "name": "static sticker media",
+      "result": "not_ingested",
+      "evidence": "The phone showed a native sticker Delivered in the enrolled direct thread. The project still listed 3 messages and 0 attachments, and the space timestamp did not change."
+    },
+    {
+      "name": "inline private annotation",
+      "result": "untested",
+      "evidence": "Not attempted. The verified private path is a normal message in the enrolled direct space."
+    }
+  ]
+}
