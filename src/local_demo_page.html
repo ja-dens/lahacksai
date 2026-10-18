@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sticker interpreter — local demo</title>
+<style>
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #d8d8de; color: #1c1915; }
+  main { min-height: 100vh; display: grid; grid-template-columns: minmax(260px, 380px) auto; gap: 36px; align-items: center; justify-content: center; padding: 28px; box-sizing: border-box; }
+  h1 { font-size: 28px; font-weight: 650; margin: 0 0 8px; }
+  .lede, .hint { margin: 0 0 16px; color: #3f3f46; line-height: 1.45; }
+  .cases { display: flex; flex-wrap: wrap; gap: 8px; }
+  .cases button { border: 1px solid #c5c5cc; background: #fff; color: inherit; border-radius: 999px; padding: 8px 14px; font: inherit; cursor: pointer; }
+  .cases button[aria-pressed="true"] { background: #1c1915; color: #fff; border-color: #1c1915; }
+  .phone { width: 390px; height: 780px; max-height: calc(100vh - 40px); background: #111; border-radius: 44px; padding: 12px; box-shadow: 0 24px 60px rgba(0,0,0,.28); box-sizing: border-box; }
+  .screen { height: 100%; background: #fff; border-radius: 34px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+  .status { display: flex; justify-content: space-between; align-items: center; padding: 14px 22px 0; font-size: 14px; font-weight: 650; }
+  .header { display: grid; grid-template-columns: 64px 1fr 64px; align-items: center; padding: 6px 8px 10px; border-bottom: 1px solid #ececef; }
+  .back { color: #0a84ff; font-size: 28px; line-height: 1; text-align: center; }
+  .who { text-align: center; }
+  .avatar { width: 42px; height: 42px; margin: 0 auto 2px; border-radius: 50%; background: #c7c7cc; color: #fff; display: grid; place-items: center; font-weight: 650; }
+  .who strong { display: block; font-size: 13px; }
+  .who span { color: #8e8e93; font-size: 11px; }
+  .thread { flex: 1; overflow-y: auto; padding: 12px 0 8px; background: #fff; }
+  .row { display: flex; margin: 8px 12px 0; }
+  .row.cont { margin-top: 2px; }
+  .row.out { justify-content: flex-end; }
+  .bubble { max-width: 74%; padding: 8px 12px; border-radius: 18px; font-size: 16px; line-height: 1.3; overflow-wrap: anywhere; white-space: pre-wrap; }
+  .row.in .bubble { background: #e9e9eb; color: #000; }
+  .row.out .bubble { background: #0a84ff; color: #fff; }
+  .row.sticker img { width: 140px; height: 140px; display: block; }
+  .tray { display: flex; gap: 8px; padding: 10px 12px; background: #f2f2f7; border-top: 1px solid #e5e5ea; }
+  .tray[hidden], .popup[hidden] { display: none; }
+  .tray button { border: 0; background: transparent; padding: 0; cursor: pointer; }
+  .tray img { width: 76px; height: 76px; display: block; }
+  .as { display: flex; gap: 6px; padding: 8px 12px 0; align-items: center; }
+  .as span { color: #8e8e93; font-size: 12px; }
+  .as button { border: 0; background: #f2f2f7; color: #111; border-radius: 999px; padding: 5px 10px; font: inherit; font-size: 13px; cursor: pointer; }
+  .as button[aria-pressed="true"] { background: #0a84ff; color: #fff; }
+  .compose { display: flex; gap: 8px; align-items: center; padding: 8px 12px 18px; }
+  #draft { flex: 1; border: 1px solid #c8c8cc; border-radius: 18px; padding: 8px 12px; font: inherit; font-size: 16px; }
+  #sticker-toggle, #send { width: 34px; height: 34px; border-radius: 50%; border: 0; padding: 0; cursor: pointer; display: grid; place-items: center; }
+  #sticker-toggle { background: #f2f2f7; }
+  #sticker-toggle img { width: 26px; height: 26px; display: block; }
+  #send { background: #0a84ff; color: #fff; }
+  #send:disabled { background: #bcdcff; cursor: default; }
+  .popup { position: absolute; inset: 0; background: rgba(0,0,0,.36); display: flex; align-items: flex-end; z-index: 2; }
+  .sheet { width: 100%; background: #fff; border-radius: 18px 18px 34px 34px; padding: 18px 18px 28px; box-sizing: border-box; }
+  .kicker { margin: 0 0 6px; color: #8e8e93; font-size: 12px; font-weight: 650; letter-spacing: .04em; text-transform: uppercase; }
+  #popup-title { margin: 0 0 8px; font-size: 20px; }
+  #popup-text { margin: 0 0 8px; white-space: pre-wrap; font-size: 17px; line-height: 1.4; }
+  #popup-note { margin: 0 0 14px; color: #3f3f46; font-size: 14px; line-height: 1.4; }
+  #popup-ok { width: 100%; border: 0; border-radius: 12px; background: #0a84ff; color: #fff; font: inherit; font-size: 17px; padding: 12px; cursor: pointer; }
+  @media (max-width: 860px) { main { grid-template-columns: 1fr; justify-items: center; } .phone { width: min(390px, 100%); } }
+</style>
+</head>
+<body>
+<main>
+  <div>
+    <h1>Sticker interpreter</h1>
+    <p class="lede">You are texting your grandchild in Messages. Type on either side, then send the laughing sticker. A private note pops up with what it means. The note is a saved explanation from this computer. Nothing is sent to a phone.</p>
+    <p class="hint">Choose which saved explanation the next sticker uses.</p>
+    <div class="cases" id="cases"></div>
+  </div>
+  <div class="phone">
+    <div class="screen">
+      <div class="status"><span id="clock">9:41</span><span aria-hidden="true">●●●</span></div>
+      <header class="header">
+        <div class="back" aria-hidden="true">‹</div>
+        <div class="who">
+          <div class="avatar" aria-hidden="true">G</div>
+          <strong>Grandchild</strong>
+          <span>iMessage</span>
+        </div>
+        <div></div>
+      </header>
+      <div class="thread" id="thread" aria-live="polite"></div>
+      <div class="tray" id="tray" hidden>
+        <button type="button" id="send-sticker" aria-label="Send laughing sticker">
+          <img src="/sticker.png" alt="">
+        </button>
+      </div>
+      <div class="as" role="group" aria-label="Texting as">
+        <span>Texting as</span>
+        <button type="button" id="as-you" aria-pressed="true">You</button>
+        <button type="button" id="as-them" aria-pressed="false">Grandchild</button>
+      </div>
+      <form class="compose" id="composer">
+        <button type="button" id="sticker-toggle" aria-label="Stickers" aria-expanded="false">
+          <img src="/sticker.png" alt="">
+        </button>
+        <input id="draft" maxlength="4000" autocomplete="off" placeholder="iMessage" aria-label="Message">
+        <button type="submit" id="send" aria-label="Send" disabled>
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 1.5 13.5 14H9.2L8 10.8 6.8 14H2.5L8 1.5z"/></svg>
+        </button>
+      </form>
+      <div class="popup" id="popup" hidden>
+        <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="popup-title">
+          <p class="kicker" id="popup-kicker"></p>
+          <h2 id="popup-title">What this sticker means</h2>
+          <p id="popup-text"></p>
+          <p id="popup-note"></p>
+          <button type="button" id="popup-ok">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<script id="scenes" type="application/json">__SCENES__</script>
+<script>
+const YOU = "demo-older-recipient";
+const THEM = "demo-younger-sender";
+const scenes = JSON.parse(document.getElementById("scenes").textContent);
+const cases = document.getElementById("cases");
+const threadEl = document.getElementById("thread");
+const tray = document.getElementById("tray");
+const stickerToggle = document.getElementById("sticker-toggle");
+const draft = document.getElementById("draft");
+const send = document.getElementById("send");
+const popup = document.getElementById("popup");
+const popupKicker = document.getElementById("popup-kicker");
+const popupText = document.getElementById("popup-text");
+const popupNote = document.getElementById("popup-note");
+let caseId = "single";
+let senderId = YOU;
+const thread = scenes.find((item) => item.id === "single").messages.map((message) => ({
+  sender_id: message.sender_id, text: message.text, sticker: false,
+}));
+
+function scene() {
+  return scenes.find((item) => item.id === caseId);
+}
+
+function renderThread() {
+  threadEl.replaceChildren();
+  thread.forEach((message, index) => {
+    const row = document.createElement("div");
+    const previous = thread[index - 1];
+    row.className = "row " + (message.sender_id === YOU ? "out" : "in");
+    if (previous && previous.sender_id === message.sender_id && !message.sticker && !previous.sticker) {
+      row.classList.add("cont");
+    }
+    if (message.sticker) {
+      row.classList.add("sticker");
+      const image = document.createElement("img");
+      image.src = "/sticker.png";
+      image.alt = "Laughing-face sticker";
+      row.append(image);
+    } else {
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+      bubble.textContent = message.text;
+      row.append(bubble);
+    }
+    threadEl.append(row);
+  });
+  threadEl.scrollTop = threadEl.scrollHeight;
+}
+
+function setTray(open) {
+  tray.hidden = !open;
+  stickerToggle.setAttribute("aria-expanded", open ? "true" : "false");
+}
+
+function openPopup() {
+  const current = scene();
+  popupKicker.textContent = current.label;
+  popupText.textContent = current.explanation;
+  popupNote.textContent = senderId === YOU
+    ? "You sent this sticker, so this note stays in the chat."
+    : "Only you see this. Grandchild does not.";
+  setTray(false);
+  popup.hidden = false;
+  document.getElementById("popup-ok").focus();
+}
+
+function closePopup() {
+  popup.hidden = true;
+  draft.focus();
+}
+
+function selectCase(id) {
+  caseId = id;
+  for (const button of cases.querySelectorAll("button")) {
+    button.setAttribute("aria-pressed", button.dataset.id === id ? "true" : "false");
+  }
+  if (!popup.hidden) openPopup();
+}
+
+function setSender(id) {
+  senderId = id;
+  document.getElementById("as-you").setAttribute("aria-pressed", id === YOU ? "true" : "false");
+  document.getElementById("as-them").setAttribute("aria-pressed", id === THEM ? "true" : "false");
+  draft.focus();
+}
+
+document.getElementById("clock").textContent = new Date().toLocaleTimeString([], {hour: "numeric", minute: "2-digit"});
+for (const item of scenes) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.dataset.id = item.id;
+  button.textContent = item.label;
+  button.addEventListener("click", () => selectCase(item.id));
+  cases.append(button);
+}
+selectCase("single");
+renderThread();
+draft.addEventListener("input", () => { send.disabled = draft.value.trim() === ""; });
+document.getElementById("composer").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const text = draft.value.trim();
+  if (!text) return;
+  thread.push({sender_id: senderId, text, sticker: false});
+  draft.value = "";
+  send.disabled = true;
+  renderThread();
+});
+stickerToggle.addEventListener("click", () => setTray(tray.hidden));
+document.getElementById("send-sticker").addEventListener("click", () => {
+  thread.push({sender_id: senderId, text: "", sticker: true});
+  renderThread();
+  openPopup();
+});
+document.getElementById("as-you").addEventListener("click", () => setSender(YOU));
+document.getElementById("as-them").addEventListener("click", () => setSender(THEM));
+document.getElementById("popup-ok").addEventListener("click", closePopup);
+popup.addEventListener("click", (event) => { if (event.target === popup) closePopup(); });
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") return;
+  if (!popup.hidden) closePopup();
+  else setTray(false);
+});
+draft.focus();
+</script>
+</body>
+</html>

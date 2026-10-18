@@ -12,6 +12,7 @@ Use Python 3.13 and an isolated environment:
 python3.13 -m venv .venv
 .venv/bin/python -m pip install -r requirements.lock
 .venv/bin/python -m src demo --db local-data/demo.sqlite3 --replay
+.venv/bin/python -m src demo --local
 ```
 
 The demo connects the real T2/T3/T4/T5 modules to synthetic provider I/O and fixed model candidates. It performs no network calls. Repeating the same database/event reuses the accepted job. For another policy case or source mode, use a separate database:

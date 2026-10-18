@@ -394,3 +394,28 @@ key is absent and exactly one send after it appears. Rechecked Photon on
 October 17: five messages total, two received texts, three delivered agent
 texts, and zero attachments. The suite is now 200 tests. Phone delivery remains
 unverified.
+
+## October 17 local browser demo
+
+`python -m src demo --local` serves the offline coordinator at
+`http://127.0.0.1:8765`. The page shows the laughing-face fixture, the frozen
+family-chat text, and the private explanation produced by the real store,
+policy, and transport boundaries. Browser checks confirmed the single,
+compatible, opposing, abstaining, and direct-thread cases. Compatible text
+shows both meanings, opposing text keeps one meaning plus the sarcasm caveat,
+and direct mode addresses `demo-family-chat`. Each case recorded one mocked
+model call and one mocked send. This is fixture evidence: no OpenAI request,
+no Photon request, and no phone receipt.
+
+## October 18 Messages page
+
+The local page is now a Messages thread with the enrolled recipient on the
+right and the grandchild on the left. Typed messages stay in the browser.
+Sending the laughing sticker opens a popup whose text is the explanation the
+offline coordinator already stored for the selected case. Browser checks at
+`http://127.0.0.1:8765` confirmed both sides of the thread, the grandchild
+popup ("the joke was so funny they are crying" and "Only you see this"),
+switching that open popup to the compatible pair and the abstain wording, and
+the note used when you send the sticker yourself. `tests.test_local_demo`
+passed. This is still fixture evidence: no OpenAI request, no Photon request,
+and no phone receipt.
