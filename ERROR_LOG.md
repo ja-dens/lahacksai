@@ -337,3 +337,26 @@ What happened: the migration AST comparison caught an IndentationError in the ne
 ## MIG-003 — October 17: raw conversion retained compiler imports
 
 What happened: inspection of the conversion output found `jaclang.runtimelib.builtin` imports for the names `store` and `commit`, which would preserve a hidden runtime dependency. Cause: the compiler recognizes those names as language builtins even though this application uses local store variables, commit parameters and keyword arguments. Correction: removed the three unused imports, removed the package-level importer and regenerated both locks without Jac/llvmlite. Prevention: verify in a fresh environment with neither package installed and exercise the real core pipeline in an isolated subprocess that rejects compiler and optional SDK imports. No public function body, SQL statement or v2 field changed.
+
+## LIVE-001 — October 17: Cloudflare rejected the default urllib client
+
+Authenticated Photon list requests initially returned Cloudflare error 1010
+before reaching the project API. The same endpoint and credential succeeded when
+the client sent an explicit, non-secret application `User-Agent`. Added a stable
+client identifier to every bounded REST request and retained redirect blocking
+so authorization is never forwarded to another host. The project-scoped list
+and get-message reads then returned 200, and the local runtime stored two
+existing received text messages without a model call or send. Prevention:
+exercise the actual HTTP stack, not only injected transports, before a live
+demo. Status: resolved.
+
+## LIVE-002 — October 17: live OpenAI path lacks local credentials
+
+`python -m src doctor` found Photon configuration ready and the recommended
+model configured, but no `OPENAI_API_KEY` or legacy `VISION_API_KEY`. No model
+smoke request was attempted, and no image attachment existed in the Photon
+project during the read-only polling check. Correction requires the operator to
+put their own key in the ignored `.env` and send a permitted static image with
+the photo button while the service runs. Prevention: keep doctor checks explicit
+and never substitute fixture output for live model or phone evidence. Status:
+external configuration blocker; open.

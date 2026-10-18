@@ -345,3 +345,37 @@ Baseline: all 172 original application tests passed. Converted code matched the 
 Fresh Python 3.13 combined and standalone T3 environments installed without Jac or llvmlite. Regenerated locks remove only those two packages and retain every other version. The full 174-test application suite passes; two new tests exercise the core pipeline and mock CLI without site packages, with optional compiler/SDK imports forbidden in the pipeline subprocess. Compilation, standalone/standard-library checks and offline demos are verified before publication. No live model call, phone send or main merge is authorized by this migration.
 
 Publication checks passed: Python compilation, pip check in both fresh environments, 34 standalone interpreter tests, 36 integration and 19 real-store tests without site packages, two isolated runtime regressions, shared fixture check, 10 contract regressions, 15 publisher tests and a dry run with zero external writes. All four real-component policy demos plus direct routing/replay, saved-result inspection, doctor, optional Fetch demo and sponsor offline check passed. Remote main remains 5a97907; the integration PR remains open and unmerged.
+
+## October 17 local live-runtime completion
+
+Created `cursor/live-local-integration` from PR #14's reviewed Python baseline,
+merged current main, and restored only the newer T1 feasibility artifacts. The
+pre-integration stash and backup branch remain intact. Added authenticated
+Photon 2.0 beta polling with pagination, chronological processing, verified
+sender/agent/direct-space identity, durable cursor/dedup/attachment/model-call
+records, private route binding, stable send idempotency, delivery-status
+reconciliation, timeout/backoff, and signal-safe shutdown. The live fallback is
+an authorized static PNG/JPEG/WebP sent with the photo button; native sticker
+bubbles remain unsupported by observed provider ingress.
+
+The OpenAI adapter still makes exactly one Responses structured-output request.
+It now decodes pixels, rejects malformed/oversized/animated media, normalizes
+JPEG/WebP to PNG, and records safe latency/token metadata without prompts,
+keys, provider bodies, or routing. Added deterministic policy evaluation,
+opt-in human-review packet generation, setup/demo/reproduction runbooks, and
+live/fixture CLI paths.
+
+Observed offline verification: 196 Python tests plus 163 subtests, 10 isolated
+contract tests, 15 planning-publisher tests, fixture checker, compileall,
+`pip check`, Photon feasibility checker, deterministic evaluation, replay demo,
+publisher dry run with zero writes, and `git diff --check` all passed.
+Authenticated live Photon list/get-message reads returned 200 after adding an
+explicit client User-Agent. A temporary runtime database processed two existing
+received text messages as history with zero sticker triggers and zero model
+calls.
+
+`python -m src doctor` reports Photon configuration ready and the model name
+configured, but no OpenAI API key is present locally. The project also had no
+image attachment during the smoke check. Therefore photo → OpenAI → delivered
+iMessage and visual phone receipt remain open; fixture output and provider
+status are not presented as that evidence.
