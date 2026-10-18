@@ -461,4 +461,46 @@ metadata, and the existing one-contact filter. A browser check of the panel
 showed the popup with the explanation, the why line, and a same-series
 sticker; OK dismissed the popup and left the card. The Messages database on
 this Mac was readable and sticker rows expose `pid`. No live model call was
-made for this change.
+made for this change. Published as commit d33d418 on
+cursor/live-local-integration in [draft PR #17](https://github.com/ja-dens/lahacksai/pull/17),
+unmerged; 207 tests passed on the committed tree.
+
+## October 18 hamster-pack recognition coverage
+
+Added the user-supplied 19-tile hamster reference sheet as permitted local
+evaluation data, with explicit crop bounds and non-semantic visual cues. The
+OpenAI adapter now includes the target sticker and the reference sheet in the
+same multimodal request, preserving the one-call architecture. The prompt keeps
+the target and recognition reference roles separate and forbids treating a
+catalog cue as fixed conversational meaning.
+
+The Messages watcher now recognizes stickers from the native flag, a
+sticker-bearing UTI, or the Messages Stickers cache path, reducing dependence on
+one macOS database schema. The hamster-pack fixture command decoded and passed
+all 19 crops through the interpreter with zero network calls. The current full
+suite passed 203 tests; contract fixtures, 10 isolated contract regressions,
+Python compilation, dependency checks, and whitespace checks also passed.
+
+This is ingestion/request-construction evidence, not measured model accuracy.
+The 19-case live review remains unrun because the recorded OpenAI account has no
+credit. No claim is made that every expression is semantically correct until
+those outputs receive human review.
+
+At the user's request the pack itself (reference image and crop manifest) stays
+local-only through `.git/info/exclude` and must not be pushed. The adapter sends
+only the target image when the pack is absent, and the hamster test is skipped.
+
+## October 18 Gemini adapter
+
+At the user's request, sticker interpretation now calls Gemini instead of OpenAI.
+`GeminiVision` reads `GEMINI_API_KEY`, with `GOOGLE_API_KEY` and `VISION_API_KEY`
+as aliases, and ignores `OPENAI_API_KEY`. The default model is
+`gemini-3.5-flash-lite`. Each sticker is still one `generate_content` call:
+automatic continuation and automatic function calling are disabled, and the SDK
+retry count is one attempt. The Fetch mailbox example still uses the OpenAI
+client against ASI:One with `ASI1_API_KEY`.
+
+Verified offline: 208 unit tests passed, contract fixtures passed, and
+`pip check` reported no broken requirements. No live Gemini request was made.
+The ignored `.env` names `GEMINI_API_KEY` but has no key value yet, so a live
+sticker call stays unverified until a Gemini key is added.

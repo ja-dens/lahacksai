@@ -421,3 +421,15 @@ tests cleared `os.environ`, so they made real OpenAI requests. Correction: both
 tests now patch `src.live.load_dotenv`. Prevention: tests that clear the
 environment must also stub every `.env` reload. Status: corrected; the full
 suite passes.
+
+## TEST-002 — October 18: Messages fixture schema and insert briefly diverged
+
+What happened: a full-suite run observed seven local watcher-test errors while
+the synthetic attachment table had eight columns but its sticker helper still
+used a six-value insert. Cause: the sticker-pack metadata fixture was being
+edited concurrently and the suite read the intermediate state. Correction: the
+completed helper names all eight target columns and supplies the two metadata
+values. Prevention: use named columns when extending synthetic provider schemas
+and rerun the complete suite from the final tree. Verification: all 203 tests
+passed on rerun. Status: resolved; this was test-fixture drift, not a live
+Messages failure.

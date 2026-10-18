@@ -38,6 +38,7 @@ def main(argv=None):
                         help='Only check Messages database access (imessage only)')
     args = parser.parse_args(argv)
     if args.command == 'doctor':
+        from .adapters.vision import gemini_api_key
         from .live import LiveConfig
         try:
             LiveConfig.from_env()
@@ -45,7 +46,7 @@ def main(argv=None):
         except ValueError:
             photon_configuration = 'incomplete'
         result = {
-            'api_key_configured': bool(os.getenv('OPENAI_API_KEY') or os.getenv('VISION_API_KEY')),
+            'api_key_configured': bool(gemini_api_key()),
             'model_configured': bool(os.getenv('VISION_MODEL')),
             'photon_key_configured': bool(os.getenv('PHOTON_API_KEY')),
             'photon_configuration': photon_configuration,

@@ -57,7 +57,7 @@ The local runtime polls authenticated Photon 2.0 beta message resources, verifie
 one configured direct sender/agent/space, persists source and delivery state, and
 routes through the frozen enrollment. Photon did not expose a native sticker
 bubble in the tested shared thread, so the supported live trigger is a static
-PNG/JPEG/WebP sent with the iMessage photo button. OpenAI access and an observed
+PNG/JPEG/WebP sent with the iMessage photo button. Gemini access and an observed
 photo → model → phone round trip are still required before claiming a complete
 live demonstration.
 

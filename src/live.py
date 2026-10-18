@@ -20,7 +20,7 @@ from .adapters.photon import (
     PhotonHTTPClient,
     PrivateDestination,
 )
-from .adapters.vision import OpenAIVision
+from .adapters.vision import DEFAULT_VISION_MODEL, GeminiVision, gemini_api_key
 from .context_store import SQLiteStore
 from .main import create_pipeline, load_settings, process_event, run_window
 
@@ -83,18 +83,18 @@ class LiveConfig:
         )
 
 
-class DeferredOpenAIVision:
+class DeferredGeminiVision:
     """Construct the network client on the first sticker, not at process startup."""
 
     def __init__(self):
-        model = os.environ.get("VISION_MODEL", "").strip() or "gpt-4.1-mini"
+        model = os.environ.get("VISION_MODEL", "").strip() or DEFAULT_VISION_MODEL
         self._vision = None
-        self.metadata = {"provider": "openai-api-key", "model": model}
+        self.metadata = {"provider": "gemini-api-key", "model": model}
         self.last_call_metadata = None
 
     def __call__(self, request):
         if self._vision is None:
-            self._vision = OpenAIVision(model=self.metadata["model"])
+            self._vision = GeminiVision(model=self.metadata["model"])
             self.metadata = dict(self._vision.metadata)
         result = self._vision(request)
         self.last_call_metadata = getattr(self._vision, "last_call_metadata", None)
@@ -114,7 +114,7 @@ class LiveRuntime:
         self.client = client or PhotonHTTPClient(
             project_id=config.project_id, api_key=config.api_key,
         )
-        self.vision = vision or DeferredOpenAIVision()
+        self.vision = vision or DeferredGeminiVision()
         self.store = store or SQLiteStore(config.database_path)
         self._owns_vision = vision is None
         self._owns_store = store is None
@@ -303,10 +303,7 @@ class LiveRuntime:
         self.store.db.commit()
 
     def _model_configured(self):
-        return bool(
-            os.environ.get("OPENAI_API_KEY", "").strip()
-            or os.environ.get("VISION_API_KEY", "").strip()
-        )
+        return bool(gemini_api_key())
 
     def _retry_saved_configuration_failures(self):
         if not self._model_configured():

@@ -39,6 +39,20 @@ class EvaluationTests(unittest.TestCase):
             case["policy_regression_passed"] for case in report["cases"]
         ))
 
+    @unittest.skipUnless((ROOT / "evaluation/hamster_pack.json").exists(),
+                         "hamster pack is kept local-only")
+    def test_every_hamster_reference_tile_reaches_the_pipeline(self):
+        with patch("socket.socket", side_effect=AssertionError("network forbidden")):
+            report = evaluate(mode="fixture", dataset="hamster-pack")
+        self.assertEqual(report["dataset"], "user-permitted-hamster-pack-reference-v1")
+        self.assertEqual(len(report["cases"]), 19)
+        self.assertEqual(len({case["id"] for case in report["cases"]}), 19)
+        self.assertTrue(report["all_policy_regressions_passed"])
+        self.assertEqual(report["network_model_calls"], 0)
+        self.assertFalse(report["fixture_output_is_model_accuracy"])
+        self.assertIsNone(report["measured_model_accuracy"])
+        self.assertEqual({case["split"] for case in report["cases"]}, {"coverage"})
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -40,11 +40,11 @@ MESSAGE_TEXT_LIMIT = 4000
 STICKER_ATTEMPTS = 10
 OWNER_ID = "me"
 FAILURE_TEXT = {
-    "api_key_not_configured": "No OpenAI key is set, so this sticker was not explained.",
-    "model_authentication_failed": "OpenAI rejected the key, so this sticker was not explained.",
-    "model_rate_limited": "OpenAI is out of credit or busy, so this sticker was not explained.",
-    "model_timeout": "OpenAI took too long, so this sticker was not explained.",
-    "model_connection_failed": "Could not reach OpenAI, so this sticker was not explained.",
+    "api_key_not_configured": "No Gemini key is set, so this sticker was not explained.",
+    "model_authentication_failed": "Gemini rejected the key, so this sticker was not explained.",
+    "model_rate_limited": "Gemini is out of credit or busy, so this sticker was not explained.",
+    "model_timeout": "Gemini took too long, so this sticker was not explained.",
+    "model_connection_failed": "Could not reach Gemini, so this sticker was not explained.",
 }
 
 
@@ -705,7 +705,7 @@ def run_imessage(contact, *, relationship=None, include_mine=False, include_phot
                  port=8766, open_window=True, poll_seconds=1.5,
                  state_path="local-data/imessage-local.sqlite3"):
     from dotenv import load_dotenv
-    from .adapters.vision import OpenAIVision
+    from .adapters.vision import DEFAULT_VISION_MODEL, GeminiVision
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s %(message)s")
     load_dotenv()
@@ -713,7 +713,7 @@ def run_imessage(contact, *, relationship=None, include_mine=False, include_phot
         raise RuntimeError("macOS sips is required to convert stickers")
     db = open_messages_db()
     reader = MessagesReader(db)
-    vision = OpenAIVision(model=os.environ.get("VISION_MODEL") or "gpt-4.1-mini")
+    vision = GeminiVision(model=os.environ.get("VISION_MODEL") or DEFAULT_VISION_MODEL)
     board = PopupBoard()
     watcher = StickerWatcher(reader, vision, board, contact=contact, state_path=state_path,
                              relationship=relationship, include_mine=include_mine,

@@ -16,14 +16,14 @@ family-chat lines. Type in the box and press send. Switch **Texting as** to
 says what that sticker means and that only you see the note. The five buttons
 choose which saved explanation the next sticker uses: one meaning, a compatible
 pair, an opposing pair, abstain, or the direct-thread wording. The page makes
-no OpenAI or Photon request, and it does not show phone receipt.
+no Gemini or Photon request, and it does not show phone receipt.
 
 ## Your own Messages app
 
 This path watches the Messages app on this Mac. When anyone sends a sticker in
 any chat, including a group and a sticker you send, a popup explains why and
 shows another sticker from the same pack when this Mac already has one.
-Nothing is posted back into the chat. It makes one OpenAI call per sticker,
+Nothing is posted back into the chat. It makes one Gemini call per sticker,
 using the sticker image and up to 25 earlier messages from that chat. People
 in those chats need to agree to that first.
 
@@ -32,7 +32,7 @@ Setup, once:
 1. System Settings > Privacy & Security > Full Disk Access: turn on Cursor (or
    the terminal app you use), then quit and reopen it. macOS blocks reading
    `~/Library/Messages/chat.db` without this.
-2. Make sure `.env` has a working `OPENAI_API_KEY` with credit and
+2. Make sure `.env` has a working `GEMINI_API_KEY` and
    `VISION_MODEL`.
 3. Check access:
 
@@ -62,7 +62,7 @@ With `--contact`, only that person's one-to-one chat is watched; add
 after the watcher starts are explained, and each sticker is explained once.
 Press Ctrl+C to stop.
 
-If OpenAI fails (for example, the account is out of credit), the window says
+If Gemini fails (for example, the account is out of credit), the window says
 so instead of guessing a meaning.
 
 ## Offline backup demo

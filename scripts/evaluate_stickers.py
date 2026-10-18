@@ -1,30 +1,48 @@
 #!/usr/bin/env python3
-"""Deterministic policy regression and opt-in OpenAI review packet generator."""
+"""Deterministic policy regression and opt-in Gemini review packet generator."""
 
 from __future__ import annotations
 
 import argparse
 import base64
 import hashlib
+import io
 import json
 import mimetypes
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+from PIL import Image
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from src.adapters.vision import FixtureVision, OpenAIVision  # noqa: E402
+from src.adapters.vision import FixtureVision, GeminiVision  # noqa: E402
 from src.interpreter import interpret_sticker  # noqa: E402
 
 
-def load_request(image_path: Path) -> dict:
+def load_request(image_path: Path, crop: list[int] | None = None) -> dict:
     request = json.loads(
         (ROOT / "fixtures/contracts/interpretation_request.json").read_text()
     )
-    data = image_path.read_bytes()
-    mime_type = mimetypes.guess_type(image_path.name)[0]
+    if crop is None:
+        data = image_path.read_bytes()
+        mime_type = mimetypes.guess_type(image_path.name)[0]
+    else:
+        if (
+            not isinstance(crop, list) or len(crop) != 4
+            or any(not isinstance(value, int) for value in crop)
+        ):
+            raise ValueError("Invalid evaluation crop")
+        with Image.open(image_path) as image:
+            left, top, right, bottom = crop
+            if not (0 <= left < right <= image.width and 0 <= top < bottom <= image.height):
+                raise ValueError("Evaluation crop is outside the source image")
+            output = io.BytesIO()
+            image.crop((left, top, right, bottom)).save(output, format="PNG")
+            data = output.getvalue()
+        mime_type = "image/png"
     if mime_type not in ("image/png", "image/jpeg", "image/webp"):
         raise ValueError("Unsupported evaluation image type")
     request["sticker"] = {
@@ -89,16 +107,43 @@ def apply_variant(request: dict, variant: str) -> dict:
     return request
 
 
-def evaluate(*, mode: str, model: str | None = None) -> dict:
-    manifest = json.loads((ROOT / "evaluation/cases.json").read_text())
+def _manifest(dataset: str) -> dict:
+    if dataset == "policy":
+        return json.loads((ROOT / "evaluation/cases.json").read_text())
+    if dataset != "hamster-pack":
+        raise ValueError("Unknown evaluation dataset")
+    pack = json.loads((ROOT / "evaluation/hamster_pack.json").read_text())
+    return {
+        "dataset": pack["dataset"],
+        "accuracy_claim": False,
+        "cases": [
+            {
+                "id": item["id"],
+                "variant": "image_only",
+                "image": pack["source_image"],
+                "crop": item["crop"],
+                "candidate_fixture": "fixtures/contracts/candidate_single.json",
+                "expected_result": "fixtures/contracts/interpretation_result.json",
+                "label_provenance": "user_permitted_visual_reference_only",
+                "split": "coverage",
+                "review_note": item["visual_cue"],
+            }
+            for item in pack["stickers"]
+        ],
+    }
+
+
+def evaluate(*, mode: str, model: str | None = None, dataset: str = "policy") -> dict:
+    manifest = _manifest(dataset)
     reports = []
     vision = None
     try:
         if mode == "live":
-            vision = OpenAIVision(model=model)
+            vision = GeminiVision(model=model)
         for case in manifest["cases"]:
             request = apply_variant(
-                load_request(ROOT / case["image"]), case.get("variant", "baseline")
+                load_request(ROOT / case["image"], case.get("crop")),
+                case.get("variant", "baseline"),
             )
             if mode == "fixture":
                 candidate = json.loads((ROOT / case["candidate_fixture"]).read_text())
@@ -172,11 +217,12 @@ def evaluate(*, mode: str, model: str | None = None) -> dict:
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--mode", choices=("fixture", "live"), default="fixture")
+    parser.add_argument("--dataset", choices=("policy", "hamster-pack"), default="policy")
     parser.add_argument("--model", help="Override VISION_MODEL in live mode")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args(argv)
     try:
-        report = evaluate(mode=args.mode, model=args.model)
+        report = evaluate(mode=args.mode, model=args.model, dataset=args.dataset)
     except Exception as error:
         code = getattr(error, "code", type(error).__name__)
         print(json.dumps({"status": "failed", "error_code": code}))
