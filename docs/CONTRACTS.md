@@ -1,6 +1,6 @@
 # Internal interfaces, version 2
 
-> Publication scope: planning and synthetic fixtures only. References to the local backend describe separate workspace work; its application source is not included in this revision.
+> Current integration branch: backend source and offline tests are included. Live model/Photon behavior remains unverified; main has not been updated.
 
 These are application-owned records, not Photon API field names. Use ordinary module calls for the MVP. A source adapter must normalize provider events into these records.
 

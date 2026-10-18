@@ -1,6 +1,6 @@
 # T3 multimodal interpreter
 
-T3 is implemented independently on local branch `codex/t3-multimodal-interpreter` in the lahacksai-t3 checkout. The branch starts at main commit bb236d875dc080270a7e94dcaa3033511a5f07e5. No branch push, PR, main update, issue closure or live model request is part of this work.
+The standalone T3 implementation is preserved in PR #15 and assembled with T2/T4/T5 in PR #14. Its raw-candidate and composed-result interfaces remain unchanged. Compilation/fixture tests do not establish live model accuracy. Main remains unmerged.
 
 ## Setup and verification
 

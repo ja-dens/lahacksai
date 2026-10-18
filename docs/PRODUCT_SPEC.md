@@ -1,6 +1,6 @@
 # Sticker interpreter: product decisions and methodology
 
-> Publication scope: planning and synthetic fixtures only. References to the local backend describe separate workspace work; its application source is not included in this revision.
+> Current integration branch: backend source and offline tests are included. Live model/Photon behavior remains unverified; main has not been updated.
 
 Updated: October 17, 2026 (America/Los_Angeles).
 

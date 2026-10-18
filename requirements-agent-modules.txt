@@ -1,0 +1,2 @@
+# Compatibility install path for the former Fetch/T3 branch.
+-r requirements.txt

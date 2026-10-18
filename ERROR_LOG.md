@@ -6,6 +6,36 @@ Separate observed incidents from anticipated failure modes. A design revision is
 
 The existing setup/publication incidents below are retained as previously recorded. This product-spec update does not claim to have re-tested their remote outcomes.
 
+## 2026-10-17: sandbox blocked live Fetch startup
+
+What happened: startup inside the sandbox failed DNS lookup for Agentverse and
+could not bind port 8001, producing SDK shutdown errors after the bind failure.
+
+Cause: the restricted execution environment denied network and local-server access.
+
+Correction: reran the same command with approved network/server permissions.
+The server started, the ACP manifest was published, and Almanac API registration
+succeeded. Mailbox creation remains a user step; no model request was verified.
+
+Prevention: distinguish sandbox access failures from invalid credentials or
+application errors before changing the sponsor example.
+
+## 2026-10-17: Fetch quickstart environment and installer
+
+What happened: the shell's default Python was 3.14, outside the uAgents package's
+documented Python 3.10–3.13 range. uv could create an environment but its install
+command stalled without progress. A pip retry's automatic approval review also
+timed out before execution; the following retry began downloading packages.
+
+Correction: use the installed Python 3.13 in the ignored .venv, bootstrap pip
+with ensurepip, and install requirements-fetch.txt there. Follow the sponsor's
+mailbox example rather than requiring the separate public-endpoint setup flow.
+
+Prevention: verify the installed SDK and ACP schema before claiming runtime
+success, and distinguish local checks from mailbox registration and ASI:One chat.
+Node was also absent from this shell, so the existing planning publisher's Node
+tests were not run; that publisher is unchanged by Fetch setup.
+
 ## 2026-10-17: GitHub access routes differed
 
 What happened: the GitHub command-line tool was absent, and the in-app browser was signed out, even though Git could clone the private target repository and its push dry run succeeded.
@@ -235,3 +265,50 @@ T2-004 follow-up: review identified that importing through src in the standalone
 ## INT-007 — October 17: send-receipt expansion broke an existing minimization invariant
 
 What happened: the combined suite caught a changed generic receipt shape while adding real Photon idempotency metadata. Fixed by preserving the original minimal status/message-ID receipt for transports that provide no explicit key; the Photon bridge's validated locally generated provider key is persisted only when present. Raw provider details remain excluded. Prevention: retain existing T5 receipt-projection tests during integration. Status: correction implemented; rerunning the full component suites.
+
+## FETCH-GIT-001 — 2026-10-17: revised planning conflicted with quickstart documentation
+
+Bringing origin/main into codex/fetch-tools conflicted in README.md and PLANS.md:
+both branches had extended the original planning text. The original uncommitted
+notes were preserved in a named Git stash before integration. Resolved the
+conflicts using the current main product plan, retaining the verified Fetch
+quickstart checkpoint, and updating FETCH_SETUP.md to T8's saved-result scope.
+
+Verification: no unresolved files remained; staged whitespace checks, the shared
+contract fixture checker, agent.py --check, and pip check passed. No application
+backend, Photon transport, or new live agent interaction was verified by this
+merge. Prevention: fetch and reconcile shared task definitions before starting
+new module work; keep earlier evidence clearly labeled as historical.
+
+## MODULE-001 — 2026-10-17: local runtime and SDK compatibility checks
+
+The first Jac installation attempt could not resolve PyPI inside the network
+sandbox. The same pinned install succeeded with approved network access; no
+package-version fallback was needed. Jac 0.16.7 and llvmlite 0.50.0 match the
+recorded prototype runtime; Pillow 12.0.0 supplies actual PNG verification.
+
+Initial ACP test code called build_schema_digest without the explicit model
+argument required by installed uagents 0.26.1. Corrected the test to use the real
+installed method signature. Initial Jac checks also caught a missing closing
+brace and dynamic-boundary type mismatches. Corrected the brace, kept runtime
+validation and added explicit conversions after validation. Subsequent module
+tests and both Jac module checks passed. Prevention: test actual installed SDK
+schemas and run the pinned compiler before claiming module completion.
+
+The final text/credential scan found generated binary .jir files in src/.jac/cache
+and stopped on decoding them as text. Added .jac/ to .gitignore so compiler caches
+stay local, then reran the changed-file scan. Prevention: exclude generated
+runtime files before reviewing/staging source; do not treat a mixed shell batch's
+last exit code as proof that every preceding check passed.
+
+## INT-008 — October 17: duplicated language policy kept enforcing an unwanted quota
+
+What happened: the 40% Jac rule existed in global Codex commit/PR instructions, each checkout's AGENTS.md, active planning text and a failing source-share script. The user explicitly requested its removal. Removed the percentage/preference instructions from both global fields while verifying all unrelated TOML values were unchanged, removed the repo policy/template wording, and made the source report informational. Existing functional Jac code remains runnable; no language rewrite was requested. Prevention: keep implementation requirements distinct from optional source metrics and avoid global language quotas. Status: global instructions updated; branch policy/checks are included in the integration change.
+
+## INT-009 — October 17: patch tool rejected replacing a file twice in one patch
+
+A patch attempted delete/add operations on the same CLI path. The patch tool rejected it before changes were applied. Replaced the file with one write and applied new files separately. Prevention: use one update operation per path. No application state or external data was affected.
+
+## INT-010 — October 17: Fetch overlapped T3 and the current fixture checker
+
+What happened: full Fetch integration conflicted with the canonical interpreter, shared image/checker and Pillow pin. Fixed by retaining T3's implementation/tests and main's strengthened checker/original exchange, keeping the hamster asset separately and unifying Pillow at 13.0.0 in the combined lock. Optional saved-result tools and sponsor quickstart are retained. Prevention: run all component suites and shared regressions in one locked environment; keep separate optional fixtures from changing canonical request hashes. Status: implementation reconciled; combined verification follows.

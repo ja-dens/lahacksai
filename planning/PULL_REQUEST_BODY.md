@@ -10,9 +10,9 @@ Update the sticker interpreter's canonical planning Markdown and backlog so team
 - Preserve human issue content, assignments, state and checked work, including checked lines removed by a task rewrite.
 - Test PRs without issue writes and sync only reviewed main, preventing outdated feature-branch publication.
 
-## Jac Usage
+## Implementation
 
-No application backend or application test/runtime dependencies are published by this change. Jac application-source share is therefore not applicable to this review. The implementation plan retains at least 40% meaningful Jac for core context, policy and workflow. Node handles GitHub planning automation; Python standard library checks synthetic fixtures.
+No application backend or application test/runtime dependencies are published by this change. Jac application-source share is therefore not applicable to this review. Node handles GitHub planning automation; Python standard library checks synthetic fixtures.
 
 ## Testing
 

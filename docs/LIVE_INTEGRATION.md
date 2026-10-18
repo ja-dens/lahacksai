@@ -1,5 +1,7 @@
 # T5 mock integration and later live handoff
 
+> Integration update: PR #14 now includes real-component bridges, a durable SQLite store and `python -m src demo`, alongside the unchanged `mock-demo` harness described below. See [CONTEXT_STORE.md](CONTEXT_STORE.md) and [CODE_WALKTHROUGH.md](CODE_WALKTHROUGH.md). Live Photon sticker access and phone receipt remain unverified. Main must remain unmerged until the user requests it.
+
 This chat/branch owns T5 assembly. This milestone is an offline harness over injected T2/T3/T4 doubles. It does not close [T5 / #6](https://github.com/ja-dens/lahacksai/issues/6): live Photon, actual multimodal inference, durable storage and verified phone receipt remain pending. The user will notify this chat when working component versions are ready. Do not merge this PR into main without that later direction.
 
 ## Reproduce the mock milestone

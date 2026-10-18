@@ -174,3 +174,140 @@ The user requested a persistent reminder of what follows obtaining a Photon key.
 Merged T2 history into the T5 integration branch, retaining both logs. Added Jac policy plus thin object bridges for final T3 results and T2 receipts/private destinations; saved safe interpreter metadata before inference and provider idempotency keys on actual adapter acknowledgment. Added an explicitly synthetic ingress/provider fixture over the real T2/T3/T4/T5 components. Main is not to be merged: the user explicitly confirmed keeping all changes on PR branches.
 
 Verification: 157 application tests (including eight real-component assembly cases), all nine Jac modules and 10 contract regressions passed. Tests cover raw-byte verification, recipient binding, direct mode, compatible/opposing policy, accepted restart/replay, definitive rejection retry and uncertain-send reconciliation. Source share is recorded by the combined counter. There were no live provider calls.
+
+## Fetch quickstart checkpoint and task reorientation
+
+The following records the earlier standalone setup checkpoint in this clone; the updated product specification and T8 supersede its earlier integration proposal.
+
+Fetch setup work uses the local codex/fetch-ai-setup branch. See
+docs/FETCH_SETUP.md for the sponsor's mailbox route and local commands. A Python
+3.13 virtual environment and ignored .env with a unique name and seed were
+created. The user supplied the ASI:One key locally. Live startup published the
+AgentChatProtocol manifest and registered successfully on the Almanac API.
+After the user connected through the Inspector, the running SDK reported
+"Successfully registered as mailbox agent in Agentverse". The user then showed
+an ASI:One response from the named agent to the sun-facts question. The running
+process logged HTTP 200 OK from POST https://api.asi1.ai/v1/chat/completions,
+confirming a successful model API call. The quickstart's live round trip works;
+Photon integration remains unverified. The standalone Python
+sponsor example is outside product application-source counting; there is still
+no implemented Jac sticker workflow or application Jac percentage to report.
+
+Local Fetch verification passed on October 17, 2026: Python 3.13.14,
+uagents 0.26.1, openai 3.34.0; agent.py --check; pip check; Python compilation;
+mocked handler checks for acknowledgement/reply, provider failure, and empty
+input; and git diff --check. Environment/runtime paths are ignored by Git. These
+checks made no model requests and do not establish live registration or delivery.
+
+Live startup evidence: agent address
+agent1q2njg7mwfkt7pm83e883dpsghgee668adzc72flk5nt27ss2enfd2n8785k,
+local server port 8001. The SDK also warned of insufficient funds for the separate
+Almanac contract registration; no funds were sent. The mailbox connection is
+verified from the runtime log; the subsequent ASI:One exchange is verified by
+the user's screenshot and the successful model request in the runtime log.
+
+The user selected ownership of both T8/#11 and T3/#4 after reviewing the revised plan. Live GitHub read-back verified BeavyHombs on both issues:
+
+- https://github.com/ja-dens/lahacksai/issues/11
+- https://github.com/ja-dens/lahacksai/issues/4
+
+Continue on codex/fetch-tools with the reviewed origin/main planning and fixtures, while preserving codex/fetch-ai-setup. The two original uncommitted planning notes remain preserved in the Git stash named "Fetch task reorientation: preserve original issue notes". Their ownership information is reconciled here; the earlier missing-image and T3-only scope notes are superseded by the published fixtures and the two-task ownership decision.
+
+The first learning/build step is an authorized saved-explanation lookup against the synthetic T8 backend boundary. It makes no interpretation request and does not enter the automatic Photon path. Then add feedback validation/replay handling and ACP wiring. T3 remains a separate one-call multimodal interpreter and candidate-policy task.
+
+Reorientation checks passed: the current shared fixture checker, agent.py --check,
+pip check, and staged whitespace checks. The new T8 tools and T3 interpreter have
+not been implemented in this clone. The earlier 21-test/Jac results above describe
+the other workspace checkpoint, not application tests rerun in this branch.
+
+## October 17 T8 and T3 independent module implementation
+
+The user clarified that Codex should implement clear requirements and explicitly
+justify decisions, rather than requiring the user to invent the design first.
+Implemented the assigned independent modules on codex/fetch-tools. These are
+local working-tree changes; no commit, push, issue update, registration or paid
+model request was made for this implementation.
+
+T8: src/adapters/fetch_agent.py supplies the two narrow saved-result operations,
+an in-memory synthetic backend, bounded parsing of the approved prompts, and a
+thin ACP handler. The additional src/fetch_tools.jac contains scoped lookup,
+feedback validation and replay policy so important product rules remain in Jac.
+Missing, unknown and unauthorized windows return the same safe response. The
+trusted caller supplies identity; tool arguments cannot set it. Same-command
+replays return the original receipt without another write, while changed
+arguments under an existing command are rejected. Public synthetic serving is
+explicitly opt-in; it exposes fictional sample data rather than claiming real
+app authentication. No model or Photon operation is called by these tools.
+
+T3: src/interpreter.jac validates the frozen v2 context, orchestrates one model
+request and applies the published candidate policy. src/adapters/vision.py sends
+the actual decoded PNG and projected context to the replaceable OpenAI Responses
+adapter with retries disabled. It excludes recipient routing, feedback and
+older-history fields. Invalid inputs, corrupt media, invalid outputs, timeouts
+and provider failures preserve a failed-run snapshot in memory and raise rather
+than fabricate a meaning. prompts/sticker.txt keeps conversation/image content
+as evidence and presentation settings separate from inferred meaning.
+
+Rationale and tradeoffs are in docs/FETCH_AGENT_DEMO.md and docs/INTERPRETER.md.
+Explicit prompt matching avoids an unnecessary local model call for deterministic
+saved-result tools; arbitrary paraphrases are currently unsupported. Jac owns
+policy, Python owns external SDK/format decoding. A separate optional
+requirements-agent-modules.txt pins the runtime without rewriting another owner's
+unpublished dependency setup; T0 must consolidate the reviewed dependency files.
+Pillow enables actual PNG integrity/pixel checks before inference.
+
+Verification in this clone: all 26 unittest cases passed (15 Fetch, 11 interpreter),
+including real ACP message schemas with fake transport and real OpenAI SDK
+serialization through httpx.MockTransport. Tests cover both approved tool prompts,
+permission/identity failures, second-choice validation, repeated writes, published
+candidate/result fixtures, one serialized request containing the exact synthetic
+PNG, context exclusion, operational failures and disabled retries. Both Jac
+modules passed jac check src --nowarn. Shared fixture checks, the original
+agent.py --check, pip check, Python compilation and whitespace checks passed.
+The offline Fetch demo returned the stored explanation and a recipient_judgment
+receipt. These results do not establish semantic accuracy or live service access.
+
+Application source estimate: 289 Jac / 500 total nonblank, noncomment source lines
+under src/ = 57.8%. Count .jac and .py files, ignoring blank lines, lines beginning
+with #, and one-line triple-quoted docstrings. Exclude tests, prompts, scripts,
+docs, fixtures, dependencies and the standalone agent.py tutorial. This is an
+estimate for the currently published module scope, not a sponsor acceptance claim
+or the separate workspace's earlier whole-backend estimate.
+
+Remaining handoffs: T4's real database/authorized operations and durable atomic
+feedback-command deduplication; T5's verified account binding, model access,
+persistent run storage and Photon integration; T6's held-out semantic evaluation.
+The existing earlier sun tutorial's live round trip remains the only observed
+live Fetch interaction. The new tools' live registration/query and the vision
+smoke command are documented opt-in steps and have not been run. No issues were
+closed, no teammate messages were sent, and codex/fetch-ai-setup was preserved.
+
+## October 17 user-selected demo sticker
+
+Replaced the generated laughing image with the user-supplied
+fixtures/stickers/hamster_tongue_out.png (498 × 408 PNG), copied unchanged from
+the supplied attachment. Updated chat/contract references, the incoming and
+request base64 bytes and image hashes, and the saved request/snapshot hash.
+Fixture documentation now distinguishes the provided image from the fictional
+chat; no original authorship or regeneration claim is made for this image.
+Fixed model/candidate outputs remain policy-test examples, not measured
+interpretations of the replacement sticker. The prior synthetic-image checks
+above describe the earlier fixture revision.
+
+Verification: all 26 module tests, the shared contract fixture checker (including
+the image-byte comparison and snapshot hash), and git diff --check passed.
+No references to laughing.png remain in the active fixture/check/test guides.
+Existing staged work is preserved; replacement changes are left unstaged for
+the user's planned stage, commit and push.
+
+## October 17 language-policy change
+
+User explicitly removed the Jac requirement. Updated global Codex Git commit/PR instruction fields and local checkout AGENTS.md copies; unrelated configuration was verified unchanged. This branch removes active quota/preference wording from guidance/planning/templates and makes the existing source-share command informational. Actual Jac compilation remains necessary while .jac source is present. Main remains unmerged.
+
+## October 17 optional Fetch and common build
+
+Merged the Fetch branch history while retaining canonical T3 interfaces/tests, the strengthened shared checker and original exchange; the alternate image is a separate asset. Optional lookup/feedback and the sponsor quickstart remain runnable. Consolidated Python 3.13 dependencies at Pillow 13.0.0 with a full requirements.lock. Added a common offline demo/inspect/doctor entry point, preserved mock-demo, a combined application workflow and CODE_WALKTHROUGH.md. No language quota is enforced; a Python-only zero-Jac tree passes the informational source report.
+
+Observed verification: 172 application tests, all ten Jac modules, 10 contract regressions, 15 publisher tests, dry run (zero writes), dependency checks, group/direct replay demos, optional Fetch demo and sponsor offline check passed. Local Markdown links and whitespace passed. The new lock is being installed in a fresh environment before publication. Main must remain unmerged at the user's explicit request. No live model, phone send or saved-result agent registration was performed.
+
+Fresh-environment verification completed: the exact combined requirements.lock installed successfully into a new Python 3.13 virtual environment; all 172 tests, ten Jac modules and pip check passed there. Canonical T3 implementation/tests/prompt and shared checker/exchange bytes were explicitly compared with the pre-Fetch commit and are unchanged. The inspector removes binary data from its printed copy. Source quota removal was verified with a zero-Jac Python-only source tree.

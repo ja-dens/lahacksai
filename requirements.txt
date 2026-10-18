@@ -1,0 +1,3 @@
+# Combined application and optional agent dependencies. Python 3.13.
+-r requirements-t3.txt
+-r requirements-fetch.txt

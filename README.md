@@ -1,55 +1,58 @@
 # Automatic sticker interpreter
 
-Help older adults understand stickers in context. In an enabled conversation, the intended backend automatically interprets each incoming sticker and sends a short private explanation to the enrolled recipient. No separate per-sticker AI request or required feedback is part of the core flow.
+Automatically explain a supported sticker in conversational context and route the explanation privately to an enrolled recipient. The integration branch contains the Photon adapter, one-call interpreter, persistent context store, coordinator and optional saved-result Fetch tools.
 
-## T5 mock integration on this branch
+**This branch is prepared for review and must remain unmerged until the user requests a merge.** Offline compilation/integration is verified separately from native Photon sticker access, live model accuracy and phone receipt, which remain unverified.
 
-This branch adds an offline Jac coordinator with injected mock transport, interpreter and context-store components. Start with [the T5 runbook](docs/LIVE_INTEGRATION.md) for setup, test commands, retry behavior and later component handoff. No live model/Photon clients or durable T4 store are included. The user will provide working T2/T3/T4 versions before live integration; this PR is not to be merged into main yet.
+## Install and run
+
+Use Python 3.13 and an isolated environment:
 
 ```sh
 python3.13 -m venv .venv
-.venv/bin/python -m pip install -r requirements-t5.txt
-.venv/bin/python -m unittest discover -s tests -p 'test_integration.py'
-.venv/bin/python -m src mock-demo --replay
+.venv/bin/python -m pip install -r requirements.lock
+.venv/bin/python -m src demo --db local-data/demo.sqlite3 --replay
 ```
 
-T5 errors are tracked in [T5_ERROR_LOG.md](T5_ERROR_LOG.md) and the existing [ERROR_LOG.md](ERROR_LOG.md).
-
-## Current repository scope
-
-The base project publishes product/planning documentation, issue automation and synthetic interface fixtures. This T5 branch adds the mock integration harness described above; real backend components remain separate implementation work. Fixture checks do not establish live Photon delivery, model accuracy or ASI:One availability.
-
-Read [the product decisions](docs/PRODUCT_SPEC.md), [internal contracts](docs/CONTRACTS.md), [parallel assignments](docs/DELEGATION.md), [roadmap and observed progress](PLANS.md), and [error log](ERROR_LOG.md). Original parent-folder planning informed the module split; the current specification records subsequent user choices.
-
-## Method
-
-- Keep longer conversation history and immutable per-sticker/recipient snapshots. Include target image/text plus 20–25 preceding messages, default 25, without an age cutoff or later replies.
-- Separate declared language/length preferences and sender relationship. Store voluntary scoped feedback for evaluation only.
-- Show two strongest meanings only when compatible; otherwise show a rankable best interpretation with uncertainty or abstain when evidence is insufficient.
-- Use one backend and one multimodal call in the automatic path. Application enrollment controls private recipients.
-- Optional Fetch/ASI:One tools retrieve a saved explanation or record voluntary feedback, separate from automatic Photon interpretation.
-
-## Start independently
+The demo connects the real T2/T3/T4/T5 modules to synthetic provider I/O and fixed model candidates. It performs no network calls. Repeating the same database/event reuses the accepted job. For another policy case or source mode, use a separate database:
 
 ```sh
-python3 scripts/check_contract_fixtures.py
+.venv/bin/python -m src demo --db local-data/direct.sqlite3 --direct --replay
+.venv/bin/python -m src demo --db local-data/opposing.sqlite3 --case opposing
+.venv/bin/python -m src inspect --db local-data/demo.sqlite3 --window-id 1
+.venv/bin/python -m src doctor
+.venv/bin/python -m src mock-demo --case compatible --replay
+.venv/bin/python -m src.adapters.vision --case opposing
+.venv/bin/python -m src.adapters.fetch_agent --demo
+.venv/bin/python agent.py --check
 ```
 
-This Python standard-library check needs no API key, installed application modules or network. See [the serialized examples](fixtures/contracts/README.md) and [delegation guide](docs/DELEGATION.md) for mock strategies and owned files. Every module task can finish its standalone deliverable independently; final live assembly is T5.
+`mock-demo` retains the original fully mocked coordinator commands. The vision command retains T3's standalone policy fixture; its opt-in live model command is documented separately. The Fetch demo performs saved-output lookup and voluntary feedback on fictional records. `agent.py --check` checks the separate sponsor quickstart without registration or a model call.
 
-The [T0 baseline review](docs/T0_REVIEW.md) gives a complete incoming/request/result/delivery/feedback walkthrough, explicit trusted-routing responsibilities and the remaining human acknowledgments. [Configuration ownership](docs/CONFIGURATION.md) and [versioned defaults](config/defaults.v2.json) keep the shared window at 25 within the agreed 20–25 range. No record fields changed in this review.
+## Understand the code
 
-The backend is planned to use meaningful Jac core functionality with at least 40% Jac application source. The T5 source-share report counts every .jac/.py file under src/, including the Python mocks; run scripts/check_t5_source_share.py for the measured result.
+Read [the walkthrough](docs/CODE_WALKTHROUGH.md) for the data flow and file roles. Core behavior remains automatic, with one image-model call, up to 25 preceding same-chat messages (20–25 configurable), no age cutoff, frozen per-recipient requests, declared preferences/relationships and evaluation-only feedback. Compatible meanings may both appear; opposing meanings yield one supported guess with uncertainty.
 
-## GitHub planning
+The user removed the Jac percentage/preference policy. There is no language quota. Existing Jac modules remain supported alongside Python, and require the pinned runtime while present.
 
-[Open task issues](https://github.com/ja-dens/lahacksai/issues) are generated from [backlog.json](planning/backlog.json) and [task Markdown](planning/issues/). Edit those sources first. PR checks are read-only; the reviewed main branch syncs issues while preserving human content, assignments, state and checked work. [published.json](planning/published.json) records actual task links.
+## Verify the combined application
 
 ```sh
+.venv/bin/python -m unittest discover -s tests
+.venv/bin/jac check src --nowarn
+.venv/bin/python -m pip check
+python3 -I -S scripts/check_contract_fixtures.py
+python3 -S -m unittest discover -s checks -p 'test_contract_fixtures.py'
 node --test .github/scripts/sync-planning.test.cjs
 node .github/scripts/sync-planning.cjs --dry-run
 ```
 
-Photon 2.0 beta line/sticker/private-send access, live model evaluation, authenticated enrollment and deployment still require verification. See T1's existing evidence and the task-specific done criteria. Keep credentials and real chat histories outside tracked files.
+CI installs the combined lock and checks every component together. Legacy component requirements files remain usable; requirements-agent-modules.txt points to the common setup. The source-share script is informational only.
 
-T3 is also present in this integration branch; see [its independent setup and fixture commands](docs/T3_INTERPRETER.md). The assembled runtime and shared dependencies are being reconciled before publication.
+## Live integration limits
+
+The transport accepts real clients and verified callbacks, but the synthetic verifier/decoder/classifier in the demo are not production hooks. Real operation still needs native sticker bytes/events, an authenticated ingress/subscription, verified source membership and private destination resolution, configured model access, and observed phone evidence. Keys alone do not implement these hooks. Enrollment and pause/settings methods accept trusted setup; they do not independently prove platform identity.
+
+See [Photon transport](docs/PHOTON_ADAPTER.md), [T3 interpretation](docs/T3_INTERPRETER.md), [persistent store](docs/CONTEXT_STORE.md), [integration runbook](docs/LIVE_INTEGRATION.md), [optional Fetch demo](docs/FETCH_AGENT_DEMO.md), and [product decisions](docs/PRODUCT_SPEC.md). [ERROR_LOG.md](ERROR_LOG.md) records actual failures, causes and corrections; [PLANS.md](PLANS.md) records verification. Keep secrets and databases in ignored local paths.
+
+The [planning backlog](planning/backlog.json) and [task definitions](planning/issues/) remain canonical. PR verification performs no issue writes; main-only publication preserves human issue content. No live integration/evaluation issue is closed merely by passing offline checks.
