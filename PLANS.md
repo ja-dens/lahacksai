@@ -394,3 +394,113 @@ key is absent and exactly one send after it appears. Rechecked Photon on
 October 17: five messages total, two received texts, three delivered agent
 texts, and zero attachments. The suite is now 200 tests. Phone delivery remains
 unverified.
+
+## October 17 local browser demo
+
+`python -m src demo --local` serves the offline coordinator at
+`http://127.0.0.1:8765`. The page shows the laughing-face fixture, the frozen
+family-chat text, and the private explanation produced by the real store,
+policy, and transport boundaries. Browser checks confirmed the single,
+compatible, opposing, abstaining, and direct-thread cases. Compatible text
+shows both meanings, opposing text keeps one meaning plus the sarcasm caveat,
+and direct mode addresses `demo-family-chat`. Each case recorded one mocked
+model call and one mocked send. This is fixture evidence: no OpenAI request,
+no Photon request, and no phone receipt.
+
+## October 18 Messages page
+
+The local page is now a Messages thread with the enrolled recipient on the
+right and the grandchild on the left. Typed messages stay in the browser.
+Sending the laughing sticker opens a popup whose text is the explanation the
+offline coordinator already stored for the selected case. Browser checks at
+`http://127.0.0.1:8765` confirmed both sides of the thread, the grandchild
+popup ("the joke was so funny they are crying" and "Only you see this"),
+switching that open popup to the compatible pair and the abstain wording, and
+the note used when you send the sticker yourself. `tests.test_local_demo`
+passed. This is still fixture evidence: no OpenAI request, no Photon request,
+and no phone receipt.
+
+## October 18 local Messages watcher
+
+At the user's request, added `python -m src imessage`, a Mac-only path separate
+from Photon. It polls this Mac's Messages database read-only, interprets new
+stickers from one chosen contact in a one-to-one chat with the existing
+one-call `interpret_sticker` and `OpenAIVision`, and shows the result in a
+local panel at `http://127.0.0.1:8766` plus a macOS notification. Nothing is
+sent back into the chat; the recipient is always the Mac owner. The user
+confirmed the friend agreed to sending stickers and preceding messages to
+OpenAI. Stickers (usually HEIC) are converted to PNG with `sips`; the request
+uses the v2 contract with up to 25 earlier messages and no age cutoff.
+
+Verified: eight new tests against a synthetic Messages schema (friend sticker
+to popup with one model call, history before start ignored, group/other/own
+stickers ignored, one explanation per message, waiting for a sticker download,
+model failure shown without a meaning, 25-message bound). A real HEIC file
+converted to PNG, and the panel served cards and images in the browser. The
+full suite passed with 201 tests after fixing two live tests that reloaded the
+real `.env`.
+
+Not verified: reading the real Messages database (macOS denied access until
+Full Disk Access is granted) and any live interpretation. A fixture model call
+returned `insufficient_quota` / `credit_balance_exhausted`, so the OpenAI
+account needs credit before a real sticker can be explained.
+
+## October 18 any-chat popup
+
+At the user's request, `python -m src imessage` with no contact watches every
+Messages chat on this Mac, including group chats and stickers you send. A
+sticker still uses one `interpret_sticker` call. The popup shows why, and when
+another sticker from the same Messages pack is already on this Mac it shows
+that image. Pack identity comes from the attachment `pid`, with the pack name
+when Messages stored one. Nothing is posted back into the chat. `--contact`
+still limits watching to one one-to-one chat.
+
+Verified: the local Messages tests, 14 total, passed. They cover every chat,
+a same-pack suggestion, a different pack left unsuggested, missing pack
+metadata, and the existing one-contact filter. A browser check of the panel
+showed the popup with the explanation, the why line, and a same-series
+sticker; OK dismissed the popup and left the card. The Messages database on
+this Mac was readable and sticker rows expose `pid`. No live model call was
+made for this change. Published as commit d33d418 on
+cursor/live-local-integration in [draft PR #17](https://github.com/ja-dens/lahacksai/pull/17),
+unmerged; 207 tests passed on the committed tree.
+
+## October 18 hamster-pack recognition coverage
+
+Added the user-supplied 19-tile hamster reference sheet as permitted local
+evaluation data, with explicit crop bounds and non-semantic visual cues. The
+OpenAI adapter now includes the target sticker and the reference sheet in the
+same multimodal request, preserving the one-call architecture. The prompt keeps
+the target and recognition reference roles separate and forbids treating a
+catalog cue as fixed conversational meaning.
+
+The Messages watcher now recognizes stickers from the native flag, a
+sticker-bearing UTI, or the Messages Stickers cache path, reducing dependence on
+one macOS database schema. The hamster-pack fixture command decoded and passed
+all 19 crops through the interpreter with zero network calls. The current full
+suite passed 203 tests; contract fixtures, 10 isolated contract regressions,
+Python compilation, dependency checks, and whitespace checks also passed.
+
+This is ingestion/request-construction evidence, not measured model accuracy.
+The 19-case live review remains unrun because the recorded OpenAI account has no
+credit. No claim is made that every expression is semantically correct until
+those outputs receive human review.
+
+At the user's request the pack itself (reference image and crop manifest) stays
+local-only through `.git/info/exclude` and must not be pushed. The adapter sends
+only the target image when the pack is absent, and the hamster test is skipped.
+
+## October 18 Gemini adapter
+
+At the user's request, sticker interpretation now calls Gemini instead of OpenAI.
+`GeminiVision` reads `GEMINI_API_KEY`, with `GOOGLE_API_KEY` and `VISION_API_KEY`
+as aliases, and ignores `OPENAI_API_KEY`. The default model is
+`gemini-3.5-flash-lite`. Each sticker is still one `generate_content` call:
+automatic continuation and automatic function calling are disabled, and the SDK
+retry count is one attempt. The Fetch mailbox example still uses the OpenAI
+client against ASI:One with `ASI1_API_KEY`.
+
+Verified offline: 208 unit tests passed, contract fixtures passed, and
+`pip check` reported no broken requirements. No live Gemini request was made.
+The ignored `.env` names `GEMINI_API_KEY` but has no key value yet, so a live
+sticker call stays unverified until a Gemini key is added.

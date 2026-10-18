@@ -4,7 +4,7 @@ The standalone T3 implementation is preserved in PR #15 and assembled with T2/T4
 
 ## Setup and verification
 
-Use Python 3.13 (tested with 3.13.15). Dependencies are isolated in requirements-t3.txt and the resolved requirements-t3.lock rather than replacing another teammate's shared dependency files. The tracked .env.example adds the preferred OPENAI_API_KEY name and corrects its legacy context default from 8 to 25; coordinate this small shared example change when integrating T0/T4.
+Use Python 3.13 (tested with 3.13.15). Dependencies are isolated in requirements-t3.txt and the resolved requirements-t3.lock rather than replacing another teammate's shared dependency files. The tracked .env.example uses GEMINI_API_KEY and keeps the context default at 25.
 
 ```sh
 python3.13 -m venv .venv
@@ -14,7 +14,7 @@ python3.13 -m venv .venv
 .venv/bin/python scripts/check_contract_fixtures.py
 ```
 
-The 34 tests use synthetic fixtures, injected clients and the actual OpenAI SDK with httpx2.MockTransport. Direct socket connections are blocked in the in-process tests. The HTTP-looking log lines from SDK transport tests describe mocked requests; they are not paid API calls. No Photon, database, API credentials or T1/T4 implementation is needed.
+The interpreter tests use synthetic fixtures, injected clients and the Google Gen AI SDK with httpx.MockTransport. Direct socket connections are blocked in the in-process tests. The HTTP-looking log lines from SDK transport tests describe mocked requests; they are not paid API calls. No Photon, database, API credentials or T1/T4 implementation is needed.
 
 ## Run the offline component
 
@@ -33,12 +33,12 @@ The default mode is fixture. It validates the image/record and returns a fixed c
 Configure an API key and a model available to your API project that supports both image input and structured outputs. No model is guessed or automatically selected. A ChatGPT login is not an API key. The module reads environment variables; it does not automatically load .env files.
 
 ```sh
-export OPENAI_API_KEY='your-local-api-key'
-export VISION_MODEL='your-available-image-model'
+export GEMINI_API_KEY='your-local-api-key'
+export VISION_MODEL='gemini-3.5-flash-lite'
 .venv/bin/python -m src.adapters.vision --mode live
 ```
 
-`VISION_API_KEY` is a supported legacy alias when OPENAI_API_KEY is absent. `--model` overrides VISION_MODEL, and `--request path/to/request.json` selects another authorized frozen v2 request. The built-in default is the synthetic shared fixture. Missing model/key returns status=unverified and exit code 2 before any SDK request. Operational or input failure returns exit code 1 with a safe error category and no fabricated interpretation. Success returns exit code 0. A configured live command makes one model request and may incur provider charges; it performs no phone send.
+`GOOGLE_API_KEY` and `VISION_API_KEY` are supported aliases when GEMINI_API_KEY is absent. `--model` overrides VISION_MODEL, and `--request path/to/request.json` selects another authorized frozen v2 request. The built-in default is the synthetic shared fixture. Missing model/key returns status=unverified and exit code 2 before any SDK request. Operational or input failure returns exit code 1 with a safe error category and no fabricated interpretation. Success returns exit code 0. A configured live command makes one model request and may incur provider charges; it performs no phone send.
 
 This branch's live model access, semantic accuracy, multilingual quality, latency and cost remain unverified. T5 verifies live operation; T6 measures semantic judgments and comprehension. Fixture/policy success is not an accuracy score.
 
@@ -48,16 +48,16 @@ The Python public operation accepts a frozen InterpretationRequest and a callabl
 
 ```python
 from src.interpreter import interpret_sticker
-from src.adapters.vision import OpenAIVision
+from src.adapters.vision import GeminiVision
 
-vision = OpenAIVision(model="your-configured-model")
+vision = GeminiVision(model="gemini-3.5-flash-lite")
 try:
     result = interpret_sticker(saved_request, vision)
 finally:
     vision.close()
 ```
 
-`OpenAIVision(request)` returns a validated **raw candidate object**, retaining compatibility with the earlier coordinator that calls apply_policy itself. `interpret_sticker(request, vision)` composes that adapter with policy and returns InterpretationResult. Use one of these integration patterns; do not apply the policy twice. A replacement vendor adapter implements the same callable raw-candidate boundary, honors one-call/no-retry behavior and uses prepare_request for the model-evidence projection. A replacement SDK client implements responses.create; clients supporting with_options are configured with max_retries=0 and the selected timeout.
+`GeminiVision(request)` returns a validated **raw candidate object**, retaining compatibility with the earlier coordinator that calls apply_policy itself. `interpret_sticker(request, vision)` composes that adapter with policy and returns InterpretationResult. Use one of these integration patterns; do not apply the policy twice. A replacement vendor adapter implements the same callable raw-candidate boundary, honors one-call/no-retry behavior and uses prepare_request for the model-evidence projection. The Gemini client is created with one attempt and the selected timeout. Injected clients are used as given and must expose `models.generate_content`.
 
 The caller persists its immutable request before invocation and records a failed run when an exception is raised. T3 never mutates that request or writes a result on an operational failure; it does not implement T4's database, snapshot creation, retry ledger or private delivery. VisionError exposes a safe code. Input/policy contract violations raise ValueError. Do not log provider response bodies, request content or credentials when recording errors.
 
@@ -88,4 +88,4 @@ src/interpreter.py owns request validation, an explicit model-evidence projectio
 
 The integrated implementation uses Python throughout. The former source-share checkpoint is retained as historical evidence in T3_VERIFICATION.json; there is no language quota or Jac runtime dependency. See [PYTHON_MIGRATION.md](PYTHON_MIGRATION.md).
 
-Implementation follows the official OpenAI documentation for [image input](https://developers.openai.com/api/docs/guides/images-vision) and [structured outputs/refusals](https://developers.openai.com/api/docs/guides/structured-outputs?api-mode=responses), verified October 17, 2026. The tested SDK is openai 3.34.0. Detailed incident history is in [T3_ERROR_LOG.md](T3_ERROR_LOG.md).
+Implementation follows the Gemini API documentation for [image input](https://ai.google.dev/gemini-api/docs/image-understanding) and [structured outputs](https://ai.google.dev/gemini-api/docs/structured-output), checked October 18, 2026. The tested SDK is google-genai 2.31.0 and the default model is `gemini-3.5-flash-lite`. Detailed incident history is in [T3_ERROR_LOG.md](T3_ERROR_LOG.md).

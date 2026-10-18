@@ -27,7 +27,7 @@ class PythonRuntimeTests(unittest.TestCase):
             class NoOptionalPackages(importlib.abc.MetaPathFinder):
                 def find_spec(self, fullname, path=None, target=None):
                     if fullname.split('.')[0] in {
-                        'jaclang', 'llvmlite', 'openai', 'PIL', 'uagents', 'dotenv'
+                        'jaclang', 'llvmlite', 'openai', 'google', 'PIL', 'uagents', 'dotenv'
                     }:
                         raise AssertionError('Unexpected dependency: ' + fullname)
 

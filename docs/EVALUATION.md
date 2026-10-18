@@ -7,8 +7,15 @@ presentation, and 20/25-message windows plus long gaps, unrelated topics,
 truncation, prior uninterpreted media, the same image in another chat,
 compatible/opposing/unrankable candidates, and malformed media.
 
+`evaluation/hamster_pack.json` separately indexes all 19 tiles in the
+user-permitted hamster reference sheet. The pack is local-only and is not
+pushed; without it the hamster commands and test are skipped. Fixture mode verifies that every crop is
+valid and reaches the interpreter; it does not measure whether the model assigns
+the right meaning.
+
 ```sh
 .venv/bin/python scripts/evaluate_stickers.py --mode fixture
+.venv/bin/python scripts/evaluate_stickers.py --mode fixture --dataset hamster-pack
 ```
 
 The report must retain:
@@ -18,14 +25,20 @@ The report must retain:
 - `measured_model_accuracy: null`;
 - a passing comparison against each committed policy result.
 
-To generate an opt-in OpenAI review packet:
+To generate an opt-in Gemini review packet:
 
 ```sh
 .venv/bin/python scripts/evaluate_stickers.py --mode live \
-  --model gpt-4.1-mini --output local-data/openai-review.json
+  --model gemini-3.5-flash-lite --output local-data/gemini-review.json
+
+.venv/bin/python scripts/evaluate_stickers.py --mode live \
+  --dataset hamster-pack --model gemini-3.5-flash-lite \
+  --output local-data/hamster-pack-review.json
 ```
 
-Live mode makes one request per case. It marks every result
+Live mode makes one request per case. Each request remains one multimodal model
+call; for recognition it includes the target plus the permitted full reference
+sheet. It marks every result
 `human_review_required` and does not compute accuracy. A reviewer should score
 these dimensions separately:
 
