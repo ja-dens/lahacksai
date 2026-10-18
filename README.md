@@ -21,6 +21,7 @@ The demo connects the real T2/T3/T4/T5 modules to synthetic provider I/O and fix
 .venv/bin/python -m src demo --db local-data/opposing.sqlite3 --case opposing
 .venv/bin/python -m src inspect --db local-data/demo.sqlite3 --window-id 1
 .venv/bin/python -m src doctor
+.venv/bin/python -m src live --once
 .venv/bin/python -m src mock-demo --case compatible --replay
 .venv/bin/python -m src.adapters.vision --case opposing
 .venv/bin/python -m src.adapters.fetch_agent --demo
@@ -49,10 +50,23 @@ node .github/scripts/sync-planning.cjs --dry-run
 
 CI installs the combined lock and checks every component together. Legacy component requirements files remain usable; requirements-agent-modules.txt points to the common setup. The mock coordinator and SQLite store need only the Python standard library; optional vision and Fetch adapters retain their existing SDK dependencies.
 
-## Live integration limits
+## Live integration
 
-The transport accepts real clients and verified callbacks, but the synthetic verifier/decoder/classifier in the demo are not production hooks. Real operation still needs native sticker bytes/events, an authenticated ingress/subscription, verified source membership and private destination resolution, configured model access, and observed phone evidence. Keys alone do not implement these hooks. Enrollment and pause/settings methods accept trusted setup; they do not independently prove platform identity.
+The local runtime polls authenticated Photon 2.0 beta message resources, verifies
+one configured direct sender/agent/space, persists source and delivery state, and
+routes through the frozen enrollment. Photon did not expose a native sticker
+bubble in the tested shared thread, so the supported live trigger is a static
+PNG/JPEG/WebP sent with the iMessage photo button. OpenAI access and an observed
+photo → model → phone round trip are still required before claiming a complete
+live demonstration.
 
-See [Photon transport](docs/PHOTON_ADAPTER.md), [T3 interpretation](docs/T3_INTERPRETER.md), [persistent store](docs/CONTEXT_STORE.md), [integration runbook](docs/LIVE_INTEGRATION.md), [optional Fetch demo](docs/FETCH_AGENT_DEMO.md), and [product decisions](docs/PRODUCT_SPEC.md). [ERROR_LOG.md](ERROR_LOG.md) records actual failures, causes and corrections; [PLANS.md](PLANS.md) records verification. Keep secrets and databases in ignored local paths.
+See [setup](docs/SETUP.md), [demo](docs/DEMO.md),
+[reproduction](docs/REPRODUCTION.md), [evaluation](docs/EVALUATION.md),
+[Photon transport](docs/PHOTON_ADAPTER.md), [T3 interpretation](docs/T3_INTERPRETER.md),
+[persistent store](docs/CONTEXT_STORE.md), [integration runbook](docs/LIVE_INTEGRATION.md),
+[optional Fetch demo](docs/FETCH_AGENT_DEMO.md), and
+[product decisions](docs/PRODUCT_SPEC.md). [ERROR_LOG.md](ERROR_LOG.md) records
+actual failures, causes and corrections; [PLANS.md](PLANS.md) records
+verification. Keep secrets and databases in ignored local paths.
 
 The [planning backlog](planning/backlog.json) and [task definitions](planning/issues/) remain canonical. PR verification performs no issue writes; main-only publication preserves human issue content. No live integration/evaluation issue is closed merely by passing offline checks.

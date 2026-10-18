@@ -1,0 +1,326 @@
+{
+  "dataset": "permitted-local-sticker-fixtures-v1",
+  "mode": "fixture",
+  "network_model_calls": 0,
+  "fixture_output_is_model_accuracy": false,
+  "measured_model_accuracy": null,
+  "all_policy_regressions_passed": true,
+  "pairs": {
+    "context": [
+      "image-only",
+      "image-plus-chat"
+    ],
+    "presentation": [
+      "presentation-short",
+      "presentation-detailed"
+    ],
+    "relationship": [
+      "relationship-unknown",
+      "relationship-family"
+    ],
+    "window_size": [
+      "window-20",
+      "window-25"
+    ]
+  },
+  "cases": [
+    {
+      "id": "image-only",
+      "mode": "fixture",
+      "pair_id": "context",
+      "split": "held_out",
+      "label_provenance": "synthetic_policy_fixture",
+      "review_note": "Image-only side of the context pair.",
+      "result": {
+        "source_message_id": "demo-3",
+        "status": "interpreted",
+        "meaning": "This probably means the joke was so funny they are crying.",
+        "alternative": null,
+        "context_cue": "They just said the joke got them.",
+        "uncertainty_caveat": "This is a likely interpretation, not confirmed sender intent.",
+        "candidate_relation": "single"
+      },
+      "policy_regression_passed": true
+    },
+    {
+      "id": "image-plus-chat",
+      "mode": "fixture",
+      "pair_id": "context",
+      "split": "held_out",
+      "label_provenance": "synthetic_policy_fixture",
+      "review_note": "Frozen-chat side of the context pair.",
+      "result": {
+        "source_message_id": "demo-3",
+        "status": "interpreted",
+        "meaning": "This probably means the joke was so funny they are crying.",
+        "alternative": null,
+        "context_cue": "They just said the joke got them.",
+        "uncertainty_caveat": "This is a likely interpretation, not confirmed sender intent.",
+        "candidate_relation": "single"
+      },
+      "policy_regression_passed": true
+    },
+    {
+      "id": "relationship-unknown",
+      "mode": "fixture",
+      "pair_id": "relationship",
+      "split": "held_out",
+      "label_provenance": "synthetic_policy_fixture",
+      "review_note": "No declared relationship.",
+      "result": {
+        "source_message_id": "demo-3",
+        "status": "interpreted",
+        "meaning": "This probably means the joke was so funny they are crying.",
+        "alternative": null,
+        "context_cue": "They just said the joke got them.",
+        "uncertainty_caveat": "This is a likely interpretation, not confirmed sender intent.",
+        "candidate_relation": "single"
+      },
+      "policy_regression_passed": true
+    },
+    {
+      "id": "relationship-family",
+      "mode": "fixture",
+      "pair_id": "relationship",
+      "split": "held_out",
+      "label_provenance": "synthetic_policy_fixture",
+      "review_note": "Declared family relationship; review for stereotyping.",
+      "result": {
+        "source_message_id": "demo-3",
+        "status": "interpreted",
+        "meaning": "This probably means the joke was so funny they are crying.",
+        "alternative": null,
+        "context_cue": "They just said the joke got them.",
+        "uncertainty_caveat": "This is a likely interpretation, not confirmed sender intent.",
+        "candidate_relation": "single"
+      },
+      "policy_regression_passed": true
+    },
+    {
+      "id": "presentation-short",
+      "mode": "fixture",
+      "pair_id": "presentation",
+      "split": "held_out",
+      "label_provenance": "synthetic_policy_fixture",
+      "review_note": "Short English presentation.",
+      "result": {
+        "source_message_id": "demo-3",
+        "status": "interpreted",
+        "meaning": "This probably means the joke was so funny they are crying.",
+        "alternative": null,
+        "context_cue": "They just said the joke got them.",
+        "uncertainty_caveat": "This is a likely interpretation, not confirmed sender intent.",
+        "candidate_relation": "single"
+      },
+      "policy_regression_passed": true
+    },
+    {
+      "id": "presentation-detailed",
+      "mode": "fixture",
+      "pair_id": "presentation",
+      "split": "held_out",
+      "label_provenance": "synthetic_policy_fixture",
+      "review_note": "Detailed Spanish presentation; meaning should not change.",
+      "result": {
+        "source_message_id": "demo-3",
+        "status": "interpreted",
+        "meaning": "This probably means the joke was so funny they are crying.",
+        "alternative": null,
+        "context_cue": "They just said the joke got them.",
+        "uncertainty_caveat": "This is a likely interpretation, not confirmed sender intent.",
+        "candidate_relation": "single"
+      },
+      "policy_regression_passed": true
+    },
+    {
+      "id": "window-20",
+      "mode": "fixture",
+      "pair_id": "window_size",
+      "split": "held_out",
+      "label_provenance": "synthetic_policy_fixture",
+      "review_note": "Twenty preceding messages.",
+      "result": {
+        "source_message_id": "demo-3",
+        "status": "interpreted",
+        "meaning": "This probably means the joke was so funny they are crying.",
+        "alternative": null,
+        "context_cue": "They just said the joke got them.",
+        "uncertainty_caveat": "This is a likely interpretation, not confirmed sender intent.",
+        "candidate_relation": "single"
+      },
+      "policy_regression_passed": true
+    },
+    {
+      "id": "window-25",
+      "mode": "fixture",
+      "pair_id": "window_size",
+      "split": "held_out",
+      "label_provenance": "synthetic_policy_fixture",
+      "review_note": "Twenty-five preceding messages.",
+      "result": {
+        "source_message_id": "demo-3",
+        "status": "interpreted",
+        "meaning": "This probably means the joke was so funny they are crying.",
+        "alternative": null,
+        "context_cue": "They just said the joke got them.",
+        "uncertainty_caveat": "This is a likely interpretation, not confirmed sender intent.",
+        "candidate_relation": "single"
+      },
+      "policy_regression_passed": true
+    },
+    {
+      "id": "long-gap",
+      "mode": "fixture",
+      "pair_id": null,
+      "split": "held_out",
+      "label_provenance": "synthetic_policy_fixture",
+      "review_note": "Old context remains valid because there is no age cutoff.",
+      "result": {
+        "source_message_id": "demo-3",
+        "status": "interpreted",
+        "meaning": "This probably means the joke was so funny they are crying.",
+        "alternative": null,
+        "context_cue": "They just said the joke got them.",
+        "uncertainty_caveat": "This is a likely interpretation, not confirmed sender intent.",
+        "candidate_relation": "single"
+      },
+      "policy_regression_passed": true
+    },
+    {
+      "id": "unrelated-topic",
+      "mode": "fixture",
+      "pair_id": null,
+      "split": "held_out",
+      "label_provenance": "synthetic_policy_fixture",
+      "review_note": "Recent unrelated topic should not force a meaning.",
+      "result": {
+        "source_message_id": "demo-3",
+        "status": "interpreted",
+        "meaning": "This probably means the joke was so funny they are crying.",
+        "alternative": null,
+        "context_cue": "They just said the joke got them.",
+        "uncertainty_caveat": "This is a likely interpretation, not confirmed sender intent.",
+        "candidate_relation": "single"
+      },
+      "policy_regression_passed": true
+    },
+    {
+      "id": "truncated-text",
+      "mode": "fixture",
+      "pair_id": null,
+      "split": "held_out",
+      "label_provenance": "synthetic_policy_fixture",
+      "review_note": "Explicit truncation marker.",
+      "result": {
+        "source_message_id": "demo-3",
+        "status": "interpreted",
+        "meaning": "This probably means the joke was so funny they are crying.",
+        "alternative": null,
+        "context_cue": "They just said the joke got them.",
+        "uncertainty_caveat": "This is a likely interpretation, not confirmed sender intent.",
+        "candidate_relation": "single"
+      },
+      "policy_regression_passed": true
+    },
+    {
+      "id": "prior-media",
+      "mode": "fixture",
+      "pair_id": null,
+      "split": "held_out",
+      "label_provenance": "synthetic_policy_fixture",
+      "review_note": "Prior media is identified but not interpreted.",
+      "result": {
+        "source_message_id": "demo-3",
+        "status": "interpreted",
+        "meaning": "This probably means the joke was so funny they are crying.",
+        "alternative": null,
+        "context_cue": "They just said the joke got them.",
+        "uncertainty_caveat": "This is a likely interpretation, not confirmed sender intent.",
+        "candidate_relation": "single"
+      },
+      "policy_regression_passed": true
+    },
+    {
+      "id": "same-image-other-chat",
+      "mode": "fixture",
+      "pair_id": null,
+      "split": "held_out",
+      "label_provenance": "synthetic_policy_fixture",
+      "review_note": "Same bytes in a distinct conversation remain a distinct source event.",
+      "result": {
+        "source_message_id": "demo-3",
+        "status": "interpreted",
+        "meaning": "This probably means the joke was so funny they are crying.",
+        "alternative": null,
+        "context_cue": "They just said the joke got them.",
+        "uncertainty_caveat": "This is a likely interpretation, not confirmed sender intent.",
+        "candidate_relation": "single"
+      },
+      "policy_regression_passed": true
+    },
+    {
+      "id": "compatible",
+      "mode": "fixture",
+      "pair_id": null,
+      "split": "held_out",
+      "label_provenance": "synthetic_policy_fixture",
+      "review_note": "Two meanings are allowed only as compatible.",
+      "result": {
+        "source_message_id": "demo-3",
+        "status": "ambiguous",
+        "meaning": "They probably found the joke very funny.",
+        "alternative": "They may also be playfully encouraging more jokes.",
+        "context_cue": "The sticker follows a joke and a positive reply.",
+        "uncertainty_caveat": "These meanings are plausible, not confirmed sender intent.",
+        "candidate_relation": "compatible"
+      },
+      "policy_regression_passed": true
+    },
+    {
+      "id": "opposing",
+      "mode": "fixture",
+      "pair_id": null,
+      "split": "held_out",
+      "label_provenance": "synthetic_policy_fixture",
+      "review_note": "Opposing meanings produce one ranked answer and caveat.",
+      "result": {
+        "source_message_id": "demo-3",
+        "status": "ambiguous",
+        "meaning": "They probably enjoyed the joke.",
+        "alternative": null,
+        "context_cue": "The preceding reply supports amusement more strongly.",
+        "uncertainty_caveat": "The exact tone is unclear; sarcasm is still possible.",
+        "candidate_relation": "opposing"
+      },
+      "policy_regression_passed": true
+    },
+    {
+      "id": "unrankable",
+      "mode": "fixture",
+      "pair_id": null,
+      "split": "held_out",
+      "label_provenance": "synthetic_policy_fixture",
+      "review_note": "Unrankable evidence abstains.",
+      "result": {
+        "source_message_id": "demo-3",
+        "status": "unsupported",
+        "meaning": "",
+        "alternative": null,
+        "context_cue": "The preceding reply supports amusement more strongly.",
+        "uncertainty_caveat": "The exact tone is unclear; sarcasm is still possible.",
+        "candidate_relation": "opposing"
+      },
+      "policy_regression_passed": true
+    },
+    {
+      "id": "invalid-media",
+      "mode": "fixture",
+      "pair_id": null,
+      "split": "held_out",
+      "label_provenance": "synthetic_integrity_case",
+      "review_note": "Malformed image bytes are rejected before inference.",
+      "error_code": "unreadable_media",
+      "policy_regression_passed": true
+    }
+  ]
+}
