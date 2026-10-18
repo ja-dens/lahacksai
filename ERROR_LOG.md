@@ -316,3 +316,7 @@ What happened: full Fetch integration conflicted with the canonical interpreter,
 ## INT-011 — October 17: older channel documents conflicted with current application scope
 
 The T1 branch modified README, architecture and task wording against an older planning base. Preserved the integrated README and current context methodology, retained the original verification record with a dated link to later issue evidence, and documented native media as blocked. Prevention: distinguish historical provider evidence from the current application and do not turn text delivery into sticker support. No live check was inferred or performed.
+
+## POLICY-001 — October 17: remove duplicated Jac quota
+
+The user requested removal of the Jac requirement. Removed percentage/preference wording from this component branch's guidance, templates and active task text. Existing application code is unchanged. Global Codex instruction removal and the informational source report are recorded in the combined integration branch. Prevention: implementation requirements must not be confused with optional source metrics.
