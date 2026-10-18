@@ -223,3 +223,15 @@ What happened: T4's connection-oriented local functions could not replace T5's m
 ## INT-006 — October 17: direct assistant threads were rejected by group-only guards
 
 What happened: the selected shared-direct demo was blocked when source and destination matched, and recipient submissions created no job. Fixed with an explicit trusted direct-source enrollment mode requiring exactly the configured assistant and recipient. Group restrictions, unverified same-thread rejection and echo filtering remain. Prevention: cover both direct and group routes with a real store; do not derive verification from event/model fields. Status: offline regression cases pass; actual Photon bindings remain unverified.
+
+## T2 — 2026-10-17: Photon adapter discoveries and corrections
+
+The dedicated [T2 chat log](docs/errors/T2_PHOTON_ADAPTER.md) records ongoing adapter work on codex/t2-photon-adapter. T2-001: the generic documentation URL resolved to Spectrum and searches mixed unrelated Photon products; use explicit beta pages and a pinned official specification. T2-002: an AsyncAPI inspection assumed components.messages and failed; inspect actual structure and keep version-specific event decoding injected. T2-003: code review found credential/scope failures could become unsupported-media results and denied routing could become retryable send failures; narrowed the abstention error set, preserved operational errors, denied unauthorized destinations, and checked REST acknowledgment scope/status.
+
+Verification: 60 adapter tests, 10 shared-contract regression tests and the contract checker passed without credentials, installed application packages or network access. The test suite forbids socket creation and tests the auth/routing regressions. No live Photon failure, phone delivery or deployed fix is claimed. Preserve future errors and corrections in both logs; T1/T5 still verify actual beta event/sticker metadata and channel access.
+
+T2-004 follow-up: review identified that importing through src in the standalone test harness could initialize the separate Jac app after core integration. Tests now load only the adapter file; a subprocess regression forbids other app imports and network. All 60 T2 tests pass on Python 3.13/3.14 with site packages disabled. See the dedicated T2 log for the cause, correction and prevention evidence.
+
+## INT-007 — October 17: send-receipt expansion broke an existing minimization invariant
+
+What happened: the combined suite caught a changed generic receipt shape while adding real Photon idempotency metadata. Fixed by preserving the original minimal status/message-ID receipt for transports that provide no explicit key; the Photon bridge's validated locally generated provider key is persisted only when present. Raw provider details remain excluded. Prevention: retain existing T5 receipt-projection tests during integration. Status: correction implemented; rerunning the full component suites.

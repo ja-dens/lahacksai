@@ -28,6 +28,16 @@ class SQLiteStore:
     def resolve_route(self, window_id):
         return store.resolve_route(self.db, window_id)
 
+    def resolve_delivery(self, platform, delivery):
+        row = self.db.execute(
+            'SELECT id FROM context_windows WHERE platform=? AND conversation_id=? '
+            'AND source_message_id=? AND recipient_id=?',
+            (platform, delivery['source_conversation_id'], delivery['source_message_id'], delivery['recipient_id']),
+        ).fetchone()
+        if row is None:
+            raise PermissionError('Saved exchange unavailable.')
+        return self.resolve_route(row['id'])
+
     def claim(self, window_id, phase):
         return store.claim(self.db, window_id, phase)
 

@@ -272,7 +272,13 @@ def run_window(pipeline: dict, window_id: int, retry: bool = False) -> dict {
         if receipt.get("status") != "accepted" or not isinstance(receipt.get("provider_message_id"), str) or not receipt["provider_message_id"].strip() {
             raise ValueError("No definitive provider acknowledgment");
         }
-        store.mark_accepted(window_id, {"status": "accepted", "provider_message_id": receipt["provider_message_id"]});
+        saved_receipt = {"status": "accepted", "provider_message_id": receipt["provider_message_id"]};
+        if "provider_idempotency_key" in receipt {
+            key = receipt["provider_idempotency_key"];
+            if not isinstance(key, str) or not key.strip() or len(key) > 256 { raise ValueError("Invalid provider send key"); }
+            saved_receipt["provider_idempotency_key"] = key;
+        }
+        store.mark_accepted(window_id, saved_receipt);
     } except Exception as error {
         store.mark_failure(window_id, "delivery_unknown", type(error).__name__);
         return outcome(window_id, "reconciliation_required");
@@ -285,7 +291,12 @@ def process_event(pipeline: dict, event: dict, authenticated: bool = False) -> l
     # authenticated is an out-of-band verifier result, never a native payload flag.
     if authenticated is not True { return [{"status": "rejected_unauthenticated", "delivered": False}]; }
     if event.get("from_assistant") is True { return [{"status": "ignored_assistant", "delivered": False}]; }
-    ids = pipeline["store"].observe(clone(event), clone(pipeline["settings"]));
+    settings = dict(clone(pipeline["settings"]));
+    if hasattr(pipeline["interpreter"], "metadata") {
+        metadata = dict(pipeline["interpreter"].metadata);
+        settings["interpreter_metadata"] = {key: metadata[key] for key in ["provider", "model", "prompt_sha256", "prompt_version"] if key in metadata};
+    }
+    ids = pipeline["store"].observe(clone(event), settings);
     if event["kind"] != "sticker" { return [{"status": "history_only", "delivered": False}]; }
     if not ids { return [{"status": "ignored_unenrolled_or_paused", "delivered": False}]; }
     return [run_window(pipeline, int(window_id)) for window_id in ids];

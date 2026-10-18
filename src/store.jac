@@ -51,6 +51,7 @@ def observe(db: Connection, raw: dict, settings: dict) -> list[int] {
                 request = build_request(db, target, event, recipient,
                     int(settings["context_message_limit"]), int(settings["context_text_character_budget"]),
                     int(settings["message_text_character_limit"]), int(settings["target_text_character_limit"]));
+                if settings.get("interpreter_metadata") { request["interpreter"] = settings["interpreter_metadata"]; }
                 (window, created) = snapshot(db, event, recipient, request, commit=False);
                 key = digest([event["platform"], event["conversation_id"], event["message_id"], recipient]);
                 db.execute("INSERT OR IGNORE INTO pipeline_jobs(window_id, idempotency_key) VALUES (?, ?)",
@@ -84,6 +85,7 @@ def resolve_route(db: Connection, window_id: int) -> dict {
     route["members"] = json.loads(str(route.pop("members_json")));
     route["enabled"] = bool(route["enabled"]);
     route["source_verified"] = bool(route["source_verified"]);
+    route["source_sender_id"] = window["request"]["sender_id"];
     return route;
 }
 
