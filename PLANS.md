@@ -132,3 +132,5 @@ The user requested a persistent reminder of what follows obtaining a Photon key.
 Removed the Jac percentage/preference policy at the user's request; preserved component implementation and runtime dependencies. Main must remain unmerged. Component, contract and planning checks are run before this focused policy commit.
 
 Verified policy refresh: 60 adapter tests, 10 contract regressions and 15 publisher tests passed; whitespace clean. Application source unchanged.
+
+Refreshed against externally updated main 5a97907, preserving its exact AGENTS.md policy removal and wording. No application source changed.
