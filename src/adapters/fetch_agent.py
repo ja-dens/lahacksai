@@ -42,6 +42,8 @@ class FetchTools:
 
     def call(self, tool, arguments, *, authenticated_recipient_id, command_id):
         try:
+            if hasattr(self.backend, "execute_command"):
+                return self.backend.execute_command(tool, arguments, authenticated_recipient_id, command_id)
             return fetch_tools.execute_tool(self.backend, self.receipts, tool, arguments,
                                             authenticated_recipient_id, command_id)
         except PermissionError:
@@ -70,7 +72,7 @@ class FetchTools:
                          authenticated_recipient_id=authenticated_recipient_id, command_id=command_id)
 
 
-def make_protocol(tools, resolve_identity):
+def make_protocol(tools, resolve_identity, *, agent_address=None):
     """resolve_identity receives a verified transport sender, not user text."""
     from uagents import Protocol
     from uagents_core.contrib.protocols.chat import (
@@ -84,7 +86,12 @@ def make_protocol(tools, resolve_identity):
         await ctx.send(sender, ChatAcknowledgement(timestamp=datetime.now(timezone.utc),
                                                    acknowledged_msg_id=msg.msg_id))
         try:
-            result = tools.handle_chat("".join(item.text for item in msg.content if isinstance(item, TextContent)),
+            text = "".join(item.text for item in msg.content if isinstance(item, TextContent)).strip()
+            # ASI:One keeps the routing mention in the message body. Remove only
+            # this service's own leading mention; it never establishes identity.
+            if agent_address:
+                text = re.sub(r"^@" + re.escape(agent_address) + r"(?=\s|$)", "", text, count=1).strip()
+            result = tools.handle_chat(text,
                                       authenticated_recipient_id=resolve_identity(sender),
                                       command_id=f"{sender}:{msg.msg_id}")
         except Exception as exc:
@@ -132,7 +139,8 @@ def main():
     agent = Agent(name=os.environ["FETCH_AGENT_NAME"], seed=os.environ["FETCH_AGENT_SEED"],
                   port=8001, mailbox=True, publish_agent_details=True)
     # Every public sender shares this fictional recipient. This is NOT app authentication.
-    agent.include(make_protocol(tools, lambda sender: recipient), publish_manifest=True)
+    agent.include(make_protocol(tools, lambda sender: recipient, agent_address=agent.address),
+                  publish_manifest=True)
     print("Synthetic-only demo: feedback and replay receipts last until this process stops.")
     agent.run()
 

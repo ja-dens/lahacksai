@@ -60,6 +60,9 @@ class SQLiteStore:
     def save_feedback(self, window_id, authenticated_recipient_id, selection, note=None):
         return store.feedback(self.db, window_id, authenticated_recipient_id, selection, note)
 
+    def execute_command(self, tool, arguments, authenticated_recipient_id, command_id):
+        return store.execute_command(self.db, tool, arguments, authenticated_recipient_id, command_id)
+
     def resolve_window(self, source_id, authenticated_recipient_id):
         rows = self.db.execute(
             'SELECT id FROM context_windows WHERE source_message_id=? AND recipient_id=?',

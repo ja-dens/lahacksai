@@ -345,3 +345,117 @@ Baseline: all 172 original application tests passed. Converted code matched the 
 Fresh Python 3.13 combined and standalone T3 environments installed without Jac or llvmlite. Regenerated locks remove only those two packages and retain every other version. The full 174-test application suite passes; two new tests exercise the core pipeline and mock CLI without site packages, with optional compiler/SDK imports forbidden in the pipeline subprocess. Compilation, standalone/standard-library checks and offline demos are verified before publication. No live model call, phone send or main merge is authorized by this migration.
 
 Publication checks passed: Python compilation, pip check in both fresh environments, 34 standalone interpreter tests, 36 integration and 19 real-store tests without site packages, two isolated runtime regressions, shared fixture check, 10 contract regressions, 15 publisher tests and a dry run with zero external writes. All four real-component policy demos plus direct routing/replay, saved-result inspection, doctor, optional Fetch demo and sponsor offline check passed. Remote main remains 5a97907; the integration PR remains open and unmerged.
+
+## October 17 #5 preflight and durable feedback follow-up
+
+The user asked to start GitHub issue #5 and first check for updates. Verified
+codex/fetch-tools was clean and its Python-only conversion 29c8da7 was already
+pushed. Fetched origin; main advanced to 5a97907, and published component and
+integration branches appeared. Live read-only GitHub checks showed #5 open,
+unassigned and without comments; PR #14 already contained the real Python
+backend and database tests. Its inclusion is evidence of implementation under
+review, not a completed live workflow or a main-branch merge.
+
+Created local codex/t4-context-store without a tracking upstream from
+origin/codex/t5-mock-integration at 32dd953. The existing Fetch branch and main
+were preserved. This is a focused follow-up based on PR #14, not an independent
+replacement backend. A future review should target codex/t5-mock-integration
+until that parent PR is merged, or reconcile the patch after the parent lands.
+Do not blindly send the entire inherited integration diff as a new #5 PR to main.
+
+Reproduced a missing restart guarantee: the same Fetch feedback transport
+command wrote two judgments after the agent/store were recreated. Added
+fetch_commands with a per-recipient command key and window foreign key, plus
+SQLiteStore.execute_command. It commits feedback and receipt in one immediate
+transaction, returns the original receipt on replay, rejects changed payloads,
+checks authorization and purges receipts with their conversation. FetchTools
+selects this durable operation when supplied, retaining FakeBackend's local
+behavior and the two original backend method signatures. Feedback remains
+evaluation-only and no additional model or transport operation was introduced.
+
+Verified 25 real SQLite tests with site packages disabled (19 existing plus six
+new regressions), all 180 application tests in the existing venv, the shared
+fixture checker, 10 contract regressions, 15 publisher tests, Python compilation
+and pip check. The T4 tests require only standard-library Python and forbid
+network sockets. Live model/Photon/account binding remains unverified.
+
+Changes are local and uncommitted on codex/t4-context-store. No upstream branch,
+commit, push, assignment change, issue publication, PR update, teammate message,
+paid model call or main merge was performed in this follow-up.
+
+## October 17 #5 local acceptance and walkthrough
+
+The user asked to proceed and explain #5's purpose. Retained the existing Python
+backend and the focused restart-safe feedback fix. Added seven further contract
+checks: durable pending-but-unsent outbox state, identical safe lookup/write
+denials, a valid second choice for a shown compatible pair, exact 20-message
+selection with timestamp ties/prior media/outside-window reply references, receipt
+table upgrade without rewriting prior results, platform/conversation isolation,
+and per-recipient preference/relationship isolation.
+
+All 32 SQLite tests pass with site packages disabled and sockets forbidden. All
+187 application tests pass in the existing development venv. No new dependencies
+or runtime services were introduced by this follow-up. The current production
+authentication, Photon and live-model limitations remain integration handoffs.
+
+Ran the existing combined fixture demo in two separate processes against ignored
+local-data/t4-context-demo.sqlite3. The first made one simulated interpretation
+and one simulated provider send; the second made zero of either and retained
+window 1 with the same request hash. Both reported zero network calls and
+phone_delivery_verified=false. This is persistence/replay evidence, not model
+accuracy or live delivery. The initial site-packages-disabled combined demo
+attempt was corrected to use the normal venv because its image adapter imports
+Pillow; the T4 database suite remains independently standard-library-only.
+
+Documented #5's responsibilities, state meanings, local retention/purge limits,
+reproduction commands and acceptance evidence in docs/CONTEXT_STORE.md. Checked
+the locally verified T4 criteria in planning/issues/T4.md. This updates canonical
+task source for review, not GitHub issue state or main. The branch remains
+codex/t4-context-store, based on unmerged PR #14. No staging, commit, push,
+assignment change, issue sync, PR update or main merge was performed.
+
+## October 17 #11 authorized live synthetic demonstration
+
+The user approved starting the synthetic Fetch service provided the GitHub issues
+called for it. Read live issue #11 and confirmed its explicit opt-in registration
+and ASI:One demonstration with actual outputs. Started only the fictional
+FakeBackend service with the existing local seed/address. Logs confirmed active
+Almanac API registration and publication of AgentChatProtocol. No wallet funds
+were sent; the separate contract-registration funding warning did not prevent
+the mailbox round trip.
+
+The first live lookup returned usage help because the addressed chat text
+included the agent mention. Added exact own-address normalization in the ACP
+adapter, with two regressions for addressed operations/replay, other mentions
+and unbound identities. After restart, ASI:One visibly displayed the stored
+explanation, cue and caveat at 18:53 PDT, and a first-choice feedback receipt
+with feedback_id 1 and recipient_judgment provenance at 18:55 PDT. Recorded
+exact observed outputs and limitations in docs/FETCH_AGENT_DEMO.md.
+
+All 17 adapter tests and all 189 application tests passed; git diff --check
+passed. Same-message-ID replay is tested locally, not forced via ASI's public UI.
+The running public demo uses only synthetic data and in-memory feedback; real
+account binding and private SQLite integration remain separate handoffs. No
+commit, push, issue update, PR update or merge was performed. Changes remain
+local on codex/t4-context-store; the synthetic agent remains running for review.
+
+## October 17 Fetch issue reconciliation after the live demo
+
+Re-read live issues #4, #5 and #11 and parent PR #14. Their requirements have not
+changed since the earlier issue revision; #4/#11 remain assigned to BeavyHombs,
+#5 remains unassigned, and PR #14 remains open at 32dd953. Remote issue text still
+contains historical Jac paths/checks for #4/#5; the user's Python-only instruction
+and converted canonical task files remain the implementation baseline.
+
+Matched T8's nine actionable/standalone checklist items to source, adapter tests,
+context/interpreter exclusion tests, runtime registration and the two observed
+ASI responses. Updated only the local T8 checklist with an explicit acceptance
+record and unverified integration limits. This does not close or synchronize the
+GitHub issue. Next priority is review and publication of the focused follow-up
+against the still-open integration branch, then T5's authorized real account and
+provider verification. Do not duplicate the existing interpreter/store or treat
+the public fictional identity mapping as real user authentication.
+
+The read-only GitHub refresh initially failed under system Python 3.14 because
+its default certificate store lacked the issuer. Retried successfully with the
+project venv and certifi's CA bundle, keeping certificate verification enabled.

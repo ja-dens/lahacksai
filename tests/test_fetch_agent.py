@@ -126,8 +126,8 @@ class FetchTests(unittest.TestCase):
                                                     command_id="bad")["ok"])
         self.assertEqual(self.backend.feedback, [])
 
-    def protocol_exchange(self, prompt, resolver, msg_id=None):
-        protocol = make_protocol(self.tools, resolver)
+    def protocol_exchange(self, prompt, resolver, msg_id=None, agent_address=None):
+        protocol = make_protocol(self.tools, resolver, agent_address=agent_address)
         handler = protocol.signed_message_handlers[ChatMessage.build_schema_digest(ChatMessage)]
         ctx = SimpleNamespace(send=AsyncMock(), logger=Mock())
         message = ChatMessage(timestamp=datetime.now(timezone.utc), msg_id=msg_id or uuid4(),
@@ -149,6 +149,30 @@ class FetchTests(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertEqual(len(self.backend.feedback), 1)
         resolver.assert_called_with("verified-transport-sender")
+
+    def test_asi_routing_mention_allows_both_prompts_and_feedback_replay(self):
+        address = "agent1-own-demo"
+        resolver = Mock(return_value=self.recipient)
+        lookup = self.protocol_exchange(f"@{address}  {self.prompts['lookup']['prompt']}\n",
+                                        resolver, agent_address=address)
+        self.assertEqual(lookup["meaning"], self.exchange["result"]["meaning"])
+        message_id = uuid4()
+        prompt = f"@{address} {self.prompts['feedback']['prompt']}"
+        first = self.protocol_exchange(prompt, resolver, message_id, address)
+        self.assertTrue(first["ok"])
+        self.assertEqual(first, self.protocol_exchange(prompt, resolver, message_id, address))
+        self.assertEqual(len(self.backend.feedback), 1)
+        resolver.assert_called_with("verified-transport-sender")
+
+    def test_mention_cannot_change_identity_or_match_another_agent(self):
+        prompt = self.prompts["feedback"]["prompt"]
+        for prefix in ("@agent1-other ", "@agent1-own-extra ", "@agent1-own @agent1-own "):
+            with self.subTest(prefix=prefix):
+                self.assertFalse(self.protocol_exchange(prefix + prompt, lambda sender: self.recipient,
+                                                        agent_address="agent1-own")["ok"])
+        self.assertFalse(self.protocol_exchange("@agent1-own " + prompt, lambda sender: None,
+                                                agent_address="agent1-own")["ok"])
+        self.assertEqual(self.backend.feedback, [])
 
     def test_acp_unbound_sender_and_backend_failure_are_safe(self):
         self.assertFalse(self.protocol_exchange(self.prompts["lookup"]["prompt"], lambda sender: None)["ok"])

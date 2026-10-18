@@ -71,6 +71,12 @@ def connect(path: str) -> Connection:
             note TEXT, provenance TEXT NOT NULL,
             created_at TEXT NOT NULL
         );
+        CREATE TABLE IF NOT EXISTS fetch_commands (
+            recipient_id TEXT NOT NULL, command_id TEXT NOT NULL,
+            window_id INTEGER NOT NULL REFERENCES context_windows(id) ON DELETE CASCADE,
+            payload_sha256 TEXT NOT NULL, receipt_json TEXT NOT NULL,
+            PRIMARY KEY (recipient_id, command_id)
+        );
     """)
     columns = [
         row["name"] for row in db.execute("PRAGMA table_info(enrollments)").fetchall()

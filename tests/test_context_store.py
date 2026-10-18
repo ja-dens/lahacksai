@@ -1,13 +1,16 @@
 """Real SQLite scheduling with fake model and transport; no network access."""
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 import json
 from pathlib import Path
 import socket
 import sqlite3
 import tempfile
+from threading import Barrier
 import unittest
 from unittest.mock import patch
 
+from src.adapters.fetch_agent import FetchTools
 from src.context_store import SQLiteStore
 from src.main import create_pipeline, load_settings, process_event, run_window
 from src.repository import purge_conversation
@@ -223,6 +226,97 @@ class ContextStoreTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.store.save_feedback(1, self.recipient, 'first')
 
+    def test_fetch_feedback_command_replay_survives_store_and_agent_restart(self):
+        self.process()
+        arguments = {'window_id': 1, 'selection': 'first', 'note': 'Helpful.'}
+        first = FetchTools(self.store).call('save_feedback', arguments,
+            authenticated_recipient_id=self.recipient, command_id='sender:stable-message-id')
+        self.restart()
+        replay = FetchTools(self.store).call('save_feedback', arguments,
+            authenticated_recipient_id=self.recipient, command_id='sender:stable-message-id')
+        self.assertEqual(first, replay)
+        self.assertEqual(self.store.db.execute('SELECT count(*) FROM feedback').fetchone()[0], 1)
+
+    def test_durable_feedback_receipt_and_write_roll_back_together(self):
+        self.process()
+        with self.store.db:
+            self.store.db.execute("CREATE TRIGGER reject_receipt BEFORE INSERT ON fetch_commands "
+                                  "BEGIN SELECT RAISE(ABORT, 'simulated receipt failure'); END")
+        tools = FetchTools(self.store)
+        args = {'window_id': 1, 'selection': 'first'}
+        with self.assertRaises(sqlite3.IntegrityError):
+            tools.call('save_feedback', args, authenticated_recipient_id=self.recipient, command_id='atomic')
+        self.assertEqual(self.store.db.execute('SELECT count(*) FROM feedback').fetchone()[0], 0)
+        self.assertEqual(self.store.db.execute('SELECT count(*) FROM fetch_commands').fetchone()[0], 0)
+        with self.store.db:
+            self.store.db.execute('DROP TRIGGER reject_receipt')
+        result = tools.call('save_feedback', args, authenticated_recipient_id=self.recipient, command_id='atomic')
+        self.assertTrue(result['ok'])
+        self.assertEqual(self.store.db.execute('SELECT count(*) FROM feedback').fetchone()[0], 1)
+
+    def test_durable_command_rejects_changed_payload_and_wrong_identity(self):
+        self.process()
+        tools = FetchTools(self.store)
+        args = {'window_id': 1, 'selection': 'first'}
+        first = tools.call('save_feedback', args, authenticated_recipient_id=self.recipient, command_id='same-id')
+        self.restart()
+        tools = FetchTools(self.store)
+        for tool, arguments, recipient in (
+            ('save_feedback', {**args, 'selection': 'neither'}, self.recipient),
+            ('save_feedback', {**args, 'note': 'changed'}, self.recipient),
+            ('get_explanation', {'window_id': 1}, self.recipient),
+            ('save_feedback', {**args, 'window_id': True}, self.recipient),
+            ('save_feedback', args, 'another-recipient'),
+            ('save_feedback', {**args, 'recipient_id': self.recipient}, self.recipient),
+        ):
+            with self.subTest(tool=tool, arguments=arguments, recipient=recipient):
+                denied = tools.call(tool, arguments, authenticated_recipient_id=recipient, command_id='same-id')
+                self.assertFalse(denied['ok'])
+        replay = tools.call('save_feedback', args, authenticated_recipient_id=self.recipient, command_id='same-id')
+        self.assertEqual(first, replay)
+        self.assertEqual(self.store.db.execute('SELECT count(*) FROM feedback').fetchone()[0], 1)
+
+    def test_two_connections_share_one_durable_feedback_command(self):
+        self.process()
+        barrier = Barrier(2, timeout=5)
+
+        def execute(_):
+            other = SQLiteStore(self.path)
+            try:
+                barrier.wait()
+                return FetchTools(other).call('save_feedback', {'window_id': 1, 'selection': 'first'},
+                    authenticated_recipient_id=self.recipient, command_id='concurrent-command')
+            finally:
+                other.close()
+
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            first, second = list(pool.map(execute, range(2)))
+        self.assertTrue(first['ok'])
+        self.assertEqual(first, second)
+        self.assertEqual(self.store.db.execute('SELECT count(*) FROM feedback').fetchone()[0], 1)
+
+    def test_purge_removes_feedback_command_receipts_and_replay_access(self):
+        self.process()
+        tools = FetchTools(self.store)
+        args = {'window_id': 1, 'selection': 'first'}
+        self.assertTrue(tools.call('save_feedback', args,
+            authenticated_recipient_id=self.recipient, command_id='purged')['ok'])
+        purge_conversation(self.store.db, self.target['platform'], self.target['conversation_id'])
+        self.assertEqual(self.store.db.execute('SELECT count(*) FROM fetch_commands').fetchone()[0], 0)
+        self.assertEqual(self.store.db.execute('SELECT count(*) FROM feedback').fetchone()[0], 0)
+        replay = tools.call('save_feedback', args,
+            authenticated_recipient_id=self.recipient, command_id='purged')
+        self.assertEqual(replay, {'ok': False, 'error': 'Saved exchange unavailable.'})
+
+    def test_invalid_feedback_has_no_durable_receipt(self):
+        self.process()
+        tools = FetchTools(self.store)
+        args = {'window_id': 1, 'selection': 'second'}
+        self.assertFalse(tools.call('save_feedback', args,
+            authenticated_recipient_id=self.recipient, command_id='invalid')['ok'])
+        self.assertEqual(self.store.db.execute('SELECT count(*) FROM fetch_commands').fetchone()[0], 0)
+        self.assertEqual(self.store.db.execute('SELECT count(*) FROM feedback').fetchone()[0], 0)
+
     def test_truncation_budgets_and_conversation_purge(self):
         settings = dict(load_settings(), context_text_character_budget=50,
                         message_text_character_limit=40, target_text_character_limit=10)
@@ -235,6 +329,122 @@ class ContextStoreTests(unittest.TestCase):
         self.assertTrue(request['target_text_truncated'])
         purge_conversation(self.store.db, self.target['platform'], self.target['conversation_id'])
         self.assertEqual(self.store.db.execute('SELECT count(*) FROM pipeline_jobs').fetchone()[0], 0)
+
+    def test_saved_result_leaves_a_durable_pending_outbox_without_sending(self):
+        self.prepare()
+        self.assertTrue(self.store.claim(1, 'interpreting'))
+        result = self.model(self.store.load_job(1)['request'])
+        self.store.save_result(1, result)
+        self.restart()
+        row = self.store.db.execute('SELECT * FROM outbox WHERE window_id=1').fetchone()
+        self.assertEqual(row['status'], 'pending')
+        self.assertIsNone(row['receipt_json'])
+        self.assertEqual(self.store.load_job(1)['state'], 'interpreted')
+        self.assertEqual(self.transport.attempts, [])
+        self.assertEqual(len(self.model.calls), 1)
+        self.assertEqual(self.store.get_explanation(1, self.recipient)['meaning'], result['meaning'])
+
+    def test_lookup_and_feedback_deny_unknown_or_invalid_windows_identically(self):
+        self.process()
+        denials = []
+        for window_id, recipient in ((1, 'other'), (999, self.recipient),
+                (True, self.recipient), (1.0, self.recipient), ('1', self.recipient),
+                (0, self.recipient), (1, '')):
+            for operation in (
+                lambda: self.store.get_explanation(window_id, recipient),
+                lambda: self.store.save_feedback(window_id, recipient, 'first'),
+            ):
+                with self.assertRaises(PermissionError) as raised:
+                    operation()
+                denials.append(str(raised.exception))
+        self.assertEqual(set(denials), {'Saved exchange unavailable.'})
+        self.assertEqual(self.store.db.execute('SELECT count(*) FROM feedback').fetchone()[0], 0)
+
+    def test_second_feedback_choice_is_valid_only_for_a_shown_compatible_pair(self):
+        self.model.result_name = 'result_compatible'
+        self.process()
+        saved = self.store.get_explanation(1, self.recipient)
+        self.assertTrue(saved['alternative'])
+        receipt = FetchTools(self.store).call('save_feedback', {'window_id': 1, 'selection': 'second'},
+            authenticated_recipient_id=self.recipient, command_id='choose-second')
+        self.assertEqual(receipt['feedback']['selection'], 'second')
+        self.assertEqual(receipt['feedback']['provenance'], 'recipient_judgment')
+        for selection in ('neither', 'not_sure'):
+            self.assertEqual(self.store.save_feedback(1, self.recipient, selection)['feedback']['selection'], selection)
+
+    def test_twenty_message_window_orders_timestamp_ties_and_marks_prior_media(self):
+        settings = dict(self.pipeline['settings'], context_message_limit=20)
+        for i in range(30):
+            event = dict(self.target, message_id=f'old-{i}', kind='text', sticker=None,
+                         text=f'old {i}', sent_at='2020-01-01T00:00:00+00:00')
+            if i == 29:
+                event.update(kind='image', text=None)
+            self.store.observe(event, settings)
+        self.store.observe(dict(self.target, reply_to_message_id='old-0'), settings)
+        request = self.store.load_job(1)['request']
+        self.assertEqual(request['context_message_limit'], 20)
+        self.assertEqual([m['message_id'] for m in request['recent_messages']],
+                         [f'old-{i}' for i in range(10, 30)])
+        self.assertEqual(request['reply_to_message_id'], 'old-0')
+        self.assertNotIn('old-0', [m['message_id'] for m in request['recent_messages']])
+        media = request['recent_messages'][-1]
+        self.assertTrue(media['media_not_interpreted'])
+        self.assertIsNone(media['text'])
+        self.assertIsNone(request['context_age_limit'])
+        self.assertEqual(self.store.db.execute('SELECT count(*) FROM messages').fetchone()[0], 31)
+
+    def test_database_upgrade_adds_command_receipts_without_rewriting_old_results(self):
+        self.process()
+        before = self.store.load_job(1)
+        self.store.save_feedback(1, self.recipient, 'first')
+        with self.store.db:
+            self.store.db.execute('DROP TABLE fetch_commands')
+        self.restart()
+        self.assertEqual(self.store.load_job(1), before)
+        self.assertEqual(self.store.db.execute('SELECT count(*) FROM feedback').fetchone()[0], 1)
+        tools = FetchTools(self.store)
+        args = {'window_id': 1, 'selection': 'neither'}
+        first = tools.call('save_feedback', args,
+            authenticated_recipient_id=self.recipient, command_id='new-after-upgrade')
+        self.restart()
+        replay = FetchTools(self.store).call('save_feedback', args,
+            authenticated_recipient_id=self.recipient, command_id='new-after-upgrade')
+        self.assertEqual(first, replay)
+        self.assertEqual(self.store.db.execute('SELECT count(*) FROM feedback').fetchone()[0], 2)
+        self.assertEqual(len(self.model.calls), 1)
+        self.assertEqual(len(self.transport.attempts), 1)
+
+    def test_context_never_reads_another_platform_or_conversation(self):
+        for platform, conversation, canary in (
+            ('another-platform', self.target['conversation_id'], 'platform-secret'),
+            (self.target['platform'], 'another-conversation', 'conversation-secret'),
+        ):
+            self.store.enroll(platform, conversation, self.recipient, 'separate-private-thread',
+                              [self.recipient, self.target['sender_id']])
+            foreign = dict(self.events[0], platform=platform, conversation_id=conversation, text=canary)
+            self.store.observe(foreign, self.pipeline['settings'])
+        self.prepare()
+        request = self.store.load_job(1)['request']
+        self.assertEqual([m['message_id'] for m in request['recent_messages']],
+                         [event['message_id'] for event in self.events[:-1]])
+        self.assertNotIn('platform-secret', json.dumps(request))
+        self.assertNotIn('conversation-secret', json.dumps(request))
+
+    def test_each_recipient_gets_only_their_declared_preferences_and_relationship(self):
+        second = 'second-recipient'
+        self.store.enroll(self.target['platform'], self.target['conversation_id'], second,
+                         'second-private-thread', [second, self.target['sender_id']])
+        self.store.set_preferences(self.target['platform'], second, 'es', 'detailed')
+        self.store.set_relationship(self.target['platform'], second, self.target['sender_id'], 'friend')
+        self.prepare()
+        requests = [self.store.load_job(row['id'])['request']
+                    for row in self.store.db.execute('SELECT id FROM context_windows').fetchall()]
+        users = {request['recipient_id']: request['user_context'] for request in requests}
+        self.assertEqual(users[self.recipient]['preferences'], {'language': 'en', 'explanation_length': 'short'})
+        self.assertIsNone(users[self.recipient]['relationship'])
+        self.assertEqual(users[second]['preferences'], {'language': 'es', 'explanation_length': 'detailed'})
+        self.assertEqual(users[second]['relationship'], 'friend')
+        self.assertEqual(users[second]['preferences_source'], 'user_declared')
 
 
 if __name__ == '__main__':

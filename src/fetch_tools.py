@@ -80,14 +80,12 @@ def save_feedback(
     return {"ok": True, "feedback": deepcopy(record)}
 
 
-def execute_tool(
-    backend: Any,
-    receipts: dict,
+def validate_tool_call(
     tool: str,
     arguments: dict,
     recipient: str,
     command_id: str,
-) -> dict:
+) -> None:
     if not recipient:
         raise PermissionError("Saved exchange unavailable.")
     if not isinstance(command_id, str) or not command_id.strip():
@@ -105,6 +103,21 @@ def execute_tool(
     for key in arguments:
         if key not in allowed[tool]:
             raise ValueError("Unexpected tool argument.")
+    if tool == "save_feedback" and (
+        "selection" not in arguments or not isinstance(arguments["selection"], str)
+    ):
+        raise ValueError("selection is required.")
+
+
+def execute_tool(
+    backend: Any,
+    receipts: dict,
+    tool: str,
+    arguments: dict,
+    recipient: str,
+    command_id: str,
+) -> dict:
+    validate_tool_call(tool, arguments, recipient, command_id)
     # Recipient comes from the trusted caller, never the tool arguments.
     key = (recipient, command_id)
     payload = {"tool": tool, "arguments": arguments}
@@ -115,8 +128,6 @@ def execute_tool(
     if tool == "get_explanation":
         result = backend.get_explanation(arguments["window_id"], recipient)
     else:
-        if "selection" not in arguments or not isinstance(arguments["selection"], str):
-            raise ValueError("selection is required.")
         result = backend.save_feedback(
             arguments["window_id"],
             recipient,

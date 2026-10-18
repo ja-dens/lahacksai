@@ -5,6 +5,7 @@ import json
 from sqlite3 import Connection
 from .contracts import canonical, digest, normalize_event, now
 from .context import build_request
+from .fetch_tools import validate_tool_call
 from .repository import (
     active_enrollments,
     record_message,
@@ -281,11 +282,43 @@ def feedback(
     recipient: str,
     selection: str,
     note: str | None = None,
+    *,
+    commit: bool = True,
 ) -> dict:
     get_explanation(db, window_id, recipient)
-    feedback_id = save_feedback(db, window_id, recipient, selection, note)
+    feedback_id = save_feedback(db, window_id, recipient, selection, note, commit=commit)
     record = dict(
         db.execute("SELECT * FROM feedback WHERE id=?", (feedback_id,)).fetchone()
     )
     record["feedback_id"] = record.pop("id")
     return {"ok": True, "feedback": record}
+
+
+def execute_command(
+    db: Connection, tool: str, arguments: dict, recipient: str, command_id: str,
+) -> dict:
+    """Own one transaction for a Fetch operation and its durable replay receipt."""
+    validate_tool_call(tool, arguments, recipient, command_id)
+    payload_hash = digest({"tool": tool, "arguments": arguments})
+    window_id = arguments["window_id"]
+    with db:
+        # Serialize competing connections before checking for an existing command.
+        db.execute("BEGIN IMMEDIATE")
+        explanation = get_explanation(db, window_id, recipient)
+        previous = db.execute(
+            "SELECT payload_sha256, receipt_json FROM fetch_commands "
+            "WHERE recipient_id=? AND command_id=?", (recipient, command_id),
+        ).fetchone()
+        if previous is not None:
+            if previous["payload_sha256"] != payload_hash:
+                raise ValueError("Command ID reused for a different operation.")
+            return json.loads(previous["receipt_json"])
+        result = explanation if tool == "get_explanation" else feedback(
+            db, window_id, recipient, arguments["selection"], arguments.get("note"), commit=False,
+        )
+        db.execute(
+            "INSERT INTO fetch_commands "
+            "(recipient_id, command_id, window_id, payload_sha256, receipt_json) VALUES (?, ?, ?, ?, ?)",
+            (recipient, command_id, window_id, payload_hash, canonical(result)),
+        )
+    return result

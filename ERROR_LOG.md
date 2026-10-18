@@ -337,3 +337,49 @@ What happened: the migration AST comparison caught an IndentationError in the ne
 ## MIG-003 — October 17: raw conversion retained compiler imports
 
 What happened: inspection of the conversion output found `jaclang.runtimelib.builtin` imports for the names `store` and `commit`, which would preserve a hidden runtime dependency. Cause: the compiler recognizes those names as language builtins even though this application uses local store variables, commit parameters and keyword arguments. Correction: removed the three unused imports, removed the package-level importer and regenerated both locks without Jac/llvmlite. Prevention: verify in a fresh environment with neither package installed and exercise the real core pipeline in an isolated subprocess that rejects compiler and optional SDK imports. No public function body, SQL statement or v2 field changed.
+
+## T4-001 — October 17: Fetch feedback replay duplicated writes after restart
+
+During #5 preflight, fetched published backend work in PR #14 instead of building
+a second store. Its existing 19 database tests passed. A new regression recreated
+both SQLiteStore and FetchTools and retried one unchanged transport command; it
+returned feedback_id 2 after feedback_id 1, demonstrating a duplicate judgment.
+Cause: feedback persisted, while command receipts lived only in agent memory.
+
+Correction: a SQLite command-receipt table, shared narrow-tool validation, and
+an optional durable execute_command operation selected by FetchTools. One
+immediate transaction validates access, checks the command fingerprint, saves
+feedback and saves its receipt. An insertion failure rolls back the entire
+operation. Conversation deletion cascades to the receipt.
+
+Verification: six added regressions cover restart, changed arguments and identity,
+competing SQLite connections, receipt/write rollback, invalid selections and
+purge. All 25 store tests and all 180 application tests pass. Prevention: test
+replay across reconstruction of both the agent and real store, rather than only
+checking two calls against one in-memory receipt cache. Previously written
+feedback without transport command identity cannot be retroactively deduplicated.
+
+## T4-002 — October 17: combined demo requires optional image dependencies
+
+An initial `python -S -m src demo` check failed at its Pillow import. The `-S`
+flag intentionally disables site packages. The pure database tests support that
+mode, but the combined demo imports the real image adapter as well as the store.
+Ran the combined demo with the ordinary venv Python instead; it passed twice
+against one SQLite file, with no repeat mock interpretation/send after restart.
+Documented the two different commands and dependency scopes. No storage or
+adapter implementation change was needed for this environment mismatch.
+
+## T8-001 — October 17: ASI routing mention rejected by the narrow chat grammar
+
+The first authorized saved-result lookup reached the live agent but returned its
+usage help. ASI:One's addressed message included the leading `@agent-address`;
+the original parser expected only the prompt. Added adapter normalization that
+removes exactly this agent's own leading mention and surrounding whitespace,
+while preserving trusted transport identity and message ID. Other addresses,
+lookalike prefixes and repeated mentions remain refused.
+
+The corrected lookup returned the saved explanation in the real ASI:One chat.
+Added two ACP regressions covering both addressed operations, feedback replay,
+wrong mentions and unbound identity. All 17 adapter tests and all 189 application
+tests pass. Prevention: include the real chat interface's routing text in protocol
+fixtures, and distinguish public UI evidence from fake-transport tests.
