@@ -1,0 +1,17 @@
+{
+  "contract_version": 2,
+  "context_message_limit": 25,
+  "context_message_limit_min": 20,
+  "context_message_limit_max": 25,
+  "context_age_limit": null,
+  "context_text_character_budget": 24000,
+  "message_text_character_limit": 4000,
+  "target_text_character_limit": 4000,
+  "target_sticker_mime_types": ["image/png"],
+  "target_sticker_max_bytes": 5000000,
+  "language": "en",
+  "explanation_length": "short",
+  "explanation_lengths": ["short", "detailed"],
+  "feedback_selections": ["first", "second", "neither", "not_sure"],
+  "feedback_live_retrieval_enabled": false
+}

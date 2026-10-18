@@ -169,3 +169,21 @@ T3 completion verification: all 34 standalone tests, Jac checking and synthetic 
 T3-006 also corrects the legacy environment example's 8-message default to the agreed 25. Actual credentials/environment files were not edited. Shared example integration is documented for T0/T4.
 
 T3-007 excludes generated Jac caches. T3-008 aligns null relationship provenance with the reviewed v2 boundary and requires normalized nullable fields. All 34 T3 tests and Jac checking pass. Concurrent documentation work in the original checkout was observed and left intact; the original application source, prompts and tests remain unchanged by this task.
+
+## CONFIG-001 — 2026-10-17: published context default still used eight messages
+
+Type: documentation/configuration drift.
+
+What happened: live main's .env.example retained CONTEXT_MESSAGE_LIMIT=8 while PRODUCT_SPEC.md, CONTRACTS.md and shared request fixtures selected default 25 within the user's 20–25 range. A teammate copying the published template could implement the wrong window despite consistent local prototype defaults.
+
+Cause: the earlier planning/fixture publication did not include the local configuration-template correction. Existing fixture checks did not compare the template with the agreed defaults.
+
+Correction: set the published template to 25, record existing defaults in config/defaults.v2.json, document task-based shared-file ownership/change review, and validate template/default/request consistency. This changes no v2 DTO fields and does not claim a runtime loader exists.
+
+Prevention and verification: the regression suite explicitly substitutes the old value 8 and verifies rejection; it also keeps credentials/model placeholders empty and runs without application packages or network. CI now checks the configuration surfaces. Local check results and actual remote publication status are recorded in PLANS.md/T0's review.
+
+Status: correction implemented and locally verified; remote CI/source landing verified through the T0 PR.
+
+## INT-001 — October 17: T3 could not merge after the T0 baseline
+
+What happened: PR #15 conflicted with main in .env.example, ERROR_LOG.md and PLANS.md. Cause: its base predates the merged T0 default/configuration changes. Fixed by merging current main, retaining both T0/T3 records, the preferred model key and the 25-message default. Added dedicated interpreter CI so planning-only checks cannot mask an application failure. Prevention: refresh component branches and run their actual suites before integration. Verification is recorded in PLANS.md after the checks finish.

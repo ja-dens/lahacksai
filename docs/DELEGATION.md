@@ -8,16 +8,18 @@ Every module task can start with the published synthetic JSON boundaries in fixt
 
 | Task | Deliverable | Owned files | Substitute for unfinished components |
 | --- | --- | --- | --- |
-| [T0 / #1](https://github.com/ja-dens/lahacksai/issues/1) | Contract/fixture stewardship and coordinated shared changes | docs/PRODUCT_SPEC.md, docs/CONTRACTS.md, docs/DELEGATION.md, planning/, fixtures/contracts/, synthetic chat/PNG, scripts/check_contract_fixtures.py | Published JSON; no provider or app runtime needed |
+| [T0 / #1](https://github.com/ja-dens/lahacksai/issues/1) | Contract/fixture stewardship and coordinated shared changes | docs/PRODUCT_SPEC.md, docs/CONTRACTS.md, docs/CONFIGURATION.md, docs/T0_REVIEW.md, docs/DELEGATION.md, config/defaults.v2.json, .env.example, planning/, fixtures/contracts/, synthetic chat/PNG, scripts/check_contract_fixtures.py, checks/test_contract_fixtures.py | Published JSON; no provider or app runtime needed |
 | [T1 / #2](https://github.com/ja-dens/lahacksai/issues/2) | Photon feasibility report, including explicit blockers | docs/PHOTON_FEASIBILITY.md, fixtures/photon_vendor/ | Vendor test client and fixed explanation; no LLM/backend |
 | [T2 / #3](https://github.com/ja-dens/lahacksai/issues/3) | Photon normalization/private-send adapter with tests | src/adapters/photon.py, tests/test_photon.py, docs/PHOTON_ADAPTER.md | Fake provider, auth verifier, destination resolver and coordinator callback |
 | [T3 / #4](https://github.com/ja-dens/lahacksai/issues/4) | One-call vision adapter and candidate policy | src/interpreter.jac, src/adapters/vision.py, prompts/sticker.txt, tests/test_interpreter.py | Frozen request and image plus mock SDK/HTTP transport |
 | [T4 / #5](https://github.com/ja-dens/lahacksai/issues/5) | History/snapshots/profiles/private outbox and authorized lookup/feedback | src/repository.jac, src/context.jac, src/delivery.jac, tests/test_context_store.py | Temporary SQLite, fixed model result and fake transport |
 | [T6 / #7](https://github.com/ja-dens/lahacksai/issues/7) | Evaluation harness, held-out cases and provenance-aware report | evaluation/, scripts/evaluate_stickers.py, tests/test_evaluation.py, docs/EVALUATION.md | Saved outputs or injected fake interpreter; fake metrics marked unmeasured |
 | [T7 / #8](https://github.com/ja-dens/lahacksai/issues/8) | Reproducible fixture/setup guide and demo package | README.md, docs/SETUP.md, docs/DEMO.md, docs/REPRODUCTION.md, scripts/jac_share.py | Shared fixtures, documented module boundaries and explicit pending evidence |
-| T8 (new optional issue; see planning/published.json) | Fetch/ASI:One stored-explanation lookup and voluntary-feedback adapter | src/adapters/fetch_agent.py, tests/test_fetch_agent.py, docs/FETCH_AGENT_DEMO.md | Fake scoped backend and protocol transport; no Photon or model key |
+| [T8 / #11](https://github.com/ja-dens/lahacksai/issues/11) | Fetch/ASI:One stored-explanation lookup and voluntary-feedback adapter | src/adapters/fetch_agent.py, tests/test_fetch_agent.py, docs/FETCH_AGENT_DEMO.md | Fake scoped backend and protocol transport; no Photon or model key |
 
 Roles A/B/C/D are suggested skill groupings, not assignments to particular people or a required team size. Different teammates can own T1 and T2, or T3 and T6. Preserve the existing T3 assignee. Map usernames only when supplied; the publisher adds desired assignments and never removes human ones.
+
+T0's baseline and task-based shared configuration ownership are recorded in [T0_REVIEW.md](T0_REVIEW.md) and [CONFIGURATION.md](CONFIGURATION.md). The user directed use of the existing v2 fields; no three-owner human sign-off is claimed. T1/T4 retain their independent work and may propose a versioned correction later.
 
 Each owner supplies the test command and input/output example required by their issue. Commands referencing not-yet-created test modules are deliverable requirements, not commands already verified against the planning-only repository. Test fixed outputs honestly; they do not establish model accuracy, account access, ASI:One discovery or phone delivery.
 

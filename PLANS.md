@@ -106,3 +106,19 @@ Verified locally: 32 T3 tests passed without live requests; the actual SDK seria
 All T3 task checkboxes are checked locally with requirement evidence. The GitHub issue stays open and no remote issue changes, push, PR or merge is performed. Live API access and interpretation accuracy remain unverified; the opt-in smoke command reports unavailable configuration honestly. T1/T4 integration, snapshot persistence, phone delivery and deployment remain their own tasks.
 
 Final T3 handoff review added valid-null relationship provenance and required normalized nullable-field tests; the suite now passes 34 tests. Final source share is 204 Jac / 381 application source lines = 53.5%. All 15 planning-publisher regressions and its no-write dry run also passed. Generated Jac caches are ignored. Concurrent T0 documentation refinements in the original checkout were inspected for compatibility and preserved; no original application source was modified.
+
+## October 17 T0 technical baseline
+
+The user requested completion of T0 and reported no teammate field changes, directing use of the existing v2 contract. Reviewed live main and issue #1, preserving the separate T1/T4 work, all assignments/comments and the unpublished local application prototype. Work is isolated on codex/t0-contract-baseline rather than overwriting the earlier working directory.
+
+Found and corrected .env.example's stale CONTEXT_MESSAGE_LIMIT=8 to the agreed engineering default 25. Added config/defaults.v2.json and CONFIGURATION.md for existing limits, task-based shared-file ownership, loader caveats and versioned corrections. CONTRACTS.md now makes the existing field types and trusted delivery-destination resolver explicit without adding/removing/renaming v2 fields. T0_REVIEW.md walks through all five record boundaries, traces D01–D13, records A/B/C technical review perspectives and keeps human acknowledgments pending.
+
+The standard-library verifier now checks normalized field shapes, timestamp timezones, source window/content, text bounds, exact user context without feedback, image/request hashes, output cases, private routing, scoped feedback and default/template consistency. Ten regression tests include empty process configuration with socket creation denied, malformed fields, the old eight-message default, old-context acceptance, future messages, altered snapshots/images, opposing alternatives and wrong recipients. The existing 15 planning-publisher tests remain relevant. CI triggers include configuration/contract changes and run both verification suites.
+
+T0's technical standalone criteria are complete; the original all-three-owner review and owner-correction feedback remain unchecked and issue #1 must stay open until those acknowledgments exist. No messages were sent to teammates, no field changes were invented, and no application/backend, model/Photon call or real private chat was used. Actual remote source publication and CI/issue synchronization are verified after the focused PR is created and merged.
+
+## October 17 T3 integration refresh
+
+User authorized fixing the open PRs and commits for main integration while preserving component functions. Merged main into T3 without rewriting its history, retained current v2/defaults and both owners' log entries, and added read-only T3 application CI. No model or phone call is part of this change. Verification is pending below.
+
+Verified refresh: 34 T3 tests, one Jac module check, 10 contract regressions, shared-fixture checker, 15 publisher tests and whitespace checks passed. Measured application source under src/ using the combined counter: 203 Jac / 374 total = 54.3%. T3 APIs, fixtures and one-call policy are unchanged.
