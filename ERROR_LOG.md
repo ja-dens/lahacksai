@@ -160,6 +160,16 @@ Status: local correction verified; remote publication is recorded after executio
 
 A small dry-run-output patch expected a destructuring expression, while the file used an explicit task mapping. The patch failed without changing files. Read the exact current lines, applied the matching patch, and included the added integration-dependency output in the publisher tests. Prevention: inspect current source before constructing exact-context patches.
 
+## T3 implementation chat — October 17, 2026
+
+Detailed observed errors, reproductions, fixes and verification for this branch are maintained in [docs/T3_ERROR_LOG.md](docs/T3_ERROR_LOG.md). Initial verified defects in the earlier local prototype: T3-001 malformed candidate sets bypassed policy validation; T3-002 extra request fields reached the model text; T3-003 invalid media reached a mock SDK. These were reproduced with synthetic data and no network calls. Track resolution in the dedicated log; negative-test scenarios are not claims of additional observed incidents.
+
+T3 completion verification: all 34 standalone tests, Jac checking and synthetic contract checks passed. T3-001 through T3-005 are resolved in the dedicated log. Tests verify behavior with fake SDK clients and HTTP transports; no live inference/accuracy or phone delivery is claimed.
+
+T3-006 also corrects the legacy environment example's 8-message default to the agreed 25. Actual credentials/environment files were not edited. Shared example integration is documented for T0/T4.
+
+T3-007 excludes generated Jac caches. T3-008 aligns null relationship provenance with the reviewed v2 boundary and requires normalized nullable fields. All 34 T3 tests and Jac checking pass. Concurrent documentation work in the original checkout was observed and left intact; the original application source, prompts and tests remain unchanged by this task.
+
 ## CONFIG-001 — 2026-10-17: published context default still used eight messages
 
 Type: documentation/configuration drift.
@@ -189,3 +199,11 @@ Type: tooling. Running the new Jac coordinator generated src/.jac/cache bytecode
 Type: tooling / publication. The PR creation API returned #14, but the immediately following chat-artifact call mistakenly used an assumed #15. Removed the incorrect attachment and attached the actual returned PR #14; both correction calls succeeded. No issue, branch or remote PR content was changed by the mistaken attachment.
 
 Prevention: derive attachment URLs from the successful PR result instead of predicting the next number. Verification: the API confirms PR #14 has head codex/t5-mock-integration and commit 0dcc77719cb764fdf6deb34843f9bf193ebfbecf; the chat artifact points to that URL. Status: resolved.
+
+## INT-001 — October 17: T3 could not merge after the T0 baseline
+
+What happened: PR #15 conflicted with main in .env.example, ERROR_LOG.md and PLANS.md. Cause: its base predates the merged T0 default/configuration changes. Fixed by merging current main, retaining both T0/T3 records, the preferred model key and the 25-message default. Added dedicated interpreter CI so planning-only checks cannot mask an application failure. Prevention: refresh component branches and run their actual suites before integration. Verification is recorded in PLANS.md after the checks finish.
+
+## INT-002 — October 17: component documents collided during assembly
+
+T3/T5 both owned README, Jac importer initialization and appended evidence logs. Preserved both logs, retained one Jac-registration initializer and both component runbook links. Application modules and fixtures were retained unchanged. Prevention: assign shared assembly files to T5 and run both component suites together.

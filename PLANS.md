@@ -97,6 +97,16 @@ Rewrote T0–T7 around independent inputs/outputs, owned files, mock strategies,
 
 The planning publisher now preserves removed checked items as historical work and distinguishes start dependencies from later integration. PR checks remain read-only; source publication to main is required before canonical issue sync. External publication status will be recorded after verification.
 
+## October 17 T3 implementation in an isolated local branch
+
+This chat now owns T3 implementation on codex/t3-multimodal-interpreter in the lahacksai-t3 checkout, based on main bb236d875dc080270a7e94dcaa3033511a5f07e5. The original checkout's application and teammate work is preserved. New files implement the standalone Jac evidence/policy component, thin Python OpenAI/fixture adapter and CLI, prompt, scoped dependency lock and 34 independent tests. Detailed handoff: docs/T3_INTERPRETER.md. Dedicated errors: docs/T3_ERROR_LOG.md, with summaries retained in ERROR_LOG.md.
+
+Verified locally: 32 T3 tests passed without live requests; the actual SDK serialized one model request through MockTransport and simulated HTTP/timeouts were not retried. Jac checking passed, the existing synthetic contract check passed and pip check found no broken requirements. Application source share: 204 Jac / 381 total nonblank/noncomment lines under src/ = 53.5%, excluding tests/tooling/prompts/fixtures/docs/dependencies. Configuration is isolated in requirements-t3.txt/requirements-t3.lock; no other teammate's implementation was copied into this branch.
+
+All T3 task checkboxes are checked locally with requirement evidence. The GitHub issue stays open and no remote issue changes, push, PR or merge is performed. Live API access and interpretation accuracy remain unverified; the opt-in smoke command reports unavailable configuration honestly. T1/T4 integration, snapshot persistence, phone delivery and deployment remain their own tasks.
+
+Final T3 handoff review added valid-null relationship provenance and required normalized nullable-field tests; the suite now passes 34 tests. Final source share is 204 Jac / 381 application source lines = 53.5%. All 15 planning-publisher regressions and its no-write dry run also passed. Generated Jac caches are ignored. Concurrent T0 documentation refinements in the original checkout were inspected for compatibility and preserved; no original application source was modified.
+
 ## October 17 T0 technical baseline
 
 The user requested completion of T0 and reported no teammate field changes, directing use of the existing v2 contract. Reviewed live main and issue #1, preserving the separate T1/T4 work, all assignments/comments and the unpublished local application prototype. Work is isolated on codex/t0-contract-baseline rather than overwriting the earlier working directory.
@@ -122,3 +132,13 @@ T5_ERROR_LOG.md is this chat's ongoing T5 incident record; the shared ERROR_LOG.
 T5 source publication: committed mock implementation as 0dcc77719cb764fdf6deb34843f9bf193ebfbecf and pushed only codex/t5-mock-integration. Created [PR #14](https://github.com/ja-dens/lahacksai/pull/14), targeting main but unmerged. The branch worktree was clean after the implementation commit. GitHub's planning verifier passed; the dedicated mock job is checked separately. Main's issue-sync job is skipped on the PR, so the proposed mock checkbox has not been published to the live issue. Full T5 stays open.
 
 Remote verification: [T5 mock integration run 39079802720](https://github.com/ja-dens/lahacksai/actions/runs/39079802720) completed successfully on Ubuntu/Python 3.13. Installation, full Jac checking, 36 integration tests, opposing/replay demo, 54.6% source share, shared fixture verifier and 10 contract regressions passed. The separate planning workflow also passed with its issue-sync job skipped. The follow-up documentation commit records this evidence and the corrected chat attachment; it changes no application source. PR #14 remains open and unmerged, with no main push or auto-merge request.
+
+## October 17 T3 integration refresh
+
+User authorized fixing the open PRs and commits for main integration while preserving component functions. Merged main into T3 without rewriting its history, retained current v2/defaults and both owners' log entries, and added read-only T3 application CI. No model or phone call is part of this change. Verification is pending below.
+
+Verified refresh: 34 T3 tests, one Jac module check, 10 contract regressions, shared-fixture checker, 15 publisher tests and whitespace checks passed. Measured application source under src/ using the combined counter: 203 Jac / 374 total = 54.3%. T3 APIs, fixtures and one-call policy are unchanged.
+
+## October 17 T5/T3 assembly checkpoint
+
+Combined the preserved T5 mock coordinator with the refreshed T3 component and main/T0 baseline. Both existing suites (70 tests total), both Jac modules, 10 contract regressions, fixtures and whitespace checks passed. Source-share gate passed; the emitted counter is the canonical measurement. Component APIs and the existing mock-demo command are retained. Runtime bridges and durable T4 scheduling are the next focused change.

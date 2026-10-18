@@ -51,3 +51,5 @@ node .github/scripts/sync-planning.cjs --dry-run
 ```
 
 Photon 2.0 beta line/sticker/private-send access, live model evaluation, authenticated enrollment and deployment still require verification. See T1's existing evidence and the task-specific done criteria. Keep credentials and real chat histories outside tracked files.
+
+T3 is also present in this integration branch; see [its independent setup and fixture commands](docs/T3_INTERPRETER.md). The assembled runtime and shared dependencies are being reconciled before publication.
