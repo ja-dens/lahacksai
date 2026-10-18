@@ -29,7 +29,7 @@ local tool execution, not ASI:One discovery or a live sponsor demonstration.
 ## How the pieces fit
 
 `src/adapters/fetch_agent.py` translates an ACP text message into a narrow tool
-operation. `src/fetch_tools.jac` enforces authorization, validates feedback and
+operation. `src/fetch_tools.py` enforces authorization, validates feedback and
 remembers replay receipts. `FakeBackend` loads only the synthetic saved exchange
 in memory; it stands in for T4's database operations.
 
@@ -37,7 +37,7 @@ in memory; it stands in for T4's database operations.
 | --- | --- |
 | Retrieve the stored explanation | Reinterpretation could contradict what the recipient originally saw and adds a model call. |
 | Match the approved prompts explicitly | Predictable, credential-free and testable. Arbitrary paraphrases currently receive help; there is no local LLM router. |
-| Keep core rules in Jac | Authorization and feedback validation are product logic; Python handles the external SDK and CLI. |
+| Use Python for policy and SDK integration | Ordinary validation and authorization need no graph runtime; one language keeps the service easier to run and debug. |
 | Supply identity separately | A prompt or model argument cannot establish permission. Missing and unauthorized exchanges give the same safe response. |
 | Remember `(recipient, transport sender + msg_id)` | A replay returns the original receipt without a second write. Reusing that ID for changed arguments is rejected. |
 | Keep feedback evaluation-only | A recipient's opinion is not confirmed sender intent and does not enter future interpretation requests. |
@@ -62,7 +62,7 @@ through the narrow service API for later interface integration.
 The implementation follows the official [mailbox tutorial](https://uagents.fetch.ai/docs/examples/asi-1)
 and [Agent Chat Protocol documentation](https://docs.asi1.ai/documentation/tutorials/agent-chat-protocol).
 The installed/pinned runtime is uagents 0.26.1, verified with real ACP schemas in
-the fake-transport tests. Python 3.13 and Jac 0.16.7 were checked locally.
+the fake-transport tests. The integrated backend uses Python 3.13 without Jac.
 
 1. Stop the earlier sun tutorial if it is using port 8001. These commands are two
    separate runtimes; run only one with the same seed and port.

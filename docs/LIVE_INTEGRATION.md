@@ -6,14 +6,13 @@ This chat/branch owns T5 assembly. This milestone is an offline harness over inj
 
 ## Reproduce the mock milestone
 
-Tested with Python 3.13 and Jac 0.16.7. The separate requirements file avoids changing the shared manifests or installing model/Photon SDKs. Install from the branch:
+Tested with Python 3.13. The mock harness and real SQLite store use only the standard library. The retained requirements-t5.txt is an empty compatibility entry point; no model/Photon SDK or compiler is installed. Install from the branch:
 
 ```sh
 python3.13 -m venv .venv
 .venv/bin/python -m pip install -r requirements-t5.txt
 .venv/bin/python -m unittest discover -s tests -p 'test_integration.py' -v
-.venv/bin/jac check src/main.jac --nowarn
-.venv/bin/python scripts/check_t5_source_share.py
+.venv/bin/python -m compileall -q src
 .venv/bin/python -m src mock-demo --replay
 ```
 

@@ -335,3 +335,13 @@ Final component heads included: T2 831aee6 and T3 69a7d21. Both quota-removal co
 
 
 Refreshed against externally updated main 5a97907, preserving its exact AGENTS.md policy removal and wording. No application source changed.
+
+## October 17 backend language review and migration
+
+The user requested replacing Jac where a different language is a better fit. Reviewed all ten Jac modules: they use ordinary validation, dictionaries, JSON, dates, hashing, SQLite and injected Python objects; no graph/walker facility is used. Ported the modules to normal Python with the same import paths/functions, v2 fields, SQL and state behavior. Kept the existing Python SDK/transport adapters and JavaScript planning automation. Removed the importer, Jac/llvmlite dependencies, compiler CI commands and obsolete percentage script; updated active paths/setup/walkthroughs. Historical checkpoint/error records remain historical. See docs/PYTHON_MIGRATION.md.
+
+Baseline: all 172 original application tests passed. Converted code matched the compiler's Python function/import ASTs after removing three unused Jac builtin imports and module descriptions. A pre-migration database retained its exact schema, jobs, requests/hashes, receipts and feedback; an accepted replay did not resend, a rejected-send retry reused its saved result with zero inference calls, and an unknown send stayed blocked. Seven local subprocess imports after warm-up measured a median 457.8 ms before and 5.6 ms after; this measures import time only.
+
+Fresh Python 3.13 combined and standalone T3 environments installed without Jac or llvmlite. Regenerated locks remove only those two packages and retain every other version. The full 174-test application suite passes; two new tests exercise the core pipeline and mock CLI without site packages, with optional compiler/SDK imports forbidden in the pipeline subprocess. Compilation, standalone/standard-library checks and offline demos are verified before publication. No live model call, phone send or main merge is authorized by this migration.
+
+Publication checks passed: Python compilation, pip check in both fresh environments, 34 standalone interpreter tests, 36 integration and 19 real-store tests without site packages, two isolated runtime regressions, shared fixture check, 10 contract regressions, 15 publisher tests and a dry run with zero external writes. All four real-component policy demos plus direct routing/replay, saved-result inspection, doctor, optional Fetch demo and sponsor offline check passed. Remote main remains 5a97907; the integration PR remains open and unmerged.

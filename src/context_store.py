@@ -1,4 +1,4 @@
-"""Thin object port over Jac's durable context, policy and transaction functions."""
+"""Object port over durable SQLite context, policy and transaction functions."""
 from . import repository, store
 
 

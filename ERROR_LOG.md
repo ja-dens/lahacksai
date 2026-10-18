@@ -325,3 +325,15 @@ The user requested removal of the Jac requirement. Removed percentage/preference
 ## INT-012 — October 17: main advanced during PR publication
 
 What happened: remote main advanced from 89d0c0c to 5a97907 while the branch repairs were being published, introducing overlapping AGENTS.md policy edits. Cause: an independent main update removed the same Jac rules. Refreshed the component PR branches against that commit, preserved its exact guidance wording, and merged their updated heads into the integration branch. No main write/merge was performed by this task. Prevention: re-read remote heads and mergeability at publication, rather than assuming the starting base is current. Application source was unchanged; relevant contract/planning checks passed.
+
+## MIG-001 — October 17: conversion discovery selected a cache directory
+
+What happened: the migration helper's `*.jac` glob selected the ignored `src/.jac` directory and the conversion command rejected it. Cause: the glob matched directories as well as files. Correction: filter with `is_file()` before converting the ten actual source modules. No application file was changed by the failed attempt. Prevention: exclude generated directories and validate source-file types before conversion.
+
+## MIG-002 — October 17: preserving a comment broke Python indentation
+
+What happened: the migration AST comparison caught an IndentationError in the newly converted saved-result module. Cause: a comment insertion matched a substring inside an eight-space line, leaving the following denial statement at four spaces. Correction: restored the guard's indentation and placed the explanatory comment before the final denial. Prevention: parse and format every converted file, compare its complete function AST to the original implementation, and run scoped authorization tests before publication. All ten modules then matched structurally; the full 174-test suite passed without Jac installed.
+
+## MIG-003 — October 17: raw conversion retained compiler imports
+
+What happened: inspection of the conversion output found `jaclang.runtimelib.builtin` imports for the names `store` and `commit`, which would preserve a hidden runtime dependency. Cause: the compiler recognizes those names as language builtins even though this application uses local store variables, commit parameters and keyword arguments. Correction: removed the three unused imports, removed the package-level importer and regenerated both locks without Jac/llvmlite. Prevention: verify in a fresh environment with neither package installed and exercise the real core pipeline in an isolated subprocess that rejects compiler and optional SDK imports. No public function body, SQL statement or v2 field changed.

@@ -33,13 +33,13 @@ The demo connects the real T2/T3/T4/T5 modules to synthetic provider I/O and fix
 
 Read [the walkthrough](docs/CODE_WALKTHROUGH.md) for the data flow and file roles. Core behavior remains automatic, with one image-model call, up to 25 preceding same-chat messages (20–25 configurable), no age cutoff, frozen per-recipient requests, declared preferences/relationships and evaluation-only feedback. Compatible meanings may both appear; opposing meanings yield one supported guess with uncertainty.
 
-The user removed the Jac percentage/preference policy. There is no language quota. Existing Jac modules remain supported alongside Python, and require the pinned runtime while present.
+The backend now uses Python throughout. Its validation, routing, SQLite and coordination code did not use Jac-specific features, so Python removes an extra compiler/runtime without changing those behaviors. No Jac installation is needed. See [the migration review](docs/PYTHON_MIGRATION.md) for the rationale and compatibility checks.
 
 ## Verify the combined application
 
 ```sh
 .venv/bin/python -m unittest discover -s tests
-.venv/bin/jac check src --nowarn
+.venv/bin/python -m compileall -q src
 .venv/bin/python -m pip check
 python3 -I -S scripts/check_contract_fixtures.py
 python3 -S -m unittest discover -s checks -p 'test_contract_fixtures.py'
@@ -47,7 +47,7 @@ node --test .github/scripts/sync-planning.test.cjs
 node .github/scripts/sync-planning.cjs --dry-run
 ```
 
-CI installs the combined lock and checks every component together. Legacy component requirements files remain usable; requirements-agent-modules.txt points to the common setup. The source-share script is informational only.
+CI installs the combined lock and checks every component together. Legacy component requirements files remain usable; requirements-agent-modules.txt points to the common setup. The mock coordinator and SQLite store need only the Python standard library; optional vision and Fetch adapters retain their existing SDK dependencies.
 
 ## Live integration limits
 

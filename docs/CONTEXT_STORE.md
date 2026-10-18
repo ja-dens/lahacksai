@@ -1,6 +1,6 @@
 # Persistent context and coordinator storage
 
-`src.context_store.SQLiteStore(path)` exposes T5's store ports over Jac SQLite logic. Core source was retained from the local T4 prototype; scheduling, claims, results, acknowledgment state and lookup/feedback operations are now integrated.
+`src.context_store.SQLiteStore(path)` exposes T5's store ports over standard-library Python SQLite logic. Core source was retained from the local T4 prototype; scheduling, claims, results, acknowledgment state and lookup/feedback operations are now integrated.
 
 The store preserves longer per-platform/conversation history. Each sticker/recipient gets an immutable v2 snapshot with up to 25 preceding messages, configurable from 20–25, no age cutoff and explicit text budgets. Later messages, preferences and feedback do not alter it. Feedback stays evaluation-only. Existing prototype snapshots/results migrate without another inference call.
 

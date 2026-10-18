@@ -1,6 +1,6 @@
 # T3 multimodal interpreter
 
-The standalone T3 implementation is preserved in PR #15 and assembled with T2/T4/T5 in PR #14. Its raw-candidate and composed-result interfaces remain unchanged. Compilation/fixture tests do not establish live model accuracy. Main remains unmerged.
+The standalone T3 implementation is preserved in PR #15 and assembled with T2/T4/T5 in PR #14. PR #14 ports the core to Python while preserving its raw-candidate and composed-result interfaces; PR #15 retains the original component checkpoint. Compilation/fixture tests do not establish live model accuracy. Main remains unmerged.
 
 ## Setup and verification
 
@@ -10,7 +10,7 @@ Use Python 3.13 (tested with 3.13.15). Dependencies are isolated in requirements
 python3.13 -m venv .venv
 .venv/bin/python -m pip install -r requirements-t3.lock
 .venv/bin/python -m unittest discover -s tests -p 'test_interpreter.py'
-.venv/bin/jac check src --nowarn
+.venv/bin/python -m compileall -q src
 .venv/bin/python scripts/check_contract_fixtures.py
 ```
 
@@ -26,7 +26,7 @@ The 34 tests use synthetic fixtures, injected clients and the actual OpenAI SDK 
 .venv/bin/python -m src.adapters.vision --case unsupported
 ```
 
-The default mode is fixture. It validates the image/record and returns a fixed candidate example through the real Jac policy. It does not interpret the image. JSON explicitly reports interpretation_is_fixed_fixture=true and network_delivery_performed=false. A compatible pair retains the second meaning; an opposing pair retains the first meaning and caveat; an unrankable opposing pair abstains with unsupported status and no meaning/alternative.
+The default mode is fixture. It validates the image/record and returns a fixed candidate example through the real Python policy. It does not interpret the image. JSON explicitly reports interpretation_is_fixed_fixture=true and network_delivery_performed=false. A compatible pair retains the second meaning; an opposing pair retains the first meaning and caveat; an unrankable opposing pair abstains with unsupported status and no meaning/alternative.
 
 ## Opt-in live smoke test
 
@@ -44,7 +44,7 @@ This branch's live model access, semantic accuracy, multilingual quality, latenc
 
 ## Integration boundary
 
-The Jac public operation accepts a frozen InterpretationRequest and a callable provider:
+The Python public operation accepts a frozen InterpretationRequest and a callable provider:
 
 ```python
 from src.interpreter import interpret_sticker
@@ -63,7 +63,7 @@ The caller persists its immutable request before invocation and records a failed
 
 ## Evidence and policy
 
-src/interpreter.jac owns request validation, an explicit model-evidence projection, the structured-output schema, strict candidate validation, the output policy and composition. src/adapters/vision.py owns SDK serialization, local PNG decoding, operational response handling and the CLI. prompts/sticker.txt separates image/chat evidence, limited relationship context and presentation settings. Source metadata records provider/model and the prompt hash.
+src/interpreter.py owns request validation, an explicit model-evidence projection, the structured-output schema, strict candidate validation, the output policy and composition. src/adapters/vision.py owns SDK serialization, local PNG decoding, operational response handling and the CLI. prompts/sticker.txt separates image/chat evidence, limited relationship context and presentation settings. Source metadata records provider/model and the prompt hash.
 
 - Preserve the supplied 20–25 count bound, at most 4,000 characters per message/target and up to 24,000 recent-text characters. Reject oversized or inconsistent input rather than silently selecting a different window. Context remains chronological, preceding the target, with no age cutoff. Arrival identity/authorization and selection remain T4 responsibilities.
 - The model receives the actual target PNG, target text, allowed recent-message fields, declared preferences/relationship and provenance. Unknown root/nested keys are projected out. Private destination, recipient routing ID, conversation/platform bookkeeping, stored feedback, historical summaries, archives and interpreter bookkeeping are not forwarded. Speaker IDs remain necessary evidence; these checks do not establish provider data retention or end-to-end privacy.
@@ -84,8 +84,8 @@ src/interpreter.jac owns request validation, an explicit model-evidence projecti
 | Unreadable/oversized/animated/dimension-limited media | MediaTests; invalid media causes zero SDK requests |
 | Model setup, replaceable client, opt-in live command | Configuration/CLI tests and the commands above |
 | Frozen request retained for caller error recording | No mutation on success or failure; T4 owns persistence |
-| Independent completion | All 34 tests and Jac checks run without the other modules or credentials |
+| Independent completion | All 34 tests and Python compilation run without the other modules or credentials |
 
-Source share at this checkpoint: 204 Jac / 381 total nonblank, noncomment application source lines under src/ = 53.5%. Excludes tests, scripts, prompts, fixtures, docs, dependencies and installed packages. Jac owns substantive validation and interpretation policy; this is a source estimate, not sponsor acceptance.
+The integrated implementation uses Python throughout. The former source-share checkpoint is retained as historical evidence in T3_VERIFICATION.json; there is no language quota or Jac runtime dependency. See [PYTHON_MIGRATION.md](PYTHON_MIGRATION.md).
 
 Implementation follows the official OpenAI documentation for [image input](https://developers.openai.com/api/docs/guides/images-vision) and [structured outputs/refusals](https://developers.openai.com/api/docs/guides/structured-outputs?api-mode=responses), verified October 17, 2026. The tested SDK is openai 3.34.0. Detailed incident history is in [T3_ERROR_LOG.md](T3_ERROR_LOG.md).

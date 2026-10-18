@@ -20,7 +20,7 @@
 | Shared surface | Accountable task | Other owners' action |
 | --- | --- | --- |
 | docs/PRODUCT_SPEC.md, docs/CONTRACTS.md, shared JSON fixtures and checker | T0 contract steward | Propose a focused PR; preserve existing v2 fields until a versioned change is agreed. |
-| config/defaults.v2.json, .env.example, src/contracts.jac and dependency manifests when introduced | T0 coordinates shared changes | T2/T3/T4/T5/T8 supply required settings/dependencies; avoid competing edits to the same file. |
+| config/defaults.v2.json, .env.example, src/contracts.py and dependency manifests when introduced | T0 coordinates shared changes | T2/T3/T4/T5/T8 supply required settings/dependencies; avoid competing edits to the same file. |
 | Photon vendor normalization/evidence | T1 evidence, T2 implementation | Provide sanitized observed fields and limitations; do not rename app fields to match unverified SDK examples. |
 | Profile/history/context/outbox implementation | T4 | Consume shared defaults; own persistence and trusted enrollment. |
 | Vision/prompt/policy implementation | T3 | Consume frozen requests and return the existing result shape. |

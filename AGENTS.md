@@ -20,6 +20,6 @@ Run available relevant checks before committing. Check imports, logic, and unuse
 
 Before every commit, summarize changed files, and checks. Use focused messages in the form type: description.
 
-Before a PR, review functionality and regressions. Include Summary, Features, Testing, and Known Issues. Distinguish planning/tooling verification from application verification. For planning-only changes, report that no application source exists; do not invent a Jac percentage.
+Before a PR, review functionality and regressions. Include Summary, Features, Testing, and Known Issues. Distinguish planning/tooling verification from application verification. For planning-only changes, distinguish the tooling verified from the application backend.
 
 Respect the current request's scope when making external changes. Use a feature branch for review and retain actual issue/PR links in the planning report.

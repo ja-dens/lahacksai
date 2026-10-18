@@ -8,4 +8,4 @@ The T1 branch proposed a shared iMessage direct-thread demonstration. The integr
 
 The offline demo exercises the real modules over synthetic provider I/O. The source verifier/decoder/classifier used there must not be deployed as Photon authentication. [T1-verification.md](T1-verification.md) preserves earlier evidence and links the newer native-sticker blocker. Live model quality and phone receipt remain unverified. No paid line, channel change or live send was performed by this integration.
 
-No language quota or preference is required. The existing Jac/Python implementation and pinned runtimes are retained for functional compatibility.
+Python implements the backend, including validation, routing, SQLite transactions, SDK adapters and coordination. These modules use no graph/walker features; the language migration preserves the v2 boundaries and database schema while removing Jac and LLVM runtime dependencies. See [PYTHON_MIGRATION.md](PYTHON_MIGRATION.md).

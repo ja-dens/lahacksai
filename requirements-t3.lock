@@ -4,9 +4,7 @@ h11==0.16.0
 httpcore2==2.13.1
 httpx2==2.13.1
 idna==3.20
-jaclang==0.16.7
 jiter==0.17.0
-llvmlite==0.50.0
 openai==3.34.0
 pillow==13.0.0
 pydantic==2.14.1

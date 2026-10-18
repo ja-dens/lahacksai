@@ -17,5 +17,6 @@
   "live_model_inference_verified": false,
   "live_photon_delivery_verified": false,
   "remote_changes_performed": false,
-  "main_modified_by_task": false
+  "main_modified_by_task": false,
+  "record_scope": "Historical standalone T3 checkpoint before the Python migration; current integrated verification is in PYTHON_MIGRATION.md."
 }

@@ -18,7 +18,7 @@ from unittest.mock import patch
 from urllib.error import HTTPError, URLError
 
 ROOT = Path(__file__).resolve().parents[1]
-# Load only T2's file: the Jac app's src/__init__.py may require its own runtime.
+# Load only T2's file to keep its transport tests independent of other components.
 SPEC = importlib.util.spec_from_file_location("_standalone_t2_photon", ROOT / "src/adapters/photon.py")
 PHOTON = importlib.util.module_from_spec(SPEC)
 sys.modules[SPEC.name] = PHOTON

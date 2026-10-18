@@ -26,7 +26,7 @@ python3 -S scripts/check_contract_fixtures.py
 python3 -S -m unittest discover -s checks -p 'test_contract_fixtures.py'
 ```
 
-`-S` disables installed site packages. T2 needs only Python's standard library; its tests forbid socket creation and use synthetic events, a fake coordinator, a fake enrollment resolver and fake provider/HTTP clients. The suite loads the adapter file directly so a later Jac application package initializer does not become a hidden test dependency; a subprocess regression forbids other application imports and network. No environment file is loaded, no key is read and no message is sent. The dedicated PR workflow runs these checks without write permissions.
+`-S` disables installed site packages. T2 needs only Python's standard library; its tests forbid socket creation and use synthetic events, a fake coordinator, a fake enrollment resolver and fake provider/HTTP clients. The suite loads the adapter file directly so unrelated application dependencies cannot become hidden test requirements; a subprocess regression forbids other application imports and network. No environment file is loaded, no key is read and no message is sent. The dedicated PR workflow runs these checks without write permissions.
 
 ## API and dependency injection
 
@@ -115,6 +115,6 @@ There is no automatic send retry or delivered-state mutation here. T4/T5 keep th
 
 T1's existing [access report](https://github.com/ja-dens/lahacksai/issues/2#issuecomment-6242039867) has not established native sticker media or private sending. No real key, account, phone or paid plan was used for T2. Live channel checks remain separate acceptance evidence in T1/T5.
 
-## Source ownership and Jac accounting
+## Source ownership
 
-This is the Python vendor-transport boundary assigned to T2. Core component interfaces remain stable. The user removed the Jac percentage/preference policy; source-composition reports are informational and do not block a build.
+This is the Python vendor-transport boundary assigned to T2. Core component interfaces remain stable. The integrated backend is Python throughout; no language quota or compiler importer is required.

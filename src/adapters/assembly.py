@@ -1,4 +1,4 @@
-"""SDK/object glue; interpretation, routing and receipt policy remain in Jac."""
+"""SDK/object glue for interpretation, routing and receipt policy."""
 from dataclasses import asdict
 
 from ..assembly import check_route, interpret_saved, receipt_policy

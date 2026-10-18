@@ -1,4 +1,4 @@
-"""Real SQLite/Jac scheduling with fake model and transport; no network access."""
+"""Real SQLite scheduling with fake model and transport; no network access."""
 from datetime import datetime, timedelta, timezone
 import json
 from pathlib import Path
